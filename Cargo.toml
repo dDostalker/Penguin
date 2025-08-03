@@ -1,0 +1,12 @@
+[package]
+name = "Penguin"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { features =["full"] ,version = "1.45.1" }
+anyhow = "1.0.98"
+rfd = "0.15.3"
+eframe = "0.32.0"
+windows = {version = "0.61",features = ["Win32_System","Win32_System_LibraryLoader"]}
+libc = "0.2.174"
