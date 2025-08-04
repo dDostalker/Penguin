@@ -2,6 +2,11 @@ use eframe::egui::{Label, Ui, Vec2};
 
 use crate::{GLOBAL_RT, gui::FileManager, tools_api::read_file::ExportTable};
 
+const MIN_SCROLLED_HEIGHT: f32 = 400.0;
+const DESIGN_SIZE_FUNC_NAME: Vec2 = Vec2::new(400.0 * 0.5, 0.0);
+const DESIGN_SIZE_FUNC_ADDR: Vec2 = Vec2::new(400.0 * 0.25, 0.0);
+const DESIGN_SIZE_FUNC_OPERATE: Vec2 = Vec2::new(400.0 * 0.25, 0.0);
+
 impl FileManager {
     pub(crate) fn export_panel(&mut self, ui: &mut Ui) {
         // 预先获取数据，避免在渲染循环中重复调用
@@ -22,7 +27,7 @@ impl FileManager {
         // 使用整个可用空间
         eframe::egui::CentralPanel::default().show(ui.ctx(), |ui| {
             eframe::egui::ScrollArea::vertical()
-                .min_scrolled_height(400.0)
+                .min_scrolled_height(MIN_SCROLLED_HEIGHT)
                 .auto_shrink([false, false])
                 .show(ui, |ui| {
                     // 使用表格样式，填满整个宽度
@@ -32,20 +37,20 @@ impl FileManager {
                         .num_columns(3)
                         .show(ui, |ui| {
                             // 表头 - 使用强化的样式
-                            ui.allocate_ui(Vec2::new(400.0 * 0.5, 0.0), |ui| {
+                            ui.allocate_ui(DESIGN_SIZE_FUNC_NAME, |ui| {
                                 ui.strong("函数名");
                             });
-                            ui.allocate_ui(Vec2::new(400.0 * 0.25, 0.0), |ui| {
+                            ui.allocate_ui(DESIGN_SIZE_FUNC_ADDR, |ui| {
                                 ui.strong("函数地址");
                             });
-                            ui.allocate_ui(Vec2::new(400.0 * 0.25, 0.0), |ui| {
+                            ui.allocate_ui(DESIGN_SIZE_FUNC_OPERATE, |ui| {
                                 ui.strong("操作");
                             });
                             ui.end_row();
 
                             for (index, (func_name, func_addr)) in export_items.iter().enumerate() {
                                 // 函数名列 - 占用50%宽度
-                                ui.allocate_ui(Vec2::new(400.0 * 0.5, 0.0), |ui| {
+                                ui.allocate_ui(DESIGN_SIZE_FUNC_NAME, |ui| {
                                     let display_name = if func_name.len() > 70 {
                                         format!("{}...", &func_name[..67])
                                     } else {
@@ -55,13 +60,13 @@ impl FileManager {
                                 });
 
                                 // 地址列 - 占用25%宽度
-                                ui.allocate_ui(Vec2::new(400.0 * 0.25, 0.0), |ui| {
+                                ui.allocate_ui(DESIGN_SIZE_FUNC_ADDR, |ui| {
                                     let addr_display = format!("0x{:X}", func_addr);
                                     ui.label(addr_display);
                                 });
 
                                 // 操作列 - 占用25%宽度
-                                ui.allocate_ui(Vec2::new(400.0 * 0.25, 0.0), |ui| {
+                                ui.allocate_ui(DESIGN_SIZE_FUNC_OPERATE, |ui| {
                                     ui.horizontal(|ui| {
                                         if ui.button("详情").clicked() {
                                             self.sub_window_manager.selected_export_index =
@@ -118,9 +123,7 @@ impl FileManager {
         }
     }
 
-    /// 回去修改为可以改变的
     fn get_export(&mut self) -> anyhow::Result<&mut ExportTable> {
-        // 只在第一次加载时执行异步操作，后续使用缓存
         if self
             .files
             .get(self.current_index)
@@ -129,9 +132,9 @@ impl FileManager {
             .0
             .is_empty()
         {
-            // 使用现有的runtime而不是每次都创建新的
-            self.files.get_mut(self.current_index).unwrap().export =
-                GLOBAL_RT.block_on(self.files.get(self.current_index).unwrap().get_export())?;
+            if let Some(file) = self.files.get_mut(self.current_index) {
+                file.export = GLOBAL_RT.block_on(file.get_export())?;
+            }
         }
         Ok(self
             .files

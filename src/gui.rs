@@ -148,14 +148,13 @@ impl SubWindowManager {
 
                         // 主题设置
 
-                            if ui.button("演示通知").clicked() {
-                                self.demo_toasts();
-                            }
+                        if ui.button("演示通知").clicked() {
+                            self.demo_toasts();
+                        }
 
-                            if ui.button("取消").clicked() {
-                                self.show_settings_window = false;
-                            }
-                        
+                        if ui.button("取消").clicked() {
+                            self.show_settings_window = false;
+                        }
                     });
                 });
         }
@@ -259,10 +258,10 @@ impl SubWindowManager {
 
             // 设置图标
             let icon = match toast.toast_type {
-                ToastType::Success => "✓",
-                ToastType::Error => "✗",
-                ToastType::Warning => "⚠",
-                ToastType::Info => "ℹ",
+                ToastType::Success => "✅",
+                ToastType::Error => "❌",
+                ToastType::Warning => "⚠️",
+                ToastType::Info => "ℹ️",
             };
 
             eframe::egui::Area::new(eframe::egui::Id::new(format!("toast_{}", index)))
@@ -271,10 +270,10 @@ impl SubWindowManager {
                     y_offset,
                 ))
                 .show(ctx, |ui| {
-                    eframe::egui::Frame::none()
+                    eframe::egui::Frame::default()
                         .fill(color.linear_multiply(alpha))
                         .stroke(eframe::egui::Stroke::new(1.0, color.linear_multiply(alpha)))
-                        .rounding(8.0)
+                        .corner_radius(8.0)
                         .show(ui, |ui| {
                             ui.horizontal(|ui| {
                                 ui.label(
@@ -406,60 +405,8 @@ impl eframe::App for FileManager {
         self.sub_window_manager.render_toasts(ctx); // 渲染 toast
     }
 }
-/// 报错提示
-pub fn show_error_message(ctx: &Context, message: &str) {
-    eframe::egui::Window::new("Error")
-        .collapsible(false)
-        .resizable(false)
-        .show(ctx, |ui| {
-            ui.label(message);
-        });
-}
 
-/// 简单消息提示（改进版）
-pub fn show_message(ctx: &Context, title: &str, message: &str, message_type: &str) {
-    let color = match message_type {
-        "success" => eframe::egui::Color32::from_rgb(76, 175, 80),
-        "error" => eframe::egui::Color32::from_rgb(244, 67, 54),
-        "warning" => eframe::egui::Color32::from_rgb(255, 152, 0),
-        "info" => eframe::egui::Color32::from_rgb(33, 150, 243),
-        _ => eframe::egui::Color32::WHITE,
-    };
 
-    eframe::egui::Window::new(title)
-        .collapsible(false)
-        .resizable(false)
-        .default_size([300.0, 100.0])
-        .show(ctx, |ui| {
-            ui.vertical(|ui| {
-                ui.label(eframe::egui::RichText::new(message).color(color).size(14.0));
-                ui.add_space(10.0);
-                if ui.button("确定").clicked() {
-                    // 窗口会自动关闭
-                }
-            });
-        });
-}
-
-/// 成功消息提示
-pub fn show_success_message(ctx: &Context, message: &str) {
-    show_message(ctx, "成功", message, "success");
-}
-
-/// 错误消息提示
-pub fn show_error_message_improved(ctx: &Context, message: &str) {
-    show_message(ctx, "错误", message, "error");
-}
-
-/// 警告消息提示
-pub fn show_warning_message(ctx: &Context, message: &str) {
-    show_message(ctx, "警告", message, "warning");
-}
-
-/// 信息消息提示
-pub fn show_info_message(ctx: &Context, message: &str) {
-    show_message(ctx, "信息", message, "info");
-}
 
 /// 中文设置
 ///全局加载支持中文的字体

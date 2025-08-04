@@ -1,24 +1,32 @@
 pub(crate) mod read_file;
 pub(crate) mod write_file;
-pub mod dll_debug;
+pub(crate) mod file_system;
+pub(crate) mod calc;
 
 pub mod structure {
     use crate::tools_api::read_file::nt_header::traits::NtHeaders;
     use crate::tools_api::read_file::{
-        DataDirectory, ExportDir, ExportTable, ImageDosHeader, ImageDosStub,
-        ImageNtHeaders, ImageNtHeaders64, ImageSectionHeaders, ImportDescriptor, ImportDll, is_64,
-        nt_header,
+        DataDirectory, ExportDir, ExportTable, ImageDosHeader, ImageDosStub, ImageNtHeaders,
+        ImageNtHeaders64, ImageSectionHeaders, ImportDescriptor, ImportDll, is_64, nt_header,
     };
     use anyhow::anyhow;
+    use crate::tools_api::calc::{calc_md5, calc_sha1};
     use std::cell::{RefCell, RefMut};
     use std::path::PathBuf;
     use tokio::fs::File;
 
+
+    #[derive(Debug, PartialEq)]
+    pub struct HashInfo {
+        pub md5: String,
+        pub sha1: String,
+    }
+
     pub struct FileInfo {
         pub file: RefCell<File>,
         pub file_name: String,
-        pub file_path: String,
-        pub file_hash: String,
+        pub file_path: PathBuf,
+        pub file_hash: Option<HashInfo>,
         pub dos_head: Box<ImageDosHeader>,
         pub dos_stub: Box<ImageDosStub>,
         is_64_bit: bool,
@@ -45,7 +53,7 @@ pub mod structure {
         pub async fn new(file: PathBuf) -> anyhow::Result<Box<Self>> {
             let mut f = File::options().read(true).write(true).open(&file).await?;
             let file_name = file.file_name().unwrap().to_str().unwrap().to_string();
-            let file_path = file.to_str().unwrap().to_string();
+            let file_path = file;
             let file_dos_head = Box::new(ImageDosHeader::new(&mut f).await?);
             let file_is_64 = is_64(&mut f, &file_dos_head).await?;
             let (file_nt_head, file_data_directory): (Box<dyn NtHeaders>, Box<DataDirectory>) =
@@ -75,12 +83,13 @@ pub mod structure {
 
             //file size
             let file_size = f.metadata().await?.len();
-            
+            // file hash
+
             Ok(Box::new(FileInfo {
                 file: RefCell::new(f),
                 file_name,
                 file_path,
-                file_hash: "".to_string(),
+                file_hash: None,
                 dos_head: file_dos_head,
                 dos_stub: file_dos_stub,
                 is_64_bit: file_is_64,
@@ -93,6 +102,7 @@ pub mod structure {
                 export: Box::new(ExportTable::default()),
             }))
         }
+
         pub async fn get_export(&self) -> anyhow::Result<Box<ExportTable>> {
             let mut f = self.get_mut_file();
             if let Some(export_dir) = ExportDir::new(
@@ -144,59 +154,3 @@ pub mod structure {
     }
 }
 
-/// 文件系统操作模块
-pub mod file_system {
-    use std::process::Command;
-    use std::path::Path;
-    
-    /// 打开指定路径的资源管理器
-    pub fn open_explorer(path: &str) -> anyhow::Result<()> {
-        #[cfg(target_os = "windows")]
-        {
-            Command::new("explorer")
-                .arg(path)
-                .spawn()?;
-        }
-        
-        #[cfg(target_os = "macos")]
-        {
-            Command::new("open")
-                .arg(path)
-                .spawn()?;
-        }
-        
-        #[cfg(target_os = "linux")]
-        {
-            let file_managers = ["xdg-open", "nautilus", "dolphin", "thunar"];
-            
-            for manager in &file_managers {
-                if Command::new("which").arg(manager).output().is_ok() {
-                    Command::new(manager).arg(path).spawn()?;
-                    return Ok(());
-                }
-            }
-            
-            return Err(anyhow::anyhow!("未找到可用的文件管理器"));
-        }
-        
-        Ok(())
-    }
-    
-    /// 打开文件所在的文件夹
-    pub fn open_file_location(file_path: &str) -> anyhow::Result<()> {
-        let path_obj = Path::new(file_path);
-        
-        if let Some(parent) = path_obj.parent() && let Some(parent_str) = parent.to_str(){
-                return open_explorer(parent_str);
-        }
-        
-        Err(anyhow::anyhow!("无法获取文件所在目录"))
-    }
-    
-    /// 打开当前工作目录
-    pub fn open_current_directory() -> anyhow::Result<()> {
-        let current_dir = std::env::current_dir()?;
-        let path_str = current_dir.to_string_lossy();
-        open_explorer(&path_str)
-    }
-}

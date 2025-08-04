@@ -8,5 +8,7 @@ tokio = { features =["full"] ,version = "1.45.1" }
 anyhow = "1.0.98"
 rfd = "0.15.3"
 eframe = "0.32.0"
-windows = {version = "0.61",features = ["Win32_System","Win32_System_LibraryLoader"]}
 libc = "0.2.174"
+sha-1 = "0.10.0"
+md-5 = "0.10.0"
+file-hashing = "0.1.2"

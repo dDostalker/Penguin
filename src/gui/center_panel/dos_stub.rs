@@ -1,5 +1,7 @@
 use crate::gui::FileManager;
 
+const MIN_SCROLLED_HEIGHT: f32 = 400.0;
+const CHUNK_SIZE: usize = 16;
 impl FileManager {
     /// dos_stub 窗口
     pub(crate) fn dos_stub_panel(&self, ui: &mut eframe::egui::Ui) {
@@ -14,7 +16,7 @@ impl FileManager {
             }
 
             eframe::egui::ScrollArea::vertical()
-                .min_scrolled_height(400.0)
+                .min_scrolled_height(MIN_SCROLLED_HEIGHT)
                 .show(ui, |ui| {
                     // 使用表格样式显示十六进制数据
                     eframe::egui::Grid::new("dos_stub_grid")
@@ -28,8 +30,8 @@ impl FileManager {
                             ui.end_row();
 
                             // 行循环
-                            for (row, chunk) in stub.chunks(16).enumerate() {
-                                let offset = row * 16;
+                            for (row, chunk) in stub.chunks(CHUNK_SIZE).enumerate() {
+                                let offset = row * CHUNK_SIZE;
                                 let hex: String =
                                     chunk.iter().map(|b| format!("{:02X} ", b)).collect();
                                 // 转义

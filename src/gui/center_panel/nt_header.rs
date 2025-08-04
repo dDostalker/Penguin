@@ -21,8 +21,9 @@ const DATA_DIRECTORY_NAME: [&str; 16] = [
 ];
 
 impl FileManager {
-    pub(crate) fn nt_header_panel(&self, ui: &mut Ui) {
-        eframe::egui::CentralPanel::default().show(ui.ctx(), |ui| {
+    pub(crate) fn nt_header_panel(&mut self, ui: &mut Ui) {
+        let ctx = ui.ctx();
+        eframe::egui::CentralPanel::default().show(ctx, |ui| {
             Self::show_main_title(ui, "NT Headers");
             eframe::egui::ScrollArea::vertical()
                 .min_scrolled_height(400.0)
@@ -89,7 +90,9 @@ impl FileManager {
                             ui.end_row();
 
                             ui.label("Characteristics");
-                            ui.label(&self.get_characteristics());
+                            if ui.button(&self.get_characteristics()).clicked() {
+                                self.sub_window_manager.show_info(&self.get_characteristics_hover());
+                            }
                             ui.label("文件属性");
                             ui.end_row();
                         });
@@ -358,6 +361,16 @@ impl FileManager {
                 .unwrap()
                 .nt_head
                 .get_characteristics()
+        )
+    }
+    pub(crate) fn get_characteristics_hover(&self) -> String {
+        format!(
+            "{}",
+            self.files
+                .get(self.current_index)
+                .unwrap()
+                .nt_head
+                .get_characteristics_hover()
         )
     }
     pub(crate) fn get_magic(&self) -> String {

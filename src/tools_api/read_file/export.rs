@@ -143,10 +143,10 @@ impl ExportTable {
         }
         Ok(ExportTable(export_infos))
     }
-    pub(crate) fn get_index(&self, index: usize) -> Option<&ExportInfo> {
+    pub(crate) fn _get_index(&self, index: usize) -> Option<&ExportInfo> {
         self.0.get(index)
     }
-    pub(crate) fn get_index_mut(&mut self, index: usize) -> Option<&mut ExportInfo> {
+    pub(crate) fn _get_index_mut(&mut self, index: usize) -> Option<&mut ExportInfo> {
         self.0.get_mut(index)
     }
 }

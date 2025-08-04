@@ -63,7 +63,7 @@ impl ImportFunction {
             .unwrap_or(0) as u32;
         let name = String::from_utf8_lossy(&buf[0..name_length]).to_string();
         Ok(Some(ImportFunction {
-            name_address: addr+2,
+            name_address: addr + 2,
             name_length: name.len() as u32,
             name_max_length,
             name,
@@ -142,13 +142,9 @@ impl ImportDll {
         }
         let mut name = [0u8; 256];
         file.seek(SeekFrom::Start(
-            rva_2_fo(
-                nt_head,
-                section_headers,
-                import_descriptor.name_address,
-            )
-            .await
-            .unwrap() as u64,
+            rva_2_fo(nt_head, section_headers, import_descriptor.name_address)
+                .await
+                .unwrap() as u64,
         ))
         .await?;
         file.read(&mut name).await? as u64;

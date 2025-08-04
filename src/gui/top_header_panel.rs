@@ -1,13 +1,10 @@
+use crate::gui::FileManager;
 use crate::tools_api::structure::FileInfo;
-use crate::{
-    GLOBAL_RT,
-    gui::{FileManager, show_error_message, show_info_message, show_success_message},
-};
+use crate::GLOBAL_RT;
 use rfd::FileDialog;
 use std::path::PathBuf;
 use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
-
 
 impl FileManager {
     pub(crate) fn top_label(&mut self, ctx: &eframe::egui::Context) {
@@ -24,7 +21,7 @@ impl FileManager {
                                             self.files.push(*file_info);
                                         }
                                     }
-                                    Err(e) => show_error_message(ctx, &e.to_string()),
+                                    Err(e) => self.sub_window_manager.show_error(&e.to_string()),
                                 }
                             }
                         }
@@ -34,21 +31,22 @@ impl FileManager {
                         let file_info = match self.files.get(self.current_index) {
                             Some(file) => file,
                             None => {
-                                show_error_message(ctx, "文件不存在");
+                                self.sub_window_manager.show_error("文件不存在");
                                 return;
                             }
                         };
                         // 文件 -> 保存 的逻辑
                         // 创建恢复文件
-                         let mut file_path = PathBuf::from(&file_info.file_path);
+                        let mut file_path = PathBuf::from(&file_info.file_path);
                         let mut times = 0;
-                        loop{
+                        loop {
                             file_path.set_extension(format!("bak{}", times));
-                                if file_path.exists() {
+                            if file_path.exists() {
                                 times += 1;
                                 continue;
                             }
-                            let mut file_bak = GLOBAL_RT.block_on(File::create(&file_path)).unwrap();
+                            let mut file_bak =
+                                GLOBAL_RT.block_on(File::create(&file_path)).unwrap();
                             // 复制原文件内容到备份文件
                             let mut orig_file = self.files[self.current_index].get_mut_file();
                             let mut buf = Vec::new();
@@ -66,20 +64,25 @@ impl FileManager {
                         let import_dll = match GLOBAL_RT.block_on(file_info.get_imports()) {
                             Ok(import_dll) => import_dll,
                             Err(_) => {
-                                show_error_message(ctx, "修改导入表失败");
+                                self.sub_window_manager.show_error("修改导入表失败");
                                 return;
                             }
                         };
                         if import_dll != file_info.import_dll {
-                            for (i,j) in import_dll.iter().zip(file_info.import_dll.iter()) {
+                            for (i, j) in import_dll.iter().zip(file_info.import_dll.iter()) {
                                 if i != j {
-                                    for (k,l) in i.function_info.iter().zip(j.function_info.iter()) {
+                                    for (k, l) in i.function_info.iter().zip(j.function_info.iter())
+                                    {
                                         if k != l {
                                             let mut f = file_info.get_mut_file();
-                                            match GLOBAL_RT.block_on(k.write_func_name(&mut f, &l.name)) {
-                                                Ok(_) => {show_success_message(ctx, "修改导入表成功");}
+                                            match GLOBAL_RT
+                                                .block_on(k.write_func_name(&mut f, &l.name))
+                                            {
+                                                Ok(_) => {
+                                                    self.sub_window_manager.show_success("修改导入表成功");
+                                                }
                                                 Err(e) => {
-                                                    show_error_message(ctx, &e.to_string());
+                                                    self.sub_window_manager.show_error(&e.to_string());
                                                     return;
                                                 }
                                             }
@@ -95,7 +98,7 @@ impl FileManager {
                         {
                             Ok(export_table) => Box::from(export_table),
                             Err(e) => {
-                                show_error_message(ctx, "修改导出表失败");
+                                self.sub_window_manager.show_error("修改导出表失败");
                                 return;
                             }
                         };
@@ -104,20 +107,20 @@ impl FileManager {
                                 if i != j {
                                     let mut f = file_info.get_mut_file();
                                     match GLOBAL_RT.block_on(i.write_func_name(&mut f, &j.name)) {
-                                        Ok(_) => {show_success_message(ctx, "修改导出表成功");}
+                                        Ok(_) => {
+                                            self.sub_window_manager.show_success("修改导出表成功");
+                                        }
                                         Err(e) => {
-                                            show_error_message(ctx, &e.to_string());
+                                            self.sub_window_manager.show_error(&e.to_string());
                                             return;
                                         }
                                     }
                                     match GLOBAL_RT
                                         .block_on(i.write_func_address(&mut f, j.function))
                                     {
-                                        Ok(_) => {
-                                            
-                                        }
+                                        Ok(_) => {}
                                         Err(e) => {
-                                            show_error_message(ctx, &e.to_string());
+                                            self.sub_window_manager.show_error(&e.to_string());
                                             return;
                                         }
                                     }
@@ -133,7 +136,7 @@ impl FileManager {
 
                 ui.menu_button("edit", |ui| {
                     if ui.button("撤销").clicked() {
-                        show_info_message(ctx, "撤销功能暂未实现");
+                        self.sub_window_manager.show_info("撤销功能暂未实现");
                     }
                 });
 

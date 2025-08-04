@@ -11,9 +11,27 @@ use tokio::io::{AsyncReadExt, AsyncSeekExt};
 const DIRECTORY_EXPORT: usize = 0;
 const DIRECTORY_IMPORT: usize = 1;
 const DIRECTORY_RESOURCE: usize = 2;
+
 pub(crate) const MACHINE_32: [u16; 1] = [0x014C];
 pub(crate) const MACHINE_64: [u16; 1] = [0x8664];
 
+pub(crate) enum Characteristics {
+    ImageFileRelocsStripped = 0x0001,    // 重定位信息被剥离
+    ImageFileExecutableImage = 0x0002,   // 文件是可执行的（即没有未解决的外部引用）
+    ImageFileLineNumsStripped = 0x0004, // 行号被剥离
+    ImageFileLocalSymsStripped = 0x0008, // 本地符号被剥离
+    ImageFileAggresiveWsTrim = 0x0010,   // 积极地修剪工作集
+    ImageFileLargeAddressAware = 0x0020, // 应用程序可以处理>2gb地址
+    ImageFileBytesReversedLo = 0x0080,   // 机器字节是反向的
+    ImageFile32bitMachine = 0x0100,       // 32位机器字
+    ImageFileDebugStripped = 0x0200,      // 调试信息被剥离
+    ImageFileRemovableRunFromSwap = 0x0400, // 如果映像在可移动媒体上，则从交换文件中复制并运行
+    ImageFileNetRunFromSwap = 0x0800,    // 如果映像在网络上，则从交换文件中复制并运行
+    ImageFileSystem = 0x1000,              // 系统文件
+    ImageFileDll = 0x2000,                 // 文件是DLL
+    ImageFileUpSystemOnly = 0x4000,      // 文件应该只在UP机器上运行
+    ImageFileBytesReversedHi = 0x8000,   // 机器字节是反向的
+}
 /// 为 64 位 和 32 位nt头特征
 pub mod traits {
     pub trait NtHeaders {
@@ -31,6 +49,7 @@ pub mod traits {
         fn get_number_of_symbols(&self) -> String;
         fn get_size_of_optional_header(&self) -> String;
         fn get_characteristics(&self) -> String;
+        fn get_characteristics_hover(&self) -> String;
         fn get_magic(&self) -> String;
         fn get_major_linker_version(&self) -> String;
         fn get_long_minor_linker_version(&self) -> String;
@@ -189,6 +208,57 @@ impl NtHeaders for ImageNtHeaders {
 
     fn get_characteristics(&self) -> String {
         format!("{}", self.file_header.characteristics)
+    }
+
+    fn get_characteristics_hover(&self) -> String {
+        let mut characteristics_info = String::new();
+        let characteristics = self.file_header.characteristics;
+        if characteristics & Characteristics::ImageFileRelocsStripped as u16 != 0 {
+            characteristics_info.push_str("重定位信息被剥离\n");
+        }
+        if characteristics & Characteristics::ImageFileExecutableImage as u16 != 0 {
+            characteristics_info.push_str("文件是可执行的（即没有未解决的外部引用）\n");
+        }
+        if characteristics & Characteristics::ImageFileLineNumsStripped as u16 != 0 {
+            characteristics_info.push_str("行号被剥离\n");
+        }
+        if characteristics & Characteristics::ImageFileLocalSymsStripped as u16 != 0 {
+            characteristics_info.push_str("本地符号被剥离\n");
+        }
+        if characteristics & Characteristics::ImageFileAggresiveWsTrim as u16 != 0 {
+            characteristics_info.push_str("积极地修剪工作集\n");
+        }
+        if characteristics & Characteristics::ImageFileLargeAddressAware as u16 != 0 {
+            characteristics_info.push_str("应用程序可以处理>2gb地址\n");
+        }
+        if characteristics & Characteristics::ImageFileBytesReversedLo as u16 != 0 {
+            characteristics_info.push_str("机器字节是反向的\n");
+        }
+        if characteristics & Characteristics::ImageFile32bitMachine as u16 != 0 {
+            characteristics_info.push_str("32位机器字\n");
+        }
+        if characteristics & Characteristics::ImageFileDebugStripped as u16 != 0 {
+            characteristics_info.push_str("调试信息被剥离\n");
+        }
+        if characteristics & Characteristics::ImageFileRemovableRunFromSwap as u16 != 0 {
+            characteristics_info.push_str("如果映像在可移动媒体上，则从交换文件中复制并运行\n");
+        }
+        if characteristics & Characteristics::ImageFileNetRunFromSwap as u16 != 0 {
+            characteristics_info.push_str("如果映像在网络上，则从交换文件中复制并运行\n");
+        }
+        if characteristics & Characteristics::ImageFileSystem as u16 != 0 {
+            characteristics_info.push_str("系统文件\n");
+        }
+        if characteristics & Characteristics::ImageFileDll as u16 != 0 {
+            characteristics_info.push_str("文件是DLL\n");
+        }
+        if characteristics & Characteristics::ImageFileUpSystemOnly as u16 != 0 {
+            characteristics_info.push_str("文件应该只在UP机器上运行\n");
+        }
+        if characteristics & Characteristics::ImageFileBytesReversedHi as u16 != 0 {
+            characteristics_info.push_str("机器字节是反向的\n");
+        }
+        characteristics_info
     }
 
     fn get_magic(&self) -> String {
@@ -379,6 +449,56 @@ impl NtHeaders for ImageNtHeaders64 {
     fn get_characteristics(&self) -> String {
         format!("{}", self.file_header.characteristics)
     }
+    fn get_characteristics_hover(&self) -> String {
+        let mut characteristics_info = String::new();
+        let characteristics = self.file_header.characteristics;
+        if characteristics & Characteristics::ImageFileRelocsStripped as u16 != 0 {
+            characteristics_info.push_str("重定位信息被剥离\n");
+        }
+        if characteristics & Characteristics::ImageFileExecutableImage as u16 != 0 {
+            characteristics_info.push_str("文件是可执行的（即没有未解决的外部引用）\n");
+        }
+        if characteristics & Characteristics::ImageFileLineNumsStripped as u16 != 0 {
+            characteristics_info.push_str("行号被剥离\n");
+        }
+        if characteristics & Characteristics::ImageFileLocalSymsStripped as u16 != 0 {
+            characteristics_info.push_str("本地符号被剥离\n");
+        }
+        if characteristics & Characteristics::ImageFileAggresiveWsTrim as u16 != 0 {
+            characteristics_info.push_str("积极地修剪工作集\n");
+        }
+        if characteristics & Characteristics::ImageFileLargeAddressAware as u16 != 0 {
+            characteristics_info.push_str("应用程序可以处理>2gb地址\n");
+        }
+        if characteristics & Characteristics::ImageFileBytesReversedLo as u16 != 0 {
+            characteristics_info.push_str("机器字节是反向的\n");
+        }
+        if characteristics & Characteristics::ImageFile32bitMachine as u16 != 0 {
+            characteristics_info.push_str("32位机器字\n");
+        }
+        if characteristics & Characteristics::ImageFileDebugStripped as u16 != 0 {
+            characteristics_info.push_str("调试信息被剥离\n");
+        }
+        if characteristics & Characteristics::ImageFileRemovableRunFromSwap as u16 != 0 {
+            characteristics_info.push_str("如果映像在可移动媒体上，则从交换文件中复制并运行\n");
+        }
+        if characteristics & Characteristics::ImageFileNetRunFromSwap as u16 != 0 {
+            characteristics_info.push_str("如果映像在网络上，则从交换文件中复制并运行\n");
+        }
+        if characteristics & Characteristics::ImageFileSystem as u16 != 0 {
+            characteristics_info.push_str("系统文件\n");
+        }
+        if characteristics & Characteristics::ImageFileDll as u16 != 0 {
+            characteristics_info.push_str("文件是DLL\n");
+        }
+        if characteristics & Characteristics::ImageFileUpSystemOnly as u16 != 0 {
+            characteristics_info.push_str("文件应该只在UP机器上运行\n");
+        }
+        if characteristics & Characteristics::ImageFileBytesReversedHi as u16 != 0 {
+            characteristics_info.push_str("机器字节是反向的\n");
+        }
+        characteristics_info
+    }
 
     fn get_magic(&self) -> String {
         format!("{}", self.optional_header.magic)
@@ -500,6 +620,7 @@ impl NtHeaders for ImageNtHeaders64 {
         self.optional_header.number_of_rva_and_sizes
     }
 }
+
 pub(crate) async fn read_nt_head<T>(
     file: &mut File,
     start_addr: u16,

@@ -1,6 +1,8 @@
 use crate::gui::FileManager;
 use eframe::egui::Ui;
 
+const MIN_SCROLLED_HEIGHT: f32 = 400.0;
+
 impl FileManager {
     /// dos_header 窗口
     pub(crate) fn dos_header_panel(&self, ui: &mut Ui) {
@@ -8,7 +10,7 @@ impl FileManager {
             Self::show_main_title(ui, "DOS Header");
 
             eframe::egui::ScrollArea::vertical()
-                .min_scrolled_height(400.0)
+                .min_scrolled_height(MIN_SCROLLED_HEIGHT)
                 .show(ui, |ui| {
                     // 使用表格样式
                     eframe::egui::Grid::new("dos_header_grid")

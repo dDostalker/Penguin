@@ -1,8 +1,11 @@
+use crate::tools_api::{
+    file_system::{self, get_dll_folder},
+};
 use crate::tools_api::read_file::ImportDll;
 use crate::{GLOBAL_RT, gui::FileManager};
-use eframe::egui::{ Label, ScrollArea, Ui};
-use crate::tools_api::file_system;
-
+use std::path::PathBuf;
+use eframe::egui::{ScrollArea, Ui};
+const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 impl FileManager {
     /// 截断文本到指定长度，超出部分用省略号表示
     fn truncate_text(text: &str, max_length: usize) -> String {
@@ -58,22 +61,26 @@ impl FileManager {
             });
         });
         // 下方功能栏
-        if let Some(selected_index) = selected_index &&  let Some(selected_function_index) = selected_function_index {
-        eframe::egui::TopBottomPanel::bottom("export_detail_window").show(ui.ctx(), |ui| {
-            ui.horizontal(|ui| {
-                ui.label("导出函数详情");
+        if let Some(selected_index) = selected_index
+            && let Some(selected_function_index) = selected_function_index
+        {
+            eframe::egui::TopBottomPanel::bottom("export_detail_window").show(ui.ctx(), |ui| {
                 ui.horizontal(|ui| {
-                    ui.label("函数名:");
-                    ui.text_edit_singleline(
-                        &mut self.files[self.current_index].import_dll[selected_index].function_info[selected_function_index].name,
-                    );
-                    if ui.button("X").clicked() {
-                        self.sub_window_manager.select_function_index = None;
-                    }
+                    ui.label("导出函数详情");
+                    ui.horizontal(|ui| {
+                        ui.label("函数名:");
+                        ui.text_edit_singleline(
+                            &mut self.files[self.current_index].import_dll[selected_index]
+                                .function_info[selected_function_index]
+                                .name,
+                        );
+                        if ui.button("X").clicked() {
+                            self.sub_window_manager.select_function_index = None;
+                        }
+                    });
                 });
             });
-        });
-    }
+        }
         Ok(())
     }
 
@@ -85,9 +92,8 @@ impl FileManager {
             .import_dll
             .is_empty()
         {
-            self.files.get_mut(self.current_index).unwrap().import_dll = 
+            self.files.get_mut(self.current_index).unwrap().import_dll =
                 GLOBAL_RT.block_on(self.files.get(self.current_index).unwrap().get_imports())?;
-            
         }
         Ok(&mut self.files.get_mut(self.current_index).unwrap().import_dll)
     }
@@ -95,7 +101,7 @@ impl FileManager {
     fn show_dll_table(&mut self, ui: &mut Ui, imports: &[ImportDll]) {
         ScrollArea::vertical()
             .id_salt("dll_table")
-            .min_scrolled_height(300.0)
+            .min_scrolled_height(MIN_SCROLLED_HEIGHT)
             .show(ui, |ui| {
                 eframe::egui::Grid::new("dll_table")
                     .striped(true)
@@ -126,7 +132,13 @@ impl FileManager {
                                 }
                                 // 添加打开资源管理器按钮
                                 if ui.button("打开位置").clicked() {
-                                    if let Err(e) = file_system::open_file_location(&dll.name) {
+                                    let dll_folder = get_dll_folder(
+                                        PathBuf::from(&self.files[self.current_index].file_path),
+                                        &dll.name,
+                                    ).unwrap();
+                                    if let Err(e) = file_system::open_file_location(
+                                        &dll_folder,
+                                    ){
                                         eprintln!("打开文件位置失败: {}", e);
                                     }
                                 }
@@ -140,7 +152,7 @@ impl FileManager {
     fn show_function_table(&mut self, ui: &mut Ui, dll: &ImportDll) {
         ScrollArea::vertical()
             .id_salt("function_table")
-            .min_scrolled_height(300.0)
+            .min_scrolled_height(MIN_SCROLLED_HEIGHT)
             .show(ui, |ui| {
                 eframe::egui::Grid::new("function_table")
                     .striped(true)

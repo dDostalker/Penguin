@@ -1,13 +1,14 @@
-use crate::gui::{FileManager, show_error_message};
+use crate::gui::{FileManager,};
 use eframe::egui::{Label, Ui};
 
+const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 impl FileManager {
-    pub(crate) fn section_header_panel(&self, ui: &mut Ui) {
+    pub(crate) fn section_header_panel(&mut self, ui: &mut Ui) {
         // 获取节数量
         let section_num = match self.get_section_num() {
             Ok(num) => num,
             Err(e) => {
-                show_error_message(ui.ctx(), &e.to_string());
+                self.sub_window_manager.show_error(&e.to_string());
                 return;
             }
         };
@@ -33,7 +34,7 @@ impl FileManager {
         eframe::egui::CentralPanel::default().show(ui.ctx(), |ui| {
             Self::show_main_title(ui, "Section Headers");
         eframe::egui::ScrollArea::vertical()
-            .min_scrolled_height(400.0)
+                .min_scrolled_height(MIN_SCROLLED_HEIGHT)
             .show(ui, |ui| {
                 // 使用表格样式
                 eframe::egui::Grid::new("section_table")
@@ -50,22 +51,12 @@ impl FileManager {
                         ui.end_row();
 
                         for (_index, (name, virtual_addr, size, file_offset, characteristics)) in section_items.iter().enumerate() {
-                            // 节名称显示
                             ui.label(name);
-
-                            // 虚拟地址显示
                             ui.label(virtual_addr);
-
-                            // 大小显示
                             ui.label(size);
-
-                            // 文件偏移显示
                             ui.label(file_offset);
-
-                            // 特征显示
                             ui.label(characteristics);
 
-                            // 操作按钮
                             ui.horizontal(|ui| {
                                 if ui.button("复制").clicked() {
                                     let info = format!("节名: {}\n虚拟地址: {}\n大小: {}\n文件偏移: {}\n特征: {}",

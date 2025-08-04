@@ -33,10 +33,8 @@ impl ExportInfo {
 }
 
 impl ImportFunction {
-
     pub async fn write_func_name(&self, file: &mut File, func_name: &str) -> anyhow::Result<()> {
-        file.seek(SeekFrom::Start(self.name_address as u64))
-            .await?;
+        file.seek(SeekFrom::Start(self.name_address as u64)).await?;
         if self.name_max_length < func_name.len() as u32 {
             return Err(anyhow::anyhow!("func_name too long"));
         }
@@ -66,12 +64,11 @@ mod tests {
             .open(&file_info.file_path)
             .await
             .unwrap();
-        dbg!(&file_info.get_export().await.unwrap().get_index(0));
-        let a = file_info
+        let file_info = file_info
             .get_export()
             .await
             .unwrap()
-            .get_index_mut(1)
+            ._get_index_mut(1)
             .unwrap()
             .write_func_name(&mut f, "ss")
             .await
