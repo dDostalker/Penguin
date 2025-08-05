@@ -1,7 +1,10 @@
 use crate::gui::FileManager;
+use eframe::egui::Vec2;
 
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 const CHUNK_SIZE: usize = 16;
+const SPACING: Vec2 = Vec2::new(20.0, 8.0);
+const COLUMNS: usize = 3;
 impl FileManager {
     /// dos_stub 窗口
     pub(crate) fn dos_stub_panel(&self, ui: &mut eframe::egui::Ui) {
@@ -21,7 +24,8 @@ impl FileManager {
                     // 使用表格样式显示十六进制数据
                     eframe::egui::Grid::new("dos_stub_grid")
                         .striped(true)
-                        .spacing([10.0, 2.0])
+                        .spacing(SPACING)
+                        .num_columns(COLUMNS)
                         .show(ui, |ui| {
                             // 表头
                             ui.strong("偏移");

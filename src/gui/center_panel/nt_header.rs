@@ -1,6 +1,10 @@
 use crate::gui::FileManager;
-use eframe::egui::Ui;
+use eframe::egui::{Ui, Vec2};
 
+const SPACING: Vec2 = Vec2::new(20.0, 8.0);
+const COLUMNS: usize = 3;
+const MIN_SCROLLED_HEIGHT: f32 = 400.0;
+const ADD_SPACE: f32 = 10.0;
 const DATA_DIRECTORY_NAME: [&str; 16] = [
     "Export Table",
     "Import Table",
@@ -26,14 +30,15 @@ impl FileManager {
         eframe::egui::CentralPanel::default().show(ctx, |ui| {
             Self::show_main_title(ui, "NT Headers");
             eframe::egui::ScrollArea::vertical()
-                .min_scrolled_height(400.0)
+                .min_scrolled_height(MIN_SCROLLED_HEIGHT)
                 .auto_shrink([true, false])
                 .show(ui, |ui| {
                     // 签名部分
                     Self::show_sub_title(ui, "Signature");
                     eframe::egui::Grid::new("signature_grid")
                         .striped(true)
-                        .spacing([10.0, 4.0])
+                        .spacing(SPACING)
+                        .num_columns(COLUMNS)
                         .show(ui, |ui| {
                             ui.strong("字段名");
                             ui.strong("值");
@@ -46,13 +51,14 @@ impl FileManager {
                             ui.end_row();
                         });
 
-                    ui.add_space(10.0);
+                    ui.add_space(ADD_SPACE);
 
                     // File Header 部分
                     Self::show_sub_title(ui, "File Header");
                     eframe::egui::Grid::new("file_header_grid")
                         .striped(true)
-                        .spacing([10.0, 4.0])
+                        .spacing(SPACING)
+                        .num_columns(COLUMNS)
                         .show(ui, |ui| {
                             ui.strong("字段名");
                             ui.strong("值");
@@ -98,13 +104,14 @@ impl FileManager {
                             ui.end_row();
                         });
 
-                    ui.add_space(10.0);
+                    ui.add_space(ADD_SPACE);
 
                     // Optional Header 部分
                     Self::show_sub_title(ui, "Optional Header");
                     eframe::egui::Grid::new("optional_header_grid")
                         .striped(true)
-                        .spacing([10.0, 4.0])
+                        .spacing(SPACING)
+                        .num_columns(COLUMNS)
                         .show(ui, |ui| {
                             ui.strong("字段名");
                             ui.strong("值");
@@ -262,13 +269,14 @@ impl FileManager {
                             ui.end_row();
                         });
 
-                    ui.add_space(10.0);
+                    ui.add_space(ADD_SPACE);
 
                     // Data Directory 部分
                     Self::show_sub_title(ui, "Data Directory");
                     eframe::egui::Grid::new("data_directory_grid")
                         .striped(true)
-                        .spacing([10.0, 4.0])
+                        .spacing(SPACING)
+                        .num_columns(COLUMNS)
                         .show(ui, |ui| {
                             ui.strong("目录名称");
                             ui.strong("大小");

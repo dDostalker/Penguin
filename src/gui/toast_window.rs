@@ -1,6 +1,17 @@
 use crate::gui::{SubWindowManager, Toast, ToastType};
 use eframe::egui::Context;
 use std::time::{Duration, Instant};
+const TOAST_WINDOW_WIDTH: f32 = 400.0;
+const TOAST_WINDOW_HEIGHT: f32 = 300.0;
+const TOAST_WINDOW_SPACING: f32 = 20.0;
+const TOAST_WINDOW_BUTTON_SPACING: f32 = 10.0;
+const TOAST_WINDOW_ICON_SIZE: f32 = 16.0;
+const TOAST_WINDOW_TEXT_SIZE2: f32 = 14.0;
+const TOAST_WINDOW_SIDE_OFFSET: f32 = 320.0;
+const Y_OFFSET: f32 = 50.0;
+const Y_OFFSET_STEP: f32 = 35.0;
+const RGB_COLOR: eframe::egui::Color32 = eframe::egui::Color32::from_rgb(54, 59, 64);
+
 impl SubWindowManager {
     pub fn new() -> Self {
         Self {
@@ -22,11 +33,11 @@ impl SubWindowManager {
             .id(eframe::egui::Id::new(window_id))
             .collapsible(false)
             .resizable(true)
-            .default_size([400.0, 300.0])
+            .default_size([TOAST_WINDOW_WIDTH, TOAST_WINDOW_HEIGHT])
             .show(ctx, |ui| {
                 ui.vertical(|ui| {
                     ui.label(content);
-                    ui.add_space(20.0);
+                    ui.add_space(TOAST_WINDOW_SPACING);
 
                     if ui.button("关闭").clicked() {
                         // 根据窗口ID关闭对应的窗口
@@ -55,7 +66,7 @@ impl SubWindowManager {
             .show(ctx, |ui| {
                 ui.vertical(|ui| {
                     ui.label(message);
-                    ui.add_space(20.0);
+                    ui.add_space(TOAST_WINDOW_SPACING);
 
                     ui.horizontal(|ui: &mut eframe::egui::Ui| {
                         if ui.button("确认").clicked() {
@@ -76,15 +87,15 @@ impl SubWindowManager {
             eframe::egui::Window::new("关于 Penguin")
                 .collapsible(false)
                 .resizable(false)
-                .default_size([400.0, 300.0])
+                .default_size([TOAST_WINDOW_WIDTH, TOAST_WINDOW_HEIGHT])
                 .show(ctx, |ui| {
                     ui.vertical(|ui| {
                         ui.heading("Penguin PE 分析器");
-                        ui.add_space(10.0);
+                        ui.add_space(TOAST_WINDOW_SPACING);
                         ui.label("版本: 0.1.0");
                         ui.label("作者: dDostalker");
                         ui.label("描述: 一个强大的PE文件分析工具");
-                        ui.add_space(20.0);
+                        ui.add_space(TOAST_WINDOW_SPACING);
 
                         ui.horizontal(|ui| {
                             if ui.button("确定").clicked() {
@@ -102,11 +113,11 @@ impl SubWindowManager {
             eframe::egui::Window::new("设置")
                 .collapsible(false)
                 .resizable(true)
-                .default_size([500.0, 400.0])
+                .default_size([TOAST_WINDOW_WIDTH, TOAST_WINDOW_HEIGHT])
                 .show(ctx, |ui| {
                     ui.vertical(|ui| {
                         ui.heading("应用程序设置");
-                        ui.add_space(20.0);
+                        ui.add_space(TOAST_WINDOW_SPACING);
 
                         // 主题设置
 
@@ -128,11 +139,11 @@ impl SubWindowManager {
             eframe::egui::Window::new("帮助")
                 .collapsible(false)
                 .resizable(true)
-                .default_size([600.0, 500.0])
+                .default_size([TOAST_WINDOW_WIDTH, TOAST_WINDOW_HEIGHT])
                 .show(ctx, |ui| {
                     ui.vertical(|ui| {
                         ui.heading("使用帮助");
-                        ui.add_space(20.0);
+                        ui.add_space(TOAST_WINDOW_SPACING);
 
                         // ui.label("基本操作:");
                         // ui.label("• 点击左侧面板选择要分析的文件");
@@ -147,7 +158,7 @@ impl SubWindowManager {
                         // ui.label("• Ctrl+S: 保存文件");
                         // ui.label("• F1: 显示帮助");
 
-                        ui.add_space(20.0);
+                        ui.add_space(TOAST_WINDOW_BUTTON_SPACING);
 
                         ui.horizontal(|ui| {
                             if ui.button("关闭").clicked() {
@@ -196,14 +207,14 @@ impl SubWindowManager {
         let now = Instant::now();
         self.toasts.retain(|toast| {
             if let Some(created_at) = toast.created_at {
-                return now.duration_since(created_at) < toast.duration;
+                now.duration_since(created_at) < toast.duration
             } else {
-                return true;
+                true
             }
         });
 
         // 渲染 toast
-        let mut y_offset = 50.0;
+        let mut y_offset = Y_OFFSET;
         for (index, toast) in self.toasts.iter_mut().enumerate() {
             if index > 10 {
                 break;
@@ -224,7 +235,7 @@ impl SubWindowManager {
             };
 
             // 根据类型设置颜色
-            let color = eframe::egui::Color32::from_rgb(54, 59, 64);
+            let color = RGB_COLOR;
 
             // 设置图标
             let icon = match toast.toast_type {
@@ -236,7 +247,7 @@ impl SubWindowManager {
 
             eframe::egui::Area::new(eframe::egui::Id::new(format!("toast_{}", index)))
                 .fixed_pos(eframe::egui::pos2(
-                    ctx.available_rect().right() - 320.0,
+                    ctx.available_rect().right() - TOAST_WINDOW_SIDE_OFFSET,
                     y_offset,
                 ))
                 .show(ctx, |ui| {
@@ -249,18 +260,18 @@ impl SubWindowManager {
                                 ui.label(
                                     eframe::egui::RichText::new(icon)
                                         .color(eframe::egui::Color32::WHITE)
-                                        .size(16.0),
+                                        .size(TOAST_WINDOW_ICON_SIZE),
                                 );
                                 ui.label(
                                     eframe::egui::RichText::new(&toast.message)
                                         .color(eframe::egui::Color32::WHITE)
-                                        .size(14.0),
+                                        .size(TOAST_WINDOW_TEXT_SIZE2),
                                 );
                             });
                         });
                 });
 
-            y_offset += 35.0;
+            y_offset += Y_OFFSET_STEP;
         }
     }
 

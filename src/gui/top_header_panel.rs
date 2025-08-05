@@ -98,7 +98,7 @@ impl FileManager {
                         let export_table = match GLOBAL_RT
                             .block_on(self.files.get(self.current_index).unwrap().get_export())
                         {
-                            Ok(export_table) => Box::from(export_table),
+                            Ok(export_table) => export_table,
                             Err(_e) => {
                                 self.sub_window_manager.show_error("修改导出表失败");
                                 return;

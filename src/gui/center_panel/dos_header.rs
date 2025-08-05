@@ -1,8 +1,9 @@
 use crate::gui::FileManager;
-use eframe::egui::Ui;
+use eframe::egui::{Ui, Vec2};
 
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
-
+const SPACING: Vec2 = Vec2::new(20.0, 8.0);
+const COLUMNS: usize = 3;
 impl FileManager {
     /// dos_header 窗口
     pub(crate) fn dos_header_panel(&self, ui: &mut Ui) {
@@ -15,7 +16,8 @@ impl FileManager {
                     // 使用表格样式
                     eframe::egui::Grid::new("dos_header_grid")
                         .striped(true)
-                        .spacing([10.0, 4.0])
+                        .spacing(SPACING)
+                        .num_columns(COLUMNS)
                         .show(ui, |ui| {
                             // 表头
                             ui.strong("字段名");

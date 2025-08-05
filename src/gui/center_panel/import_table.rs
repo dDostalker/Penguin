@@ -1,9 +1,11 @@
 use crate::tools_api::file_system::{self, get_dll_folder};
 use crate::tools_api::read_file::ImportDll;
 use crate::{GLOBAL_RT, gui::FileManager};
-use eframe::egui::{ScrollArea, Ui};
+use eframe::egui::{ScrollArea, Ui, Vec2};
 use std::path::PathBuf;
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
+const SPACING: Vec2 = Vec2::new(20.0, 8.0);
+const COLUMNS: usize = 3;
 impl FileManager {
     /// 截断文本到指定长度，超出部分用省略号表示
     fn truncate_text(text: &str, max_length: usize) -> String {
@@ -103,7 +105,8 @@ impl FileManager {
             .show(ui, |ui| {
                 eframe::egui::Grid::new("dll_table")
                     .striped(true)
-                    .spacing([10.0, 4.0])
+                    .spacing(SPACING)
+                    .num_columns(COLUMNS)
                     .show(ui, |ui| {
                         // 表头
                         ui.strong("DLL名称");
@@ -123,6 +126,7 @@ impl FileManager {
                             ui.horizontal(|ui| {
                                 if ui.button("选择").clicked() {
                                     self.sub_window_manager.select_dll_index = Some(index);
+                                    self.sub_window_manager.select_function_index = None;
                                 }
                                 if ui.button("复制").clicked() {
                                     let info = format!("DLL: {}", dll.name);
@@ -153,7 +157,8 @@ impl FileManager {
             .show(ui, |ui| {
                 eframe::egui::Grid::new("function_table")
                     .striped(true)
-                    .spacing([10.0, 4.0])
+                    .spacing(SPACING)
+                    .num_columns(COLUMNS)
                     .show(ui, |ui| {
                         // 表头
                         ui.strong("序号");

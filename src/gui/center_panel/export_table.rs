@@ -1,4 +1,4 @@
-use eframe::egui::{Label, Ui, Vec2};
+use eframe::egui::{Ui, Vec2};
 
 use crate::{GLOBAL_RT, gui::FileManager, tools_api::read_file::ExportTable};
 
@@ -6,7 +6,9 @@ const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 const DESIGN_SIZE_FUNC_NAME: Vec2 = Vec2::new(400.0 * 0.5, 0.0);
 const DESIGN_SIZE_FUNC_ADDR: Vec2 = Vec2::new(400.0 * 0.25, 0.0);
 const DESIGN_SIZE_FUNC_OPERATE: Vec2 = Vec2::new(400.0 * 0.25, 0.0);
-
+const SPACING: Vec2 = Vec2::new(20.0, 8.0);
+const COLUMNS: usize = 3;
+const MAX_FUNC_NAME_LENGTH: usize = 70;
 impl FileManager {
     pub(crate) fn export_panel(&mut self, ui: &mut Ui) {
         // 预先获取数据，避免在渲染循环中重复调用
@@ -32,8 +34,8 @@ impl FileManager {
                     // 使用表格样式，填满整个宽度
                     eframe::egui::Grid::new("export_table")
                         .striped(true)
-                        .spacing([20.0, 8.0])
-                        .num_columns(3)
+                        .spacing(SPACING)
+                        .num_columns(COLUMNS)
                         .show(ui, |ui| {
                             // 表头 - 使用强化的样式
                             ui.allocate_ui(DESIGN_SIZE_FUNC_NAME, |ui| {
@@ -50,8 +52,8 @@ impl FileManager {
                             for (index, (func_name, func_addr)) in export_items.iter().enumerate() {
                                 // 函数名列 - 占用50%宽度
                                 ui.allocate_ui(DESIGN_SIZE_FUNC_NAME, |ui| {
-                                    let display_name = if func_name.len() > 70 {
-                                        format!("{}...", &func_name[..67])
+                                    let display_name = if func_name.len() > MAX_FUNC_NAME_LENGTH {
+                                        format!("{}...", &func_name[..MAX_FUNC_NAME_LENGTH - 3])
                                     } else {
                                         func_name.clone()
                                     };
@@ -135,11 +137,10 @@ impl FileManager {
                 file.export = GLOBAL_RT.block_on(file.get_export())?;
             }
         }
-        Ok(self
+        Ok(&mut self
             .files
             .get_mut(self.current_index)
             .unwrap()
-            .export
-            .as_mut())
+            .export)
     }
 }

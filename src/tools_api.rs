@@ -9,7 +9,7 @@ use crate::tools_api::read_file::{
     ImageNtHeaders64, ImageSectionHeaders, ImportDescriptor, ImportDll, is_64, nt_header,
 };
 use anyhow::anyhow;
-use std::cell::{RefCell, RefMut};
+use std::cell::{Ref, RefCell, RefMut};
 use std::path::PathBuf;
 use tokio::fs::File;
 
@@ -19,21 +19,23 @@ pub struct HashInfo {
     pub sha1: String,
 }
 
+
+
 pub struct FileInfo {
     pub file: RefCell<File>,
     pub file_name: String,
     pub file_path: PathBuf,
     pub file_hash: Option<HashInfo>,
     pub dos_head: Box<ImageDosHeader>,
-    pub dos_stub: Box<ImageDosStub>,
+    pub dos_stub: ImageDosStub,
     is_64_bit: bool,
     is_little_endian: bool,
     pub file_size: u64,
     pub(crate) nt_head: Box<dyn NtHeaders>,
-    pub(crate) data_directory: Box<DataDirectory>,
-    pub(crate) section_headers: Box<ImageSectionHeaders>,
+    pub(crate) data_directory: DataDirectory,
+    pub(crate) section_headers: ImageSectionHeaders,
     pub(crate) import_dll: Vec<ImportDll>,
-    pub(crate) export: Box<ExportTable>,
+    pub(crate) export: ExportTable,
 }
 
 /// 窗口数组及其信息
@@ -75,40 +77,45 @@ impl PartialEq<Self> for FileInfo {
 }
 
 impl Eq for FileInfo {}
+
 impl FileInfo {
+
     pub fn get_mut_file(&self) -> RefMut<'_, File> {
         self.file.borrow_mut()
     }
+    pub fn get_file(&self) -> Ref<'_, File> {
+        self.file.borrow()
+    }
+
     pub async fn new(file: PathBuf) -> anyhow::Result<Box<Self>> {
         let mut f = File::options().read(true).write(true).open(&file).await?;
         let file_name = file.file_name().unwrap().to_str().unwrap().to_string();
         let file_path = file;
-        let file_dos_head = Box::new(ImageDosHeader::new(&mut f).await?);
-        let file_is_64 = is_64(&mut f, &file_dos_head).await?;
-        let (file_nt_head, file_data_directory): (Box<dyn NtHeaders>, Box<DataDirectory>) =
-            if file_is_64 {
+        let dos_head = Box::new(ImageDosHeader::new(&mut f).await?);
+        let is_64_bit = is_64(&mut f, &dos_head).await?;
+        let (nt_head, data_directory): (Box<dyn NtHeaders>, DataDirectory) =
+            if is_64_bit {
                 let (nt, data) = nt_header::read_nt_head::<ImageNtHeaders64>(
                     &mut f,
-                    file_dos_head.get_nt_addr().await,
+                    dos_head.get_nt_addr().await,
                 )
                 .await?;
                 (Box::new(nt), data)
             } else {
                 let (nt, data) = nt_header::read_nt_head::<ImageNtHeaders>(
                     &mut f,
-                    file_dos_head.get_nt_addr().await,
+                    dos_head.get_nt_addr().await,
                 )
                 .await?;
                 (Box::new(nt), data)
             };
-        let image_section_headers = ImageSectionHeaders::new(
+        let section_headers = ImageSectionHeaders::new(
             &mut f,
-            file_nt_head.section_start(file_dos_head.get_nt_addr().await),
-            file_nt_head.section_number(),
+            nt_head.section_start(dos_head.get_nt_addr().await),
+            nt_head.section_number(),
         )
         .await?;
-        let file_dos_stub =
-            Box::new(ImageDosStub::new(&mut f, file_dos_head.get_nt_addr().await).await?);
+        let dos_stub = ImageDosStub::new(&mut f, dos_head.get_nt_addr().await).await?;
 
         //file size
         let file_size = f.metadata().await?.len();
@@ -119,20 +126,21 @@ impl FileInfo {
             file_name,
             file_path,
             file_hash: None,
-            dos_head: file_dos_head,
-            dos_stub: file_dos_stub,
-            is_64_bit: file_is_64,
+            dos_head,
+            dos_stub,
+            is_64_bit,
             is_little_endian: false,
             file_size,
-            nt_head: file_nt_head,
-            data_directory: file_data_directory,
-            section_headers: image_section_headers,
+            nt_head,
+            data_directory,
+            section_headers,
             import_dll: vec![],
-            export: Box::new(ExportTable::default()),
+            export: ExportTable::default(),
+
         }))
     }
 
-    pub async fn get_export(&self) -> anyhow::Result<Box<ExportTable>> {
+    pub async fn get_export(&self) -> anyhow::Result<ExportTable> {
         let mut f = self.get_mut_file();
         if let Some(export_dir) = ExportDir::new(
             &mut f,
@@ -142,10 +150,8 @@ impl FileInfo {
         )
         .await?
         {
-            let export_info = Box::new(
-                ExportTable::new(&mut f, &*self.nt_head, &self.section_headers, &export_dir)
-                    .await?,
-            );
+            let export_info = ExportTable::new(&mut f, &*self.nt_head, &self.section_headers, &export_dir)
+                .await?;
             return Ok(export_info);
         }
         Err(anyhow!("获取导出表失败"))

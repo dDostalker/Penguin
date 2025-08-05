@@ -20,9 +20,9 @@ impl ImageSectionHeaders {
         file: &mut File,
         section_addr: u32,
         section_num: u16,
-    ) -> anyhow::Result<Box<ImageSectionHeaders>> {
+    ) -> anyhow::Result<ImageSectionHeaders> {
         file.seek(SeekFrom::Start(section_addr as u64)).await?;
-        let mut section_headers: Box<ImageSectionHeaders> = Default::default();
+        let mut section_headers: ImageSectionHeaders = Default::default();
         for _ in 0..section_num {
             section_headers.add(ImageSectionHeader::new(file).await?);
         }
@@ -76,6 +76,7 @@ impl ImageSectionHeaders {
         self.0.get(index).unwrap().pointer_to_relocations
     }
 }
+
 impl SectionData {
     pub async fn new(
         file: &mut File,

@@ -25,7 +25,7 @@ impl ImportDescriptor {
         let mut import_descriptor: ImportDescriptor = Default::default();
         let fo: u32 = rva_2_fo(
             nt_head,
-            &image_section_headers,
+            image_section_headers,
             data_dir.get_import_directory_address().await?,
         )
         .await
@@ -98,7 +98,7 @@ impl ImportDll {
             .await?;
         let mut i = 0;
         loop {
-            if is_64(file, &image_dos_header).await? {
+            if is_64(file, image_dos_header).await? {
                 file.seek(SeekFrom::Start(function_info_address as u64 + i * 8u64))
                     .await?;
 

@@ -626,13 +626,13 @@ impl NtHeaders for ImageNtHeaders64 {
 pub(crate) async fn read_nt_head<T>(
     file: &mut File,
     start_addr: u16,
-) -> anyhow::Result<(T, Box<DataDirectory>)>
+) -> anyhow::Result<(T, DataDirectory)>
 where
     T: NtHeaders + Default,
     [(); size_of::<T>()]:,
 {
     let mut nt_head: T = Default::default();
-    let mut data_dictionary = Box::new(DataDirectory(Vec::new()));
+    let mut data_dictionary = DataDirectory(Vec::new());
     file.seek(SeekFrom::Start(start_addr as u64)).await?;
     unsafe {
         let reads: &mut [u8; size_of::<T>()] = transmute(&mut nt_head);

@@ -1,7 +1,9 @@
 use crate::gui::FileManager;
-use eframe::egui::{Label, Ui};
+use eframe::egui::{Label, Ui, Vec2};
 
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
+const SPACING: Vec2 = Vec2::new(20.0, 8.0);
+const COLUMNS: usize = 5;
 impl FileManager {
     pub(crate) fn section_header_panel(&mut self, ui: &mut Ui) {
         // 获取节数量
@@ -39,7 +41,8 @@ impl FileManager {
                 // 使用表格样式
                 eframe::egui::Grid::new("section_table")
                     .striped(true)
-                    .spacing([10.0, 4.0])
+                    .spacing(SPACING)
+                    .num_columns(COLUMNS)
                     .show(ui, |ui| {
                         // 表头
                         ui.strong("节名称");
@@ -50,7 +53,7 @@ impl FileManager {
                         ui.strong("操作");
                         ui.end_row();
 
-                        for (_index, (name, virtual_addr, size, file_offset, characteristics)) in section_items.iter().enumerate() {
+                        for (name, virtual_addr, size, file_offset, characteristics) in section_items.iter() {
                             ui.label(name);
                             ui.label(virtual_addr);
                             ui.label(size);
@@ -71,7 +74,7 @@ impl FileManager {
             });
         });
     }
-
+    // unwrap or 修改
     pub(crate) fn get_section_num(&self) -> anyhow::Result<usize> {
         Ok(self
             .files
