@@ -13,7 +13,6 @@ impl FileManager {
         let export_data = match self.get_export() {
             Ok(export) => export,
             Err(_) => {
-                ui.add(Label::new("该文件无导出表"));
                 return;
             }
         };

@@ -5,14 +5,12 @@ mod import_table;
 mod nt_header;
 mod section;
 
+use crate::gui::FileManager;
 use crate::gui::top_header_panel::load_file_info;
-use crate::gui::{FileManager, Page};
-use crate::tools_api::file_system::open_file_location;
-use crate::tools_api::structure::{FileInfo, HashInfo};
 use crate::tools_api::calc::{calc_md5, calc_sha1};
+use crate::tools_api::file_system::open_file_location;
+use crate::tools_api::{FileInfo, HashInfo, Page};
 use eframe::egui::{Area, CentralPanel, Color32, Context, Frame, Id, RichText, Ui};
-use anyhow::Result;
-
 const CENTER_PANEL_FILL_COLOR: Color32 = Color32::from_rgb(30, 31, 34);
 const CENTER_PANEL_BOTTOM_FILL_COLOR: Color32 = Color32::from_rgb(43, 45, 48);
 const CENTER_PANEL_TITLE_COLOR: Color32 = Color32::from_rgb(255, 255, 255);
@@ -40,7 +38,7 @@ impl FileManager {
         );
     }
     /// center底部信息
-    fn show_bottom_panel(file: &mut FileInfo, ctx: &Context)->anyhow::Result<()> {
+    fn show_bottom_panel(file: &mut FileInfo, ctx: &Context) -> anyhow::Result<()> {
         eframe::egui::TopBottomPanel::bottom("bottom_panel")
             .frame(Frame::new().fill(CENTER_PANEL_BOTTOM_FILL_COLOR))
             .show(ctx, |ui| {
@@ -88,7 +86,7 @@ impl FileManager {
             .frame(Frame::new().fill(CENTER_PANEL_FILL_COLOR))
             .show(ctx, |_ui| {
                 if let Some(file) = self.files.get_mut(self.current_index) {
-                    if let Err(e) = Self::show_bottom_panel(file, ctx){
+                    if let Err(e) = Self::show_bottom_panel(file, ctx) {
                         self.sub_window_manager.show_error(&e.to_string());
                     }
                     CentralPanel::default()
@@ -123,7 +121,7 @@ impl FileManager {
                                     Page::NtHead => self.nt_header_panel(ui),
                                     Page::SectionHead => self.section_header_panel(ui),
                                     Page::Import => {
-                                        if let Err(e) = self.import_table_panel(ui){
+                                        if let Err(e) = self.import_table_panel(ui) {
                                             self.sub_window_manager.show_error(&e.to_string());
                                         }
                                     }

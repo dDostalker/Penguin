@@ -15,48 +15,51 @@ impl FileManager {
             .min_width(LEFT_PANEL_WIDTH)
             .max_width(LEFT_PANEL_WIDTH)
             .show(ctx, |ui| {
-                // 循环输出文件名
-                for (i, file) in self.files.iter().enumerate() {
-                    let text_context;
-                    let mut color = LEFT_PANEL_FILL_COLOR;
+                eframe::egui::ScrollArea::vertical().show(ui, |ui| {
+                    // 循环输出文件名
+                    for (i, file) in self.files.iter().enumerate() {
+                        let text_context;
+                        let mut color = LEFT_PANEL_FILL_COLOR;
 
-                    // 判断状态设置颜色
-                    if i + 1 == self.hover_index {
-                        color = LEFT_PANEL_BACKGROUND_HOVER_COLOR;
-                        self.hover_index = 0;
-                    }
-                    if file == self.get_file() {
-                        text_context =
-                            RichText::from(&file.file_name).color(LEFT_PANEL_TEXT_SELECTED_COLOR);
-
-                        color = LEFT_PANEL_BACKGROUND_HOVER_COLOR;
-                    } else {
-                        text_context = RichText::from(&file.file_name).color(LEFT_PANEL_TEXT_COLOR);
-                    }
-
-                    // 每一个文件名都是Frame
-                    Frame::new().fill(color).show(ui, |ui| {
-                        // 让label占满整行并创建响应
-                        let available = ui.available_width();
-                        let label = Label::new(text_context).sense(Sense::click()).wrap();
-                        let response = ui.add_sized(
-                            [
-                                available,
-                                ui.text_style_height(&eframe::egui::TextStyle::Body),
-                            ],
-                            label,
-                        );
-
-                        if response.clicked() {
-                            self.current_index =
-                                self.files.iter().position(|f| f == file).unwrap_or(0);
-                            self.sub_window_manager.clear_all_data();
+                        // 判断状态设置颜色
+                        if i + 1 == self.hover_index {
+                            color = LEFT_PANEL_BACKGROUND_HOVER_COLOR;
+                            self.hover_index = 0;
                         }
-                        if response.hovered() {
-                            self.hover_index = i + 1;
+                        if file == self.get_file() {
+                            text_context = RichText::from(&file.file_name)
+                                .color(LEFT_PANEL_TEXT_SELECTED_COLOR);
+
+                            color = LEFT_PANEL_BACKGROUND_HOVER_COLOR;
+                        } else {
+                            text_context =
+                                RichText::from(&file.file_name).color(LEFT_PANEL_TEXT_COLOR);
                         }
-                    });
-                }
+
+                        // 每一个文件名都是Frame
+                        Frame::new().fill(color).show(ui, |ui| {
+                            // 让label占满整行并创建响应
+                            let available = ui.available_width();
+                            let label = Label::new(text_context).sense(Sense::click()).wrap();
+                            let response = ui.add_sized(
+                                [
+                                    available,
+                                    ui.text_style_height(&eframe::egui::TextStyle::Body),
+                                ],
+                                label,
+                            );
+
+                            if response.clicked() {
+                                self.current_index =
+                                    self.files.iter().position(|f| f == file).unwrap_or(0);
+                                self.sub_window_manager.clear_all_data();
+                            }
+                            if response.hovered() {
+                                self.hover_index = i + 1;
+                            }
+                        });
+                    }
+                });
             });
     }
 }

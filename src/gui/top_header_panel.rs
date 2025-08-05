@@ -1,6 +1,6 @@
-use crate::gui::FileManager;
-use crate::tools_api::structure::FileInfo;
 use crate::GLOBAL_RT;
+use crate::gui::FileManager;
+use crate::tools_api::FileInfo;
 use rfd::FileDialog;
 use std::path::PathBuf;
 use tokio::fs::File;
@@ -79,10 +79,12 @@ impl FileManager {
                                                 .block_on(k.write_func_name(&mut f, &l.name))
                                             {
                                                 Ok(_) => {
-                                                    self.sub_window_manager.show_success("修改导入表成功");
+                                                    self.sub_window_manager
+                                                        .show_success("修改导入表成功");
                                                 }
                                                 Err(e) => {
-                                                    self.sub_window_manager.show_error(&e.to_string());
+                                                    self.sub_window_manager
+                                                        .show_error(&e.to_string());
                                                     return;
                                                 }
                                             }
@@ -97,7 +99,7 @@ impl FileManager {
                             .block_on(self.files.get(self.current_index).unwrap().get_export())
                         {
                             Ok(export_table) => Box::from(export_table),
-                            Err(e) => {
+                            Err(_e) => {
                                 self.sub_window_manager.show_error("修改导出表失败");
                                 return;
                             }
@@ -131,12 +133,6 @@ impl FileManager {
                     }
                     if ui.button("exit").clicked() {
                         // 退出应用
-                    }
-                });
-
-                ui.menu_button("edit", |ui| {
-                    if ui.button("撤销").clicked() {
-                        self.sub_window_manager.show_info("撤销功能暂未实现");
                     }
                 });
 

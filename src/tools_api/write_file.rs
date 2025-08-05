@@ -50,7 +50,7 @@ impl ImportFunction {
 
 #[cfg(test)]
 mod tests {
-    use crate::tools_api::structure::FileInfo;
+    use crate::tools_api::FileInfo;
     use std::path::PathBuf;
     use tokio::fs::File;
 
@@ -73,6 +73,7 @@ mod tests {
             .write_func_name(&mut f, "ss")
             .await
             .unwrap();
+        dbg!(file_info)
         //let a = file_info.get_export().await.unwrap().get_mut(0).unwrap().write_func_name_rva(&mut f,192512).await.unwrap();
     }
 }

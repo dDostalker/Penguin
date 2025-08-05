@@ -91,7 +91,8 @@ impl FileManager {
 
                             ui.label("Characteristics");
                             if ui.button(&self.get_characteristics()).clicked() {
-                                self.sub_window_manager.show_info(&self.get_characteristics_hover());
+                                self.sub_window_manager
+                                    .show_info(&self.get_characteristics_hover());
                             }
                             ui.label("文件属性");
                             ui.end_row();

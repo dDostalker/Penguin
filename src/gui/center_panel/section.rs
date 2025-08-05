@@ -1,4 +1,4 @@
-use crate::gui::{FileManager,};
+use crate::gui::FileManager;
 use eframe::egui::{Label, Ui};
 
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;

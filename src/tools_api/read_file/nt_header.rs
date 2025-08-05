@@ -11,26 +11,28 @@ use tokio::io::{AsyncReadExt, AsyncSeekExt};
 const DIRECTORY_EXPORT: usize = 0;
 const DIRECTORY_IMPORT: usize = 1;
 const DIRECTORY_RESOURCE: usize = 2;
-
-pub(crate) const MACHINE_32: [u16; 1] = [0x014C];
-pub(crate) const MACHINE_64: [u16; 1] = [0x8664];
+pub(crate) const MACHINE_32: [u16; 21] = [
+    0x014C, 0x162, 0x166, 0x168, 0x169, 0x184, 0x1a2, 0x1a3, 0x1a4, 0x1a6, 0x1a8, 0x1c0, 0x1c2,
+    0x1c4, 0x1d3, 0x1f0, 0x1f1, 0x266, 0x366, 0x466, 0x520,
+];
+pub(crate) const MACHINE_64: [u16; 4] = [0x8664, 0x0200, 0x0284, 0xAA64];
 
 pub(crate) enum Characteristics {
-    ImageFileRelocsStripped = 0x0001,    // 重定位信息被剥离
-    ImageFileExecutableImage = 0x0002,   // 文件是可执行的（即没有未解决的外部引用）
-    ImageFileLineNumsStripped = 0x0004, // 行号被剥离
-    ImageFileLocalSymsStripped = 0x0008, // 本地符号被剥离
-    ImageFileAggresiveWsTrim = 0x0010,   // 积极地修剪工作集
-    ImageFileLargeAddressAware = 0x0020, // 应用程序可以处理>2gb地址
-    ImageFileBytesReversedLo = 0x0080,   // 机器字节是反向的
-    ImageFile32bitMachine = 0x0100,       // 32位机器字
-    ImageFileDebugStripped = 0x0200,      // 调试信息被剥离
+    ImageFileRelocsStripped = 0x0001,       // 重定位信息被剥离
+    ImageFileExecutableImage = 0x0002,      // 文件是可执行的（即没有未解决的外部引用）
+    ImageFileLineNumsStripped = 0x0004,     // 行号被剥离
+    ImageFileLocalSymsStripped = 0x0008,    // 本地符号被剥离
+    ImageFileAggresiveWsTrim = 0x0010,      // 积极地修剪工作集
+    ImageFileLargeAddressAware = 0x0020,    // 应用程序可以处理>2gb地址
+    ImageFileBytesReversedLo = 0x0080,      // 机器字节是反向的
+    ImageFile32bitMachine = 0x0100,         // 32位机器字
+    ImageFileDebugStripped = 0x0200,        // 调试信息被剥离
     ImageFileRemovableRunFromSwap = 0x0400, // 如果映像在可移动媒体上，则从交换文件中复制并运行
-    ImageFileNetRunFromSwap = 0x0800,    // 如果映像在网络上，则从交换文件中复制并运行
-    ImageFileSystem = 0x1000,              // 系统文件
-    ImageFileDll = 0x2000,                 // 文件是DLL
-    ImageFileUpSystemOnly = 0x4000,      // 文件应该只在UP机器上运行
-    ImageFileBytesReversedHi = 0x8000,   // 机器字节是反向的
+    ImageFileNetRunFromSwap = 0x0800,       // 如果映像在网络上，则从交换文件中复制并运行
+    ImageFileSystem = 0x1000,               // 系统文件
+    ImageFileDll = 0x2000,                  // 文件是DLL
+    ImageFileUpSystemOnly = 0x4000,         // 文件应该只在UP机器上运行
+    ImageFileBytesReversedHi = 0x8000,      // 机器字节是反向的
 }
 /// 为 64 位 和 32 位nt头特征
 pub mod traits {
@@ -118,7 +120,7 @@ impl DataDirectory {
             .unwrap()
             .virtual_address)
     }
-    pub(crate) async fn get_export_directory_size(&self) -> anyhow::Result<u32> {
+    pub(crate) async fn _get_resource_directory_address(&self) -> anyhow::Result<u32> {
         Ok(self
             .0
             .get(crate::tools_api::read_file::nt_header::DIRECTORY_RESOURCE)
@@ -157,31 +159,31 @@ impl NtHeaders for ImageNtHeaders {
 
     fn get_machine(&self) -> &str {
         match self.file_header.machine {
-            0x14c => "32位x86架构",
-            0x0162 => "MIPS大端",
-            0x0166 => "MIPS小端",
-            0x0168 => "MIPS小端",
-            0x0169 => "MIPS小端",
-            0x0184 => "Alpha",
-            0x01a2 => "SH3小端",
-            0x01a3 => "SH3小端",
-            0x01a4 => "SH3E小端",
-            0x01a6 => "SH4小端",
-            0x01a8 => "SH5",
-            0x01c0 => "ARM小端",
-            0x01c2 => "ARM Thumb/Thumb-2 小端",
-            0x01c4 => "ARM Thumb/Thumb-2 小端",
-            0x01d3 => "ARM",
-            0x01F0 => "IBM",
-            0x01f1 => "POWERCFP",
-            0x0200 => "Intel 64",
-            0x0266 => "MIPS",
-            0x0284 => "ALPHA64",
-            0x0366 => "MIPS",
-            0x0466 => "MIPS",
-            0x0520 => "Infineon",
-            0x8664 => "64位x64架构",
-            0xAA64 => "ARM64 小端",
+            0x14c => "32位x86架构",             // 32位
+            0x0162 => "MIPS大端",               // 32位
+            0x0166 => "MIPS小端",               // 32位
+            0x0168 => "MIPS小端",               // 32位
+            0x0169 => "MIPS小端",               // 32位
+            0x0184 => "Alpha",                  // 32位
+            0x01a2 => "SH3小端",                // 32位
+            0x01a3 => "SH3小端",                // 32位
+            0x01a4 => "SH3E小端",               // 32位
+            0x01a6 => "SH4小端",                // 32位
+            0x01a8 => "SH5",                    // 32位
+            0x01c0 => "ARM小端",                // 32位
+            0x01c2 => "ARM Thumb/Thumb-2 小端", // 32位
+            0x01c4 => "ARM Thumb/Thumb-2 小端", // 32位
+            0x01d3 => "ARM",                    // 32位
+            0x01F0 => "IBM",                    // 32位
+            0x01f1 => "POWERCFP",               // 32位
+            0x0200 => "Intel 64",               // 64位
+            0x0266 => "MIPS",                   // 32位
+            0x0284 => "ALPHA64",                // 64位
+            0x0366 => "MIPS",                   // 32位
+            0x0466 => "MIPS",                   // 32位
+            0x0520 => "Infineon",               // 32位
+            0x8664 => "64位x64架构",            // 64位
+            0xAA64 => "ARM64 小端",             // 64位
             _ => "unknown",
         }
     }

@@ -1,10 +1,8 @@
-use crate::tools_api::{
-    file_system::{self, get_dll_folder},
-};
+use crate::tools_api::file_system::{self, get_dll_folder};
 use crate::tools_api::read_file::ImportDll;
 use crate::{GLOBAL_RT, gui::FileManager};
-use std::path::PathBuf;
 use eframe::egui::{ScrollArea, Ui};
+use std::path::PathBuf;
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 impl FileManager {
     /// 截断文本到指定长度，超出部分用省略号表示
@@ -135,10 +133,9 @@ impl FileManager {
                                     let dll_folder = get_dll_folder(
                                         PathBuf::from(&self.files[self.current_index].file_path),
                                         &dll.name,
-                                    ).unwrap();
-                                    if let Err(e) = file_system::open_file_location(
-                                        &dll_folder,
-                                    ){
+                                    )
+                                    .unwrap();
+                                    if let Err(e) = file_system::open_file_location(&dll_folder) {
                                         eprintln!("打开文件位置失败: {}", e);
                                     }
                                 }
