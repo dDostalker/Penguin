@@ -1,11 +1,14 @@
 use crate::tools_api::file_system::{self, get_dll_folder};
 use crate::tools_api::read_file::ImportDll;
+
 use crate::{GLOBAL_RT, gui::FileManager};
 use eframe::egui::{ScrollArea, Ui, Vec2};
 use std::path::PathBuf;
+
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 const SPACING: Vec2 = Vec2::new(20.0, 8.0);
 const COLUMNS: usize = 3;
+
 impl FileManager {
     /// 截断文本到指定长度，超出部分用省略号表示
     fn truncate_text(text: &str, max_length: usize) -> String {
@@ -20,7 +23,8 @@ impl FileManager {
         // 预先获取数据，避免在渲染循环中重复调用
         let imports = match self.import_dll_mut() {
             Ok(imports) => imports,
-            Err(_) => {
+            Err(e) => {
+                //self.sub_window_manager.show_error(&e.to_string());
                 return Ok(());
             }
         };
@@ -44,8 +48,6 @@ impl FileManager {
 
                 // 添加分隔线
                 ui.separator();
-
-                // 右侧表格：函数列表
                 ui.vertical(|ui| {
                     ui.label("函数列表");
                     if let Some(selected_index) = selected_index {
@@ -84,18 +86,13 @@ impl FileManager {
         Ok(())
     }
 
+    /// 获取导入表的引用
     pub(crate) fn import_dll_mut(&mut self) -> anyhow::Result<&mut Vec<ImportDll>> {
-        if self
-            .files
-            .get(self.current_index)
-            .unwrap()
-            .import_dll
-            .is_empty()
-        {
-            self.files.get_mut(self.current_index).unwrap().import_dll =
-                GLOBAL_RT.block_on(self.files.get(self.current_index).unwrap().get_imports())?;
+        let file = self.files.get_mut(self.current_index).unwrap();
+        if file.import_dll.is_empty() {
+            file.import_dll = GLOBAL_RT.block_on(file.get_imports())?;
         }
-        Ok(&mut self.files.get_mut(self.current_index).unwrap().import_dll)
+        Ok(&mut file.import_dll)
     }
 
     fn show_dll_table(&mut self, ui: &mut Ui, imports: &[ImportDll]) {

@@ -6,7 +6,7 @@ mod nt_header;
 mod section;
 
 use crate::gui::FileManager;
-use crate::gui::top_header_panel::load_file_info;
+use crate::tools_api::load_file_info;
 use crate::tools_api::calc::{calc_md5, calc_sha1};
 use crate::tools_api::file_system::open_file_location;
 use crate::tools_api::{FileInfo, HashInfo, Page};
@@ -74,7 +74,7 @@ impl FileManager {
                 match load_file_info(path.clone()) {
                     Ok(file_info) => {
                         if !self.files.contains(&file_info) {
-                            self.files.push(*file_info);
+                            self.files.push(file_info);
                         }
                     }
                     Err(e) => self.sub_window_manager.show_error(&e.to_string()),
@@ -121,9 +121,7 @@ impl FileManager {
                                     Page::NtHead => self.nt_header_panel(ui),
                                     Page::SectionHead => self.section_header_panel(ui),
                                     Page::Import => {
-                                        if let Err(e) = self.import_table_panel(ui) {
-                                            self.sub_window_manager.show_error(&e.to_string());
-                                        }
+                                        self.import_table_panel(ui);
                                     }
                                     Page::Export => {
                                         self.export_panel(ui);

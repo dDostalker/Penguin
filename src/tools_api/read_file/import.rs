@@ -6,9 +6,9 @@ use tokio::io::{AsyncReadExt, AsyncSeekExt};
 
 use crate::tools_api::read_file::{
     DataDirectory, ImageDosHeader, ImageSectionHeaders, ImportDescriptor, ImportDll,
-    ImportFunction, is_64, rva_2_fo,
+    ImportFunction, rva_2_fo,
 };
-
+use crate::tools_api::is_64;    
 use crate::tools_api::read_file::nt_header::traits::NtHeaders;
 
 impl ImportDescriptor {

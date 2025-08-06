@@ -12,3 +12,6 @@ libc = "0.2.174"
 sha-1 = "0.10.0"
 md-5 = "0.10.0"
 file-hashing = "0.1.2"
+
+[profile.release]
+debug = true

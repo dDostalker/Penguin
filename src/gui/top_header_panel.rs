@@ -1,6 +1,6 @@
 use crate::GLOBAL_RT;
 use crate::gui::FileManager;
-use crate::tools_api::FileInfo;
+use crate::tools_api::{FileInfo, load_file_info};
 use rfd::FileDialog;
 use std::path::PathBuf;
 use tokio::fs::File;
@@ -18,7 +18,7 @@ impl FileManager {
                                 match load_file_info(path) {
                                     Ok(file_info) => {
                                         if !self.files.contains(&file_info) {
-                                            self.files.push(*file_info);
+                                            self.files.push(file_info);
                                         }
                                     }
                                     Err(e) => self.sub_window_manager.show_error(&e.to_string()),
@@ -48,7 +48,13 @@ impl FileManager {
                             let mut file_bak =
                                 GLOBAL_RT.block_on(File::create(&file_path)).unwrap();
                             // 复制原文件内容到备份文件
-                            let mut orig_file = self.files[self.current_index].get_mut_file();
+                            let mut orig_file = match self.files[self.current_index].get_mut_file() {
+                                Ok(file) => file,
+                                Err(e) => {
+                                    self.sub_window_manager.show_error(&e.to_string());
+                                    return;
+                                }
+                            };
                             let mut buf = Vec::new();
                             GLOBAL_RT.block_on(orig_file.read_to_end(&mut buf)).unwrap();
                             GLOBAL_RT.block_on(file_bak.write_all(&buf)).unwrap();
@@ -68,13 +74,19 @@ impl FileManager {
                                 return;
                             }
                         };
-                        if import_dll != file_info.import_dll {
+                        if import_dll != *file_info.import_dll {
                             for (i, j) in import_dll.iter().zip(file_info.import_dll.iter()) {
                                 if i != j {
                                     for (k, l) in i.function_info.iter().zip(j.function_info.iter())
                                     {
                                         if k != l {
-                                            let mut f = file_info.get_mut_file();
+                                            let mut f = match file_info.get_mut_file() {
+                                                Ok(file) => file,
+                                                Err(e) => {
+                                                    self.sub_window_manager.show_error(&e.to_string());
+                                                    return;
+                                                }
+                                            };
                                             match GLOBAL_RT
                                                 .block_on(k.write_func_name(&mut f, &l.name))
                                             {
@@ -107,7 +119,13 @@ impl FileManager {
                         if export_table != file_info.export {
                             for (i, j) in export_table.0.iter().zip(file_info.export.0.iter()) {
                                 if i != j {
-                                    let mut f = file_info.get_mut_file();
+                                    let mut f = match file_info.get_mut_file() {
+                                        Ok(file) => file,
+                                        Err(e) => {
+                                            self.sub_window_manager.show_error(&e.to_string());
+                                            return;
+                                        }
+                                    };
                                     match GLOBAL_RT.block_on(i.write_func_name(&mut f, &j.name)) {
                                         Ok(_) => {
                                             self.sub_window_manager.show_success("修改导出表成功");
@@ -153,7 +171,4 @@ impl FileManager {
             });
         });
     }
-}
-pub(crate) fn load_file_info(path: PathBuf) -> anyhow::Result<Box<FileInfo>> {
-    GLOBAL_RT.block_on(FileInfo::new(path))
 }

@@ -296,12 +296,3 @@ pub struct ImportFunction {
     pub(crate) name: String,
 }
 
-pub async fn is_64(file: &mut File, image_dos_header: &ImageDosHeader) -> anyhow::Result<bool> {
-    let image_file_header = ImageFileHeader::new(file, image_dos_header).await?;
-    if nt_header::MACHINE_32.contains(&image_file_header.machine) {
-        return Ok(false);
-    } else if nt_header::MACHINE_64.contains(&image_file_header.machine) {
-        return Ok(true);
-    }
-    Err(anyhow::anyhow!("Not a normal machine image file"))
-}

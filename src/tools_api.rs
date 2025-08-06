@@ -5,13 +5,15 @@ pub(crate) mod write_file;
 use crate::gui::SubWindowManager;
 use crate::tools_api::read_file::nt_header::traits::NtHeaders;
 use crate::tools_api::read_file::{
-    DataDirectory, ExportDir, ExportTable, ImageDosHeader, ImageDosStub, ImageNtHeaders,
-    ImageNtHeaders64, ImageSectionHeaders, ImportDescriptor, ImportDll, is_64, nt_header,
+    DataDirectory, ExportDir, ExportTable, ImageDosHeader, ImageDosStub, ImageFileHeader, ImageNtHeaders,
+    ImageNtHeaders64, ImageSectionHeaders, ImportDescriptor, ImportDll, nt_header,
 };
 use anyhow::anyhow;
 use std::cell::{Ref, RefCell, RefMut};
+use std::rc::Rc;
 use std::path::PathBuf;
 use tokio::fs::File;
+use crate::GLOBAL_RT;
 
 #[derive(Debug, PartialEq)]
 pub struct HashInfo {
@@ -20,9 +22,8 @@ pub struct HashInfo {
 }
 
 
-
 pub struct FileInfo {
-    pub file: RefCell<File>,
+    pub file: Option<RefCell<File>>,
     pub file_name: String,
     pub file_path: PathBuf,
     pub file_hash: Option<HashInfo>,
@@ -52,7 +53,7 @@ pub enum Page {
 
 #[derive(Default)]
 pub struct FileManager {
-    pub files: Vec<FileInfo>,                        // 文件列表
+    pub files: Vec<Box<FileInfo>>,                        // 文件列表
     pub(crate) current_index: usize,                 // 当前文件索引
     pub(crate) page: Page,                           // 目标页面
     pub(crate) hover_index: usize,                   // 左边栏悬停
@@ -65,7 +66,7 @@ impl FileManager {
             ..Default::default()
         }
     }
-    pub fn get_file(&self) -> &FileInfo {
+    pub fn get_file(&self) -> &Box<FileInfo> {
         self.files.get(self.current_index).unwrap()
     }
 }
@@ -80,49 +81,67 @@ impl Eq for FileInfo {}
 
 impl FileInfo {
 
-    pub fn get_mut_file(&self) -> RefMut<'_, File> {
-        self.file.borrow_mut()
+    pub fn get_mut_file(&self) -> anyhow::Result<RefMut<'_, File>> {
+        if let Some(file) = &self.file {
+            Ok(file.borrow_mut())
+        } else {
+            Err(anyhow::anyhow!("file has been closed"))
+        }
     }
-    pub fn get_file(&self) -> Ref<'_, File> {
-        self.file.borrow()
+    pub fn get_file(&self) -> anyhow::Result<Ref<'_, File>> {
+        if let Some(file) = &self.file {
+            Ok(file.borrow())
+        } else {
+            Err(anyhow::anyhow!("file has been closed"))
+        }
+    }
+    /// 为后续dll调试提供准备
+    pub fn lock_file(&mut self)-> anyhow::Result<()> {
+        if self.file.is_some() {
+            self.file = None;
+            Ok(())
+        }
+        else{
+            let file = GLOBAL_RT.block_on(File::options()
+                .read(true)
+                .write(true)
+                .open(&self.file_path))?;
+            self.file = Some(RefCell::new(file));
+            Ok(())
+        }
     }
 
-    pub async fn new(file: PathBuf) -> anyhow::Result<Box<Self>> {
-        let mut f = File::options().read(true).write(true).open(&file).await?;
-        let file_name = file.file_name().unwrap().to_str().unwrap().to_string();
-        let file_path = file;
-        let dos_head = Box::new(ImageDosHeader::new(&mut f).await?);
-        let is_64_bit = is_64(&mut f, &dos_head).await?;
-        let (nt_head, data_directory): (Box<dyn NtHeaders>, DataDirectory) =
-            if is_64_bit {
-                let (nt, data) = nt_header::read_nt_head::<ImageNtHeaders64>(
-                    &mut f,
-                    dos_head.get_nt_addr().await,
-                )
-                .await?;
-                (Box::new(nt), data)
-            } else {
-                let (nt, data) = nt_header::read_nt_head::<ImageNtHeaders>(
-                    &mut f,
-                    dos_head.get_nt_addr().await,
-                )
-                .await?;
-                (Box::new(nt), data)
-            };
+    pub async fn new(file_path: PathBuf) -> anyhow::Result<Box<Self>> {
+        // 1. 打开文件并提取基本信息
+        let mut file = File::options()
+            .read(true)
+            .write(true)
+            .open(&file_path)
+            .await?;
+        
+        let file_name = Self::extract_file_name(&file_path)?;
+        let file_size = file.metadata().await?.len();
+
+        // 2. 解析DOS头
+        let dos_head = Box::new(ImageDosHeader::new(&mut file).await?);
+        let nt_addr = dos_head.get_nt_addr().await;
+
+        // 3. 判断架构并解析NT头
+        let is_64_bit = is_64(&mut file, &dos_head).await?;
+        let (nt_head, data_directory) = Self::parse_nt_headers(&mut file, nt_addr, is_64_bit).await?;
+
+        // 4. 解析其他结构
         let section_headers = ImageSectionHeaders::new(
-            &mut f,
-            nt_head.section_start(dos_head.get_nt_addr().await),
+            &mut file,
+            nt_head.section_start(nt_addr),
             nt_head.section_number(),
-        )
-        .await?;
-        let dos_stub = ImageDosStub::new(&mut f, dos_head.get_nt_addr().await).await?;
+        ).await?;
+        
+        let dos_stub = ImageDosStub::new(&mut file, nt_addr).await?;
 
-        //file size
-        let file_size = f.metadata().await?.len();
-        // file hash
-
+        // 5. 构建FileInfo结构
         Ok(Box::new(FileInfo {
-            file: RefCell::new(f),
+            file: Some(RefCell::new(file)),
             file_name,
             file_path,
             file_hash: None,
@@ -134,14 +153,37 @@ impl FileInfo {
             nt_head,
             data_directory,
             section_headers,
-            import_dll: vec![],
+            import_dll: Vec::new(),
             export: ExportTable::default(),
-
         }))
     }
 
+    /// 提取文件名
+    fn extract_file_name(file_path: &PathBuf) -> anyhow::Result<String> {
+        file_path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .map(|s| s.to_string())
+            .ok_or_else(|| anyhow::anyhow!("无法提取文件名"))
+    }
+
+    /// 解析NT头部信息
+    async fn parse_nt_headers(
+        file: &mut File,
+        nt_addr: u16,
+        is_64_bit: bool,
+    ) -> anyhow::Result<(Box<dyn NtHeaders>, DataDirectory)> {
+        if is_64_bit {
+            let (nt_header, data_dir) = nt_header::read_nt_head::<ImageNtHeaders64>(file, nt_addr).await?;
+            Ok((Box::new(nt_header), data_dir))
+        } else {
+            let (nt_header, data_dir) = nt_header::read_nt_head::<ImageNtHeaders>(file, nt_addr).await?;
+            Ok((Box::new(nt_header), data_dir))
+        }
+    }
+
     pub async fn get_export(&self) -> anyhow::Result<ExportTable> {
-        let mut f = self.get_mut_file();
+        let mut f = self.get_mut_file()?;
         if let Some(export_dir) = ExportDir::new(
             &mut f,
             &*self.nt_head,
@@ -156,8 +198,10 @@ impl FileInfo {
         }
         Err(anyhow!("获取导出表失败"))
     }
+
+    /// 获取导入表
     pub async fn get_imports(&self) -> anyhow::Result<Vec<ImportDll>> {
-        let f = &mut self.get_mut_file();
+        let f = &mut self.get_mut_file()?;
         let mut import_infos = Vec::new();
         let mut index = 0;
         loop {
@@ -186,4 +230,19 @@ impl FileInfo {
         }
         Ok(import_infos)
     }
+}
+
+pub(crate) fn load_file_info(path: PathBuf) -> anyhow::Result<Box<FileInfo>> {
+    GLOBAL_RT.block_on(FileInfo::new(path))
+}
+
+
+pub async fn is_64(file: &mut File, image_dos_header: &ImageDosHeader) -> anyhow::Result<bool> {
+    let image_file_header = ImageFileHeader::new(file, image_dos_header).await?;
+    if nt_header::MACHINE_32.contains(&image_file_header.machine) {
+        return Ok(false);
+    } else if nt_header::MACHINE_64.contains(&image_file_header.machine) {
+        return Ok(true);
+    }
+    Err(anyhow::anyhow!("Not a normal machine image file"))
 }
