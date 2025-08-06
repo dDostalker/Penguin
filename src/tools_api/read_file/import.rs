@@ -1,11 +1,12 @@
 use std::any::Any;
 use std::io::SeekFrom;
 use std::mem::transmute;
+use std::sync::Arc;
 use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncSeekExt};
 
 use crate::tools_api::read_file::{
-    DataDirectory, ImageDosHeader, ImageSectionHeaders, ImportDescriptor, ImportDll,
+    DataDirectory, ImageDosHeader, ImageSectionHeaders, ImportDescriptor, ImportDll, ImportTable,
     ImportFunction, rva_2_fo,
 };
 use crate::tools_api::is_64;    
@@ -85,11 +86,7 @@ impl ImportDll {
         let mut function_info = Vec::new();
         let mut addr;
         let function_info_address;
-        #[cfg(debug_assertions)]
-        eprintln!(
-            "tools_api:import:import_descriptor.dummy_union_name {}",
-            import_descriptor.dummy_union_name
-        );
+
         match rva_2_fo(nt_head, section_headers, import_descriptor.dummy_union_name).await {
             None => return Err(anyhow::anyhow!("End")),
             Some(ret) => function_info_address = ret,
@@ -160,4 +157,11 @@ impl ImportDll {
             function_size: 0,
         })
     }
+}
+
+impl ImportTable {
+    pub fn fclone(&self) -> Self {
+        ImportTable(Arc::clone(&self.0))
+    }
+    
 }

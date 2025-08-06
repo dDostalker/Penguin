@@ -48,32 +48,3 @@ impl ImportFunction {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::tools_api::FileInfo;
-    use std::path::PathBuf;
-    use tokio::fs::File;
-
-    #[tokio::test]
-    async fn test_write_32_file_func() {
-        let file_info = FileInfo::new(PathBuf::from("./test_pe/steam_api_write_test.dll"))
-            .await
-            .expect("TODO: panic message");
-        let mut f = File::options()
-            .write(true)
-            .open(&file_info.file_path)
-            .await
-            .unwrap();
-        let file_info = file_info
-            .get_export()
-            .await
-            .unwrap()
-            ._get_index_mut(1)
-            .unwrap()
-            .write_func_name(&mut f, "ss")
-            .await
-            .unwrap();
-        dbg!(file_info)
-        //let a = file_info.get_export().await.unwrap().get_mut(0).unwrap().write_func_name_rva(&mut f,192512).await.unwrap();
-    }
-}

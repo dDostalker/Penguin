@@ -74,8 +74,9 @@ impl FileManager {
                                 return;
                             }
                         };
-                        if import_dll != *file_info.import_dll {
-                            for (i, j) in import_dll.iter().zip(file_info.import_dll.iter()) {
+                        let import_dll_cmp = file_info.import_dll.fclone();
+                        if import_dll != import_dll_cmp {
+                            for (i, j) in import_dll.0.borrow().iter().zip(import_dll_cmp.0.borrow().iter()) {
                                 if i != j {
                                     for (k, l) in i.function_info.iter().zip(j.function_info.iter())
                                     {
@@ -111,13 +112,14 @@ impl FileManager {
                             .block_on(self.files.get(self.current_index).unwrap().get_export())
                         {
                             Ok(export_table) => export_table,
-                            Err(_e) => {
-                                self.sub_window_manager.show_error("修改导出表失败");
+                            Err(e) => {
+                                self.sub_window_manager.show_error(&e.to_string());
                                 return;
                             }
                         };
                         if export_table != file_info.export {
-                            for (i, j) in export_table.0.iter().zip(file_info.export.0.iter()) {
+                            let export_table_ref = export_table.0.borrow();
+                            for (i, j) in export_table_ref.iter().zip(file_info.export.0.borrow().iter()) {
                                 if i != j {
                                     let mut f = match file_info.get_mut_file() {
                                         Ok(file) => file,

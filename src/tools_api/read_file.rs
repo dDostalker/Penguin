@@ -1,4 +1,6 @@
 use crate::tools_api::read_file::nt_header::traits::NtHeaders;
+use std::sync::Arc;
+use std::cell::RefCell;
 use tokio::fs::File;
 
 mod dos_header;
@@ -264,7 +266,7 @@ pub struct ExportInfo {
 }
 /// ExportInfos 用于传递egui
 #[derive(Debug, Clone, Default, Eq, PartialEq)]
-pub struct ExportTable(pub(crate) Vec<ExportInfo>);
+pub struct ExportTable(pub(crate) Arc<RefCell<Vec<ExportInfo>>>);
 
 #[repr(C)]
 #[derive(Default, Debug)]
@@ -287,6 +289,9 @@ pub struct ImportDll {
     pub(crate) function_info: Vec<ImportFunction>,
     pub(crate) function_size: u32,
 }
+#[derive(Default, Eq, PartialEq)]
+pub struct ImportTable(pub(crate) Arc<RefCell<Vec<ImportDll>>>);
+
 /// import function 用于传递egui
 #[derive(Default, Debug, Eq, PartialEq, Clone)]
 pub struct ImportFunction {
@@ -295,4 +300,3 @@ pub struct ImportFunction {
     pub(crate) name_max_length: u32,
     pub(crate) name: String,
 }
-

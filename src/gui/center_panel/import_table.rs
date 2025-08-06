@@ -4,7 +4,7 @@ use crate::tools_api::read_file::ImportDll;
 use crate::{GLOBAL_RT, gui::FileManager};
 use eframe::egui::{ScrollArea, Ui, Vec2};
 use std::path::PathBuf;
-
+use crate::tools_api::read_file::ImportTable;
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 const SPACING: Vec2 = Vec2::new(20.0, 8.0);
 const COLUMNS: usize = 3;
@@ -21,7 +21,7 @@ impl FileManager {
     /// 导入表主面板
     pub(crate) fn import_table_panel(&mut self, ui: &mut Ui) -> anyhow::Result<()> {
         // 预先获取数据，避免在渲染循环中重复调用
-        let imports = match self.import_dll_mut() {
+        let imports = match self.import_dll() {
             Ok(imports) => imports,
             Err(e) => {
                 //self.sub_window_manager.show_error(&e.to_string());
@@ -30,7 +30,7 @@ impl FileManager {
         };
 
         // 克隆数据以避免借用冲突
-        let imports_clone = imports.clone();
+        let imports_clone = imports.fclone();
         let selected_index = self.sub_window_manager.select_dll_index;
         let selected_function_index = self.sub_window_manager.select_function_index;
 
@@ -43,7 +43,7 @@ impl FileManager {
                 // 左侧表格：DLL列表
                 ui.vertical(|ui| {
                     ui.label("DLL列表");
-                    self.show_dll_table(ui, &imports_clone);
+                    self.show_dll_table(ui, &imports_clone.0.borrow());
                 });
 
                 // 添加分隔线
@@ -51,7 +51,7 @@ impl FileManager {
                 ui.vertical(|ui| {
                     ui.label("函数列表");
                     if let Some(selected_index) = selected_index {
-                        if let Some(selected_dll) = imports_clone.get(selected_index) {
+                        if let Some(selected_dll) = imports_clone.0.borrow().get(selected_index) {
                             self.show_function_table(ui, selected_dll);
                         } else {
                             ui.label("请选择一个DLL查看其函数");
@@ -69,10 +69,11 @@ impl FileManager {
             eframe::egui::TopBottomPanel::bottom("export_detail_window").show(ui.ctx(), |ui| {
                 ui.horizontal(|ui| {
                     ui.label("导出函数详情");
+                    let mut import_dll = self.files[self.current_index].import_dll.0.borrow_mut();
                     ui.horizontal(|ui| {
                         ui.label("函数名:");
                         ui.text_edit_singleline(
-                            &mut self.files[self.current_index].import_dll[selected_index]
+                            &mut import_dll[selected_index]
                                 .function_info[selected_function_index]
                                 .name,
                         );
@@ -87,12 +88,12 @@ impl FileManager {
     }
 
     /// 获取导入表的引用
-    pub(crate) fn import_dll_mut(&mut self) -> anyhow::Result<&mut Vec<ImportDll>> {
+    pub(crate) fn import_dll(&mut self) -> anyhow::Result<ImportTable> {
         let file = self.files.get_mut(self.current_index).unwrap();
-        if file.import_dll.is_empty() {
+        if file.import_dll.0.borrow().is_empty() {
             file.import_dll = GLOBAL_RT.block_on(file.get_imports())?;
         }
-        Ok(&mut file.import_dll)
+        Ok(file.import_dll.fclone())
     }
 
     fn show_dll_table(&mut self, ui: &mut Ui, imports: &[ImportDll]) {

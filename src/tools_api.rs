@@ -6,11 +6,11 @@ use crate::gui::SubWindowManager;
 use crate::tools_api::read_file::nt_header::traits::NtHeaders;
 use crate::tools_api::read_file::{
     DataDirectory, ExportDir, ExportTable, ImageDosHeader, ImageDosStub, ImageFileHeader, ImageNtHeaders,
-    ImageNtHeaders64, ImageSectionHeaders, ImportDescriptor, ImportDll, nt_header,
+    ImageNtHeaders64, ImageSectionHeaders, ImportDescriptor, ImportDll, ImportTable, nt_header,
 };
 use anyhow::anyhow;
 use std::cell::{Ref, RefCell, RefMut};
-use std::rc::Rc;
+use std::sync::Arc;
 use std::path::PathBuf;
 use tokio::fs::File;
 use crate::GLOBAL_RT;
@@ -35,7 +35,7 @@ pub struct FileInfo {
     pub(crate) nt_head: Box<dyn NtHeaders>,
     pub(crate) data_directory: DataDirectory,
     pub(crate) section_headers: ImageSectionHeaders,
-    pub(crate) import_dll: Vec<ImportDll>,
+    pub(crate) import_dll: ImportTable,
     pub(crate) export: ExportTable,
 }
 
@@ -95,7 +95,7 @@ impl FileInfo {
             Err(anyhow::anyhow!("file has been closed"))
         }
     }
-    /// 为后续dll调试提供准备
+    /// 转换状态，为后续dll调试提供准备
     pub fn lock_file(&mut self)-> anyhow::Result<()> {
         if self.file.is_some() {
             self.file = None;
@@ -153,7 +153,7 @@ impl FileInfo {
             nt_head,
             data_directory,
             section_headers,
-            import_dll: Vec::new(),
+            import_dll: ImportTable::default(),
             export: ExportTable::default(),
         }))
     }
@@ -200,7 +200,7 @@ impl FileInfo {
     }
 
     /// 获取导入表
-    pub async fn get_imports(&self) -> anyhow::Result<Vec<ImportDll>> {
+    pub async fn get_imports(&self) -> anyhow::Result<ImportTable> {
         let f = &mut self.get_mut_file()?;
         let mut import_infos = Vec::new();
         let mut index = 0;
@@ -228,7 +228,7 @@ impl FileInfo {
             }
             index += 1;
         }
-        Ok(import_infos)
+        Ok(ImportTable(Arc::new(RefCell::new(import_infos))))
     }
 }
 

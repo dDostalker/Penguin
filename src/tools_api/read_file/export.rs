@@ -6,6 +6,8 @@ use std::io::SeekFrom;
 use std::mem::transmute;
 use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncSeekExt};
+use std::sync::Arc;
+use std::cell::RefCell;
 
 impl ExportDir {
     /// 读取导出表信息
@@ -141,12 +143,15 @@ impl ExportTable {
                 ordinals_array_address += 2;
             }
         }
-        Ok(ExportTable(export_infos))
+        Ok(ExportTable(Arc::new(RefCell::new(export_infos))))
     }
-    pub(crate) fn _get_index(&self, index: usize) -> Option<&ExportInfo> {
-        self.0.get(index)
+    pub fn fclone(&self) -> Self {
+        ExportTable(Arc::clone(&self.0))
     }
-    pub(crate) fn _get_index_mut(&mut self, index: usize) -> Option<&mut ExportInfo> {
-        self.0.get_mut(index)
-    }
+    // pub(crate) fn _get_index(&self, index: usize) -> Option<&ExportInfo> {
+    //     self.0.borrow().get(index)
+    // }
+    // pub(crate) fn _get_index_mut(&mut self, index: usize) -> Option<&mut ExportInfo> {
+    //     self.0.borrow_mut().get_mut(index)
+    // }
 }

@@ -20,8 +20,8 @@ impl FileManager {
         };
 
         // 创建数据副本以避免借用冲突
-        let export_items: Vec<_> = export_data
-            .0
+        let export_table_ref = export_data.0.borrow();
+        let export_items: Vec<_> = export_table_ref
             .iter()
             .map(|item| (item.name.clone(), item.function))
             .collect();
@@ -90,27 +90,28 @@ impl FileManager {
                         });
                 });
         });
+        let mut export_table_ref = export_data.0.borrow_mut();
         if let Some(selected_index) = self.sub_window_manager.selected_export_index {
             eframe::egui::TopBottomPanel::bottom("export_detail_window").show(ui.ctx(), |ui| {
                 ui.label("导出函数详情");
                 ui.horizontal(|ui| {
                     ui.label("函数名:");
                     ui.text_edit_singleline(
-                        &mut self.files[self.current_index].export.0[selected_index].name,
+                        &mut export_table_ref.get_mut(selected_index).unwrap().name,
                     );
                     ui.label("目标地址:");
 
                     // 将 u32 地址转换为字符串进行编辑
                     let mut addr_string = format!(
                         "0x{:X}",
-                        self.files[self.current_index].export.0[selected_index].function
+                        export_table_ref[selected_index].function
                     );
                     if ui.text_edit_singleline(&mut addr_string).changed() {
                         // 尝试将用户输入的字符串转换回 u32
                         if let Ok(addr) =
                             u32::from_str_radix(addr_string.trim_start_matches("0x"), 16)
                         {
-                            self.files[self.current_index].export.0[selected_index].function = addr;
+                            export_table_ref[selected_index].function = addr;
                             self.sub_window_manager.show_success("地址已更新");
                         } else {
                             self.sub_window_manager.show_error("无效的十六进制地址格式");
@@ -124,23 +125,24 @@ impl FileManager {
         }
     }
 
-    fn get_export(&mut self) -> anyhow::Result<&mut ExportTable> {
+    fn get_export(&mut self) -> anyhow::Result<ExportTable> {
         if self
             .files
             .get(self.current_index)
             .unwrap()
             .export
             .0
+            .borrow()
             .is_empty()
         {
             if let Some(file) = self.files.get_mut(self.current_index) {
                 file.export = GLOBAL_RT.block_on(file.get_export())?;
             }
         }
-        Ok(&mut self
+        Ok(self
             .files
             .get_mut(self.current_index)
             .unwrap()
-            .export)
+            .export.fclone())
     }
 }
