@@ -15,6 +15,10 @@ impl ImageDosHeader {
             let reads: &mut [u8; 64] = transmute(&mut dos_head);
             file.read(reads).await?;
         }
+        // 验证dos头
+        if dos_head.e_magic != 0x5A4D {
+            return Err(anyhow::anyhow!("打开文件不是有效的PE文件"));
+        }
         Ok(dos_head)
     }
 }

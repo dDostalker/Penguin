@@ -1,10 +1,9 @@
 use crate::GLOBAL_RT;
 use crate::gui::FileManager;
-use crate::tools_api::{FileInfo, load_file_info};
+use crate::tools_api::{load_file_info};
 use rfd::FileDialog;
 use std::path::PathBuf;
-use tokio::fs::File;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use crate::tools_api::write_file::copy_file;
 
 impl FileManager {
     pub(crate) fn top_label(&mut self, ctx: &eframe::egui::Context) {
@@ -45,19 +44,22 @@ impl FileManager {
                                 times += 1;
                                 continue;
                             }
-                            let mut file_bak =
-                                GLOBAL_RT.block_on(File::create(&file_path)).unwrap();
-                            // 复制原文件内容到备份文件
-                            let mut orig_file = match self.files[self.current_index].get_mut_file() {
+                            let mut file = match file_info.get_mut_file() {
                                 Ok(file) => file,
                                 Err(e) => {
                                     self.sub_window_manager.show_error(&e.to_string());
                                     return;
                                 }
                             };
-                            let mut buf = Vec::new();
-                            GLOBAL_RT.block_on(orig_file.read_to_end(&mut buf)).unwrap();
-                            GLOBAL_RT.block_on(file_bak.write_all(&buf)).unwrap();
+                            match GLOBAL_RT.block_on(copy_file(&mut file, &file_path)) {
+                                Ok(_) => {
+                                    self.sub_window_manager.show_success("备份成功");
+                                }
+                                Err(e) => {
+                                    self.sub_window_manager.show_error(&e.to_string());
+                                    return;
+                                }
+                            }
                             break;
                         }
                         // 检查当前dos头是否被修改
@@ -152,7 +154,8 @@ impl FileManager {
                         self.sub_window_manager.show_success("保存成功");
                     }
                     if ui.button("exit").clicked() {
-                        // 退出应用
+                        // 后续添加释放其他行为的功能
+                        std::process::exit(0);
                     }
                 });
 

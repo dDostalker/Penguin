@@ -1,7 +1,8 @@
 use crate::tools_api::read_file::{ExportInfo, ImportFunction};
 use std::io::SeekFrom;
 use tokio::fs::File;
-use tokio::io::{AsyncSeekExt, AsyncWriteExt};
+use tokio::io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt};
+use std::path::PathBuf;
 
 impl ExportInfo {
     pub async fn write_func_name(&self, file: &mut File, func_name: &str) -> anyhow::Result<()> {
@@ -48,3 +49,10 @@ impl ImportFunction {
     }
 }
 
+pub async fn copy_file(file: &mut File, file_path: &PathBuf) -> anyhow::Result<()> {
+    let mut file_bak = File::create(file_path).await?;
+    let mut buf = Vec::new();
+    file.read_to_end(&mut buf).await?;
+    file_bak.write_all(&buf).await?;
+    Ok(())
+}

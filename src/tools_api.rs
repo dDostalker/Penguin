@@ -2,13 +2,13 @@ pub(crate) mod calc;
 pub(crate) mod file_system;
 pub(crate) mod read_file;
 pub(crate) mod write_file;
+pub(crate) mod toml;
 use crate::gui::SubWindowManager;
 use crate::tools_api::read_file::nt_header::traits::NtHeaders;
 use crate::tools_api::read_file::{
     DataDirectory, ExportDir, ExportTable, ImageDosHeader, ImageDosStub, ImageFileHeader, ImageNtHeaders,
     ImageNtHeaders64, ImageSectionHeaders, ImportDescriptor, ImportDll, ImportTable, nt_header,
 };
-use anyhow::anyhow;
 use std::cell::{Ref, RefCell, RefMut};
 use std::sync::Arc;
 use std::path::PathBuf;
@@ -85,14 +85,14 @@ impl FileInfo {
         if let Some(file) = &self.file {
             Ok(file.borrow_mut())
         } else {
-            Err(anyhow::anyhow!("file has been closed"))
+            Err(anyhow::anyhow!("文件句柄已关闭"))
         }
     }
     pub fn get_file(&self) -> anyhow::Result<Ref<'_, File>> {
         if let Some(file) = &self.file {
             Ok(file.borrow())
         } else {
-            Err(anyhow::anyhow!("file has been closed"))
+            Err(anyhow::anyhow!("文件句柄已关闭"))
         }
     }
     /// 转换状态，为后续dll调试提供准备
@@ -196,7 +196,7 @@ impl FileInfo {
                 .await?;
             return Ok(export_info);
         }
-        Err(anyhow!("获取导出表失败"))
+        Ok(ExportTable::default())
     }
 
     /// 获取导入表

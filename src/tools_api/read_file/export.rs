@@ -60,7 +60,7 @@ impl ExportInfo {
             .await
             .unwrap();
         file.seek(SeekFrom::Start(name_string_rva as u64)).await?;
-        let mut buf = [0; 256];
+        let mut buf = [0; 512];
         file.read(&mut buf).await?;
         let mut flag = 1;
         let name_length = buf.iter().position(|&x| x == 0).unwrap_or(0);
@@ -145,6 +145,7 @@ impl ExportTable {
         }
         Ok(ExportTable(Arc::new(RefCell::new(export_infos))))
     }
+    
     pub fn fclone(&self) -> Self {
         ExportTable(Arc::clone(&self.0))
     }

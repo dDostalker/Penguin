@@ -8,7 +8,7 @@ const DESIGN_SIZE_FUNC_ADDR: Vec2 = Vec2::new(400.0 * 0.25, 0.0);
 const DESIGN_SIZE_FUNC_OPERATE: Vec2 = Vec2::new(400.0 * 0.25, 0.0);
 const SPACING: Vec2 = Vec2::new(20.0, 8.0);
 const COLUMNS: usize = 3;
-const MAX_FUNC_NAME_LENGTH: usize = 70;
+const MAX_FUNC_NAME_LENGTH: usize = 50;
 impl FileManager {
     pub(crate) fn export_panel(&mut self, ui: &mut Ui) {
         // 预先获取数据，避免在渲染循环中重复调用
@@ -19,13 +19,10 @@ impl FileManager {
             }
         };
 
-        // 创建数据副本以避免借用冲突
-        let export_table_ref = export_data.0.borrow();
-        let export_items: Vec<_> = export_table_ref
-            .iter()
-            .map(|item| (item.name.clone(), item.function))
-            .collect();
-        // 使用整个可用空间
+        // 克隆数据以避免借用冲突
+        let export_data_clone = export_data.fclone();
+        let selected_index = self.sub_window_manager.selected_export_index;
+        
         eframe::egui::CentralPanel::default().show(ui.ctx(), |ui| {
             eframe::egui::ScrollArea::vertical()
                 .min_scrolled_height(MIN_SCROLLED_HEIGHT)
@@ -49,20 +46,20 @@ impl FileManager {
                             });
                             ui.end_row();
 
-                            for (index, (func_name, func_addr)) in export_items.iter().enumerate() {
+                            for (index, item) in export_data_clone.0.borrow().iter().enumerate() {
                                 // 函数名列 - 占用50%宽度
                                 ui.allocate_ui(DESIGN_SIZE_FUNC_NAME, |ui| {
-                                    let display_name = if func_name.len() > MAX_FUNC_NAME_LENGTH {
-                                        format!("{}...", &func_name[..MAX_FUNC_NAME_LENGTH - 3])
+                                    let display_name = if item.name.len() > MAX_FUNC_NAME_LENGTH {
+                                        format!("{}...", &item.name[..MAX_FUNC_NAME_LENGTH - 3])
                                     } else {
-                                        func_name.clone()
+                                        item.name.clone()
                                     };
                                     ui.label(display_name);
                                 });
 
                                 // 地址列 - 占用25%宽度
                                 ui.allocate_ui(DESIGN_SIZE_FUNC_ADDR, |ui| {
-                                    let addr_display = format!("0x{:X}", func_addr);
+                                    let addr_display = format!("0x{:X}", item.function);
                                     ui.label(addr_display);
                                 });
 
@@ -73,55 +70,49 @@ impl FileManager {
                                             self.sub_window_manager.selected_export_index =
                                                 Some(index);
                                         }
-
-                                        if ui.button("复制").clicked() {
-                                            let info = format!(
-                                                "函数名: {}\n地址: 0x{:X}",
-                                                func_name, func_addr
-                                            );
-                                            ui.output_mut(|o| o.copied_text = info);
-                                            self.sub_window_manager.show_info("已复制到剪贴板");
-                                        }
                                     });
                                 });
-
                                 ui.end_row();
                             }
                         });
                 });
         });
-        let mut export_table_ref = export_data.0.borrow_mut();
-        if let Some(selected_index) = self.sub_window_manager.selected_export_index {
-            eframe::egui::TopBottomPanel::bottom("export_detail_window").show(ui.ctx(), |ui| {
-                ui.label("导出函数详情");
-                ui.horizontal(|ui| {
-                    ui.label("函数名:");
-                    ui.text_edit_singleline(
-                        &mut export_table_ref.get_mut(selected_index).unwrap().name,
-                    );
-                    ui.label("目标地址:");
+        
+        // 在渲染循环外处理编辑逻辑
+        if let Some(selected_index) = selected_index {
+            let mut export_table_ref = self.files[self.current_index].export.0.borrow_mut();
+            if selected_index < export_table_ref.len() {
+                eframe::egui::TopBottomPanel::bottom("export_detail_window").show(ui.ctx(), |ui| {
+                    ui.label("导出函数详情");
+                    ui.horizontal(|ui| {
+                        ui.label("函数名:");
+                        ui.text_edit_singleline(
+                            &mut export_table_ref[selected_index].name,
+                        );
+                        ui.label("目标地址:");
 
-                    // 将 u32 地址转换为字符串进行编辑
-                    let mut addr_string = format!(
-                        "0x{:X}",
-                        export_table_ref[selected_index].function
-                    );
-                    if ui.text_edit_singleline(&mut addr_string).changed() {
-                        // 尝试将用户输入的字符串转换回 u32
-                        if let Ok(addr) =
-                            u32::from_str_radix(addr_string.trim_start_matches("0x"), 16)
-                        {
-                            export_table_ref[selected_index].function = addr;
-                            self.sub_window_manager.show_success("地址已更新");
-                        } else {
-                            self.sub_window_manager.show_error("无效的十六进制地址格式");
+                        // 将 u32 地址转换为字符串进行编辑
+                        let mut addr_string = format!(
+                            "0x{:X}",
+                            export_table_ref[selected_index].function
+                        );
+                        if ui.text_edit_singleline(&mut addr_string).changed() {
+                            // 尝试将用户输入的字符串转换回 u32
+                            if let Ok(addr) =
+                                u32::from_str_radix(addr_string.trim_start_matches("0x"), 16)
+                            {
+                                export_table_ref[selected_index].function = addr;
+                                self.sub_window_manager.show_success("地址已更新");
+                            } else {
+                                self.sub_window_manager.show_error("无效的十六进制地址格式");
+                            }
                         }
-                    }
-                    if ui.button("X").clicked() {
-                        self.sub_window_manager.selected_export_index = None;
-                    }
+                        if ui.button("X").clicked() {
+                            self.sub_window_manager.selected_export_index = None;
+                        }
+                    });
                 });
-            });
+            }
         }
     }
 

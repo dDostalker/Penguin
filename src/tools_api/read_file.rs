@@ -1,7 +1,6 @@
 use crate::tools_api::read_file::nt_header::traits::NtHeaders;
 use std::sync::Arc;
 use std::cell::RefCell;
-use tokio::fs::File;
 
 mod dos_header;
 mod dos_stub;

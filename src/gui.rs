@@ -1,5 +1,5 @@
 use crate::tools_api::FileManager;
-use eframe::egui::{Context, vec2};
+use eframe::egui::{Context, vec2, Vec2};
 use eframe::{HardwareAcceleration, Renderer};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -9,6 +9,8 @@ mod left_panel;
 mod toast_window;
 mod top_header_panel;
 
+
+const MIN_INNER_SIZE: Vec2 = vec2(1000.0, 600.0);
 /// Toast 通知类型
 #[derive(Debug, Clone)]
 pub enum ToastType {
@@ -48,7 +50,7 @@ pub fn create_native_options() -> eframe::NativeOptions {
             app_id: None,
             position: None,
             inner_size: None,
-            min_inner_size: Some(vec2(1000.0, 600.0)),
+            min_inner_size: Some(MIN_INNER_SIZE),
             max_inner_size: None,
             clamp_size_to_monitor_size: None,
             fullscreen: None,

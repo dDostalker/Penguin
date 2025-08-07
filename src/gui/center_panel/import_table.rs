@@ -8,6 +8,7 @@ use crate::tools_api::read_file::ImportTable;
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 const SPACING: Vec2 = Vec2::new(20.0, 8.0);
 const COLUMNS: usize = 3;
+const MAX_DLL_NAME_LENGTH: usize = 20;
 
 impl FileManager {
     /// 截断文本到指定长度，超出部分用省略号表示
@@ -114,7 +115,7 @@ impl FileManager {
 
                         for (index, dll) in imports.iter().enumerate() {
                             // DLL名称显示（限制最大30个字符）
-                            let truncated_dll_name = Self::truncate_text(&dll.name, 30);
+                                let truncated_dll_name = Self::truncate_text(&dll.name, MAX_DLL_NAME_LENGTH);
                             ui.label(&truncated_dll_name);
 
                             // 函数数量显示
@@ -126,10 +127,6 @@ impl FileManager {
                                     self.sub_window_manager.select_dll_index = Some(index);
                                     self.sub_window_manager.select_function_index = None;
                                 }
-                                if ui.button("复制").clicked() {
-                                    let info = format!("DLL: {}", dll.name);
-                                    ui.output_mut(|o| o.copied_text = info);
-                                }
                                 // 添加打开资源管理器按钮
                                 if ui.button("打开位置").clicked() {
                                     let dll_folder = get_dll_folder(
@@ -138,7 +135,7 @@ impl FileManager {
                                     )
                                     .unwrap();
                                     if let Err(e) = file_system::open_file_location(&dll_folder) {
-                                        eprintln!("打开文件位置失败: {}", e);
+                                        self.sub_window_manager.show_error(&e.to_string());
                                     }
                                 }
                             });
@@ -174,10 +171,6 @@ impl FileManager {
 
                             // 操作按钮
                             ui.horizontal(|ui| {
-                                if ui.button("复制").clicked() {
-                                    let info = format!("函数: {}", function.name);
-                                    ui.output_mut(|o| o.copied_text = info);
-                                }
                                 if ui.button("详细").clicked() {
                                     self.sub_window_manager.select_function_index = Some(index);
                                 }
