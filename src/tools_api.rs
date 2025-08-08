@@ -2,7 +2,7 @@ pub(crate) mod calc;
 pub(crate) mod file_system;
 pub(crate) mod read_file;
 pub(crate) mod write_file;
-pub(crate) mod toml;
+pub(crate) mod serde_pe;
 use crate::gui::SubWindowManager;
 use crate::tools_api::read_file::nt_header::traits::NtHeaders;
 use crate::tools_api::read_file::{
@@ -14,8 +14,9 @@ use std::sync::Arc;
 use std::path::PathBuf;
 use tokio::fs::File;
 use crate::GLOBAL_RT;
+use serde_derive::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize,Clone)]
 pub struct HashInfo {
     pub md5: String,
     pub sha1: String,
@@ -29,7 +30,7 @@ pub struct FileInfo {
     pub file_hash: Option<HashInfo>,
     pub dos_head: Box<ImageDosHeader>,
     pub dos_stub: ImageDosStub,
-    is_64_bit: bool,
+    pub is_64_bit: bool,
     is_little_endian: bool,
     pub file_size: u64,
     pub(crate) nt_head: Box<dyn NtHeaders>,
@@ -73,7 +74,7 @@ impl FileManager {
 
 impl PartialEq<Self> for FileInfo {
     fn eq(&self, other: &Self) -> bool {
-        self.file_path == other.file_path && self.file_hash == other.file_hash
+        self.file_path == other.file_path
     }
 }
 
@@ -121,11 +122,10 @@ impl FileInfo {
         
         let file_name = Self::extract_file_name(&file_path)?;
         let file_size = file.metadata().await?.len();
-
+        let is_little_endian = true;//todo 需要根据文件头判断
         // 2. 解析DOS头
         let dos_head = Box::new(ImageDosHeader::new(&mut file).await?);
         let nt_addr = dos_head.get_nt_addr().await;
-
         // 3. 判断架构并解析NT头
         let is_64_bit = is_64(&mut file, &dos_head).await?;
         let (nt_head, data_directory) = Self::parse_nt_headers(&mut file, nt_addr, is_64_bit).await?;

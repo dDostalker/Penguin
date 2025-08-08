@@ -3,6 +3,8 @@ use crate::tools_api::read_file::{
     DataDirectory, ImageDataDirectory, ImageDosHeader, ImageFileHeader, ImageNtHeaders,
     ImageNtHeaders64,
 };
+use crate::tools_api::read_file::{SerializableNtHeaders};
+
 use std::io::SeekFrom;
 use std::mem::transmute;
 use tokio::fs::File;
@@ -36,6 +38,7 @@ pub(crate) enum Characteristics {
 }
 /// 为 64 位 和 32 位nt头特征
 pub mod traits {
+    use crate::tools_api::read_file::{SerializableNtHeaders};
     pub trait NtHeaders {
         /// 获取数据目录的数量
         fn num_of_rva(&self) -> u32;
@@ -82,6 +85,9 @@ pub mod traits {
         fn get_size_of_heap_commit(&self) -> String;
         fn get_loader_flags(&self) -> String;
         fn get_number_of_rva_and_sizes(&self) -> u32;
+
+        // 序列化
+        fn serde_serialize(&self) -> SerializableNtHeaders;
     }
 }
 
@@ -382,6 +388,10 @@ impl NtHeaders for ImageNtHeaders {
     fn get_number_of_rva_and_sizes(&self) -> u32 {
         self.optional_header.number_of_rva_and_sizes
     }
+
+    fn serde_serialize(&self) -> SerializableNtHeaders {
+        SerializableNtHeaders::ImageNtHeaders32(self.clone())
+    }
 }
 impl NtHeaders for ImageNtHeaders64 {
     fn num_of_rva(&self) -> u32 {
@@ -620,6 +630,9 @@ impl NtHeaders for ImageNtHeaders64 {
 
     fn get_number_of_rva_and_sizes(&self) -> u32 {
         self.optional_header.number_of_rva_and_sizes
+    }
+    fn serde_serialize(&self) -> SerializableNtHeaders {
+        SerializableNtHeaders::ImageNtHeaders64(self.clone())
     }
 }
 

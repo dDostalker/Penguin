@@ -1,7 +1,7 @@
 use crate::tools_api::read_file::nt_header::traits::NtHeaders;
 use std::sync::Arc;
 use std::cell::RefCell;
-
+use serde_derive::{Deserialize, Serialize};
 mod dos_header;
 mod dos_stub;
 mod export;
@@ -9,7 +9,12 @@ mod import;
 pub mod nt_header;
 mod section_headers;
 
+
+
+
+
 #[repr(C)]
+#[derive(Serialize,Deserialize)]
 #[derive(Default, Debug, Clone, Eq, PartialEq)]
 pub struct ImageDosHeader {
     pub(crate) e_magic: u16,      // MZ标记 0x5A4D
@@ -34,13 +39,15 @@ pub struct ImageDosHeader {
 }
 
 /// 存根内容
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq,Clone)]
 pub struct ImageDosStub {
     pub buffer: Vec<u8>,
 }
 
 /// image_file_header 位于nt头中
 #[repr(C)]
+#[derive(Serialize,Deserialize)]
 #[derive(Default, Debug, Clone, Eq, PartialEq)]
 pub(crate) struct ImageFileHeader {
     pub(crate) machine: u16,                 //标记可以程序可以运行在什么样的CPU上
@@ -58,6 +65,7 @@ struct MageDataDirectory {
     size: u32,
 }
 #[repr(C)]
+#[derive(Serialize,Deserialize)]
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct ImageOptionalHeader64 {
     pub(crate) magic: u16, // 标识PE文件的魔数，例如0x20B表示64位PE文件
@@ -118,6 +126,7 @@ pub struct ImageOptionalHeader64 {
 }
 
 #[repr(C)]
+#[derive(Serialize,Deserialize)]
 #[derive(Debug, Clone, Default, Eq, PartialEq)]
 pub struct ImageOptionalHeader {
     // 标准字段
@@ -154,6 +163,7 @@ pub struct ImageOptionalHeader {
     pub loader_flags: u32,                   // 加载器标志（通常为0）
     pub number_of_rva_and_sizes: u32,        // 数据目录数量
 }
+#[derive(Serialize, Deserialize)]
 #[derive(Default, Debug, Clone, Eq, PartialEq)]
 pub(crate) struct ImageDataDirectory {
     pub(crate) virtual_address: u32,
@@ -162,7 +172,22 @@ pub(crate) struct ImageDataDirectory {
 #[derive(Default, Debug, Clone, Eq, PartialEq)]
 pub struct DataDirectory(Vec<ImageDataDirectory>);
 
+
+#[derive(Serialize, Deserialize)]
+pub struct SerializableDataDirectory {
+    pub(crate) directories: Vec<ImageDataDirectory>,
+}
+
+impl DataDirectory {
+    pub fn to_serializable(&self) -> SerializableDataDirectory {
+        SerializableDataDirectory {
+            directories: self.0.clone(),
+        }
+    }
+}
+
 #[repr(C)]
+#[derive(Serialize,Deserialize)]
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct ImageNtHeaders64 {
     pub(crate) signature: u32,
@@ -170,6 +195,7 @@ pub struct ImageNtHeaders64 {
     pub(crate) optional_header: ImageOptionalHeader64,
 }
 #[repr(C)]
+#[derive(Serialize,Deserialize)]
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct ImageNtHeaders {
     pub(crate) signature: u32,
@@ -179,8 +205,23 @@ pub struct ImageNtHeaders {
 #[derive(Default, Debug, Clone, Eq, PartialEq)]
 pub struct ImageSectionHeaders(pub(crate) Vec<ImageSectionHeader>);
 
+// 为序列化创建包装结构体
+#[derive(Serialize, Deserialize)]
+pub struct SerializableImageSectionHeaders {
+    pub sections: Vec<ImageSectionHeader>,
+}
+
+impl ImageSectionHeaders {
+    pub fn to_serializable(&self) -> SerializableImageSectionHeaders {
+        SerializableImageSectionHeaders {
+            sections: self.0.clone(),
+        }
+    }
+}
+
 /// 节头结构体 - 表示PE文件中每个节的元数据
 #[repr(C)]
+#[derive(Serialize,Deserialize)]
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct ImageSectionHeader {
     /// 节名称（最多8个字符）
@@ -207,6 +248,7 @@ pub struct ImageSectionHeader {
 
 /// 处理节头的联合体字段
 #[repr(C)]
+#[derive(Serialize,Deserialize)]
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct SectionHeaderMisc {
     /// 当前节在内存中未对齐时的大小（真实大小）
@@ -252,6 +294,7 @@ pub struct ExportDir {
     pub(crate) address_of_name_ordinals: u32,
 }
 /// ExportInfo 用于转递给egui
+#[derive(Serialize, Deserialize)]
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct ExportInfo {
     pub name_rva: u32,
@@ -267,6 +310,20 @@ pub struct ExportInfo {
 #[derive(Debug, Clone, Default, Eq, PartialEq)]
 pub struct ExportTable(pub(crate) Arc<RefCell<Vec<ExportInfo>>>);
 
+// 为序列化创建包装结构体
+#[derive(Serialize, Deserialize)]
+pub struct SerializableExportTable {
+    pub exports: Vec<ExportInfo>,
+}
+
+impl ExportTable {
+    pub fn to_serializable(&self) -> SerializableExportTable {
+        SerializableExportTable {
+            exports: self.0.borrow().clone(),
+        }
+    }
+}
+
 #[repr(C)]
 #[derive(Default, Debug)]
 pub struct ImportDescriptor {
@@ -277,6 +334,7 @@ pub struct ImportDescriptor {
     first_thunk: u32,
 }
 /// import dll 用于传递egui
+#[derive(Serialize,Deserialize)]
 #[derive(Default, Debug, Eq, PartialEq, Clone)]
 pub struct ImportDll {
     pub(crate) name_address: u32,
@@ -291,7 +349,22 @@ pub struct ImportDll {
 #[derive(Default, Eq, PartialEq)]
 pub struct ImportTable(pub(crate) Arc<RefCell<Vec<ImportDll>>>);
 
+// 为序列化创建包装结构体
+#[derive(Serialize, Deserialize)]
+pub struct SerializableImportTable {
+    pub dlls: Vec<ImportDll>,
+}
+
+impl ImportTable {
+    pub fn to_serializable(&self) -> SerializableImportTable {
+        SerializableImportTable {
+            dlls: self.0.borrow().clone(),
+        }
+    }
+}
+
 /// import function 用于传递egui
+#[derive(Serialize,Deserialize)]
 #[derive(Default, Debug, Eq, PartialEq, Clone)]
 pub struct ImportFunction {
     pub(crate) name_address: u32,
@@ -299,3 +372,11 @@ pub struct ImportFunction {
     pub(crate) name_max_length: u32,
     pub(crate) name: String,
 }
+
+// 为NtHeaders trait对象创建可序列化的包装
+#[derive(Serialize, Deserialize)]
+pub enum SerializableNtHeaders {
+    ImageNtHeaders32(ImageNtHeaders),
+    ImageNtHeaders64(ImageNtHeaders64),
+}
+
