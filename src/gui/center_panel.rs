@@ -43,11 +43,12 @@ impl FileManager {
             .frame(Frame::new().fill(CENTER_PANEL_BOTTOM_FILL_COLOR))
             .show(ctx, |ui| {
                 ui.label(format!("File Name: {:?}", file.file_name));
-                ui.horizontal(|ui| {
+                ui.horizontal(|ui|->anyhow::Result<()> {
                     ui.label(format!("File Path: {:?}", file.file_path));
                     if ui.button("jump").clicked() {
-                        open_file_location(&file.file_path);
+                        open_file_location(&file.file_path)?;
                     }
+                    Ok(())
                 });
                 ui.label(format!("File Size: {}B", file.file_size));
                 if file.file_hash.is_none() {
@@ -116,15 +117,28 @@ impl FileManager {
                                     });
                                 });
                                 match self.page {
-                                    Page::DosHead => self.dos_header_panel(ui),
-                                    Page::DosStub => self.dos_stub_panel(ui),
+                                    Page::DosHead => {
+                                        if let Err(e) = self.dos_header_panel(ui) {
+                                            self.sub_window_manager.show_error(&e.to_string());
+                                        }
+                                    }
+                                    Page::DosStub => {
+                                        self.dos_stub_panel(ui);
+                                    }
                                     Page::NtHead => self.nt_header_panel(ui),
-                                    Page::SectionHead => self.section_header_panel(ui),
+                                    Page::SectionHead => {
+                                        if let Err(e) = self.section_header_panel(ui) {
+                                            self.sub_window_manager.show_error(&e.to_string());
+                                        }
+                                    }
                                     Page::Import => {
-                                        self.import_table_panel(ui);
+                                        if let Err(e) = self.import_table_panel(ui) {
+                                            self.sub_window_manager.show_error(&e.to_string());
+                                        }
                                     }
                                     Page::Export => {
                                         self.export_panel(ui);
+
                                     }
                                 }
                             });

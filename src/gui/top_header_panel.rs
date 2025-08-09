@@ -37,7 +37,7 @@ impl FileManager {
 
                 ui.menu_button("工具", |ui| {
                     if ui.button("设置").clicked() {
-                        self.sub_window_manager.show_settings_window = true;
+                        self.sub_window_manager.window_message.show_settings_window = true;
                     }
                     ui.menu_button("导出为...",|ui|{
                         if let Err(e) = self.save_serde(ui,"toml"){
@@ -52,10 +52,10 @@ impl FileManager {
 
                 ui.menu_button("帮助", |ui| {
                     if ui.button("使用帮助").clicked() {
-                        self.sub_window_manager.show_help_window = true;
+                        self.sub_window_manager.window_message.show_help_window = true;
                     }
                     if ui.button("关于").clicked() {
-                        self.sub_window_manager.show_about_window = true;
+                        self.sub_window_manager.window_message.show_about_window = true;
                     }
                 });
             });

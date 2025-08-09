@@ -119,7 +119,10 @@ impl FileManager {
                             ui.end_row();
 
                             ui.label("Magic");
-                            ui.label(&self.get_magic());
+                            if ui.button(&self.get_magic()).clicked() {
+                                self.sub_window_manager
+                                    .show_info(&self.get_magic_hover());
+                            }
                             ui.label("标记文件头");
                             ui.end_row();
 
@@ -234,7 +237,10 @@ impl FileManager {
                             ui.end_row();
 
                             ui.label("DllCharacteristics");
-                            ui.label(&self.get_dll_characteristics());
+                            if ui.button(&self.get_dll_characteristics()).clicked() {
+                                self.sub_window_manager
+                                    .show_info(&self.get_dll_characteristics_hover());
+                            }
                             ui.label("DLL属性");
                             ui.end_row();
 
@@ -384,13 +390,20 @@ impl FileManager {
     }
     pub(crate) fn get_magic(&self) -> String {
         format!(
-            "{}",
+            "0x{:04X}",
             self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
                 .get_magic()
         )
+    }
+    pub(crate) fn get_magic_hover(&self) -> String {
+        self.files
+            .get(self.current_index)
+            .unwrap()
+            .nt_head
+            .get_magic_hover()
     }
     pub(crate) fn get_major_linker_version(&self) -> String {
         format!(
@@ -444,7 +457,7 @@ impl FileManager {
     }
     pub(crate) fn get_address_of_entry_point(&self) -> String {
         format!(
-            "{}",
+            "0x{:08X}",
             self.files
                 .get(self.current_index)
                 .unwrap()
@@ -454,7 +467,7 @@ impl FileManager {
     }
     pub(crate) fn get_base_of_code(&self) -> String {
         format!(
-            "{}",
+            "0x{:08X}",
             self.files
                 .get(self.current_index)
                 .unwrap()
@@ -464,7 +477,7 @@ impl FileManager {
     }
     pub(crate) fn get_base_of_data(&self) -> String {
         format!(
-            "{}",
+            "0x{:08X}",
             self.files
                 .get(self.current_index)
                 .unwrap()
@@ -474,7 +487,7 @@ impl FileManager {
     }
     pub(crate) fn get_image_base(&self) -> String {
         format!(
-            "{}",
+            "0x{:08X}",
             self.files
                 .get(self.current_index)
                 .unwrap()
@@ -484,7 +497,7 @@ impl FileManager {
     }
     pub(crate) fn get_section_alignment(&self) -> String {
         format!(
-            "{}",
+            "0x{:04X}",
             self.files
                 .get(self.current_index)
                 .unwrap()
@@ -494,7 +507,7 @@ impl FileManager {
     }
     pub(crate) fn get_file_alignment(&self) -> String {
         format!(
-            "{}",
+            "0x{:04X}",
             self.files
                 .get(self.current_index)
                 .unwrap()
@@ -622,9 +635,16 @@ impl FileManager {
                 .get_dll_characteristics()
         )
     }
+    pub(crate) fn get_dll_characteristics_hover(&self) -> String {
+        self.files
+            .get(self.current_index)
+            .unwrap()
+            .nt_head
+            .get_dll_characteristics_hover()
+    }
     pub(crate) fn get_size_of_stack_reserve(&self) -> String {
         format!(
-            "{}",
+            "0x{:08X}",
             self.files
                 .get(self.current_index)
                 .unwrap()
@@ -634,7 +654,7 @@ impl FileManager {
     }
     pub(crate) fn get_size_of_stack_commit(&self) -> String {
         format!(
-            "{}",
+            "0x{:08X}",
             self.files
                 .get(self.current_index)
                 .unwrap()
@@ -644,7 +664,7 @@ impl FileManager {
     }
     pub(crate) fn get_size_of_heap_reserve(&self) -> String {
         format!(
-            "{}",
+            "0x{:08X}",
             self.files
                 .get(self.current_index)
                 .unwrap()
@@ -654,7 +674,7 @@ impl FileManager {
     }
     pub(crate) fn get_size_of_heap_commit(&self) -> String {
         format!(
-            "{}",
+            "0x{:08X}",
             self.files
                 .get(self.current_index)
                 .unwrap()
@@ -692,7 +712,7 @@ impl FileManager {
     }
     pub(crate) fn get_data_directory_virtual_address(&self, index: u32) -> String {
         format!(
-            "{}",
+            "0x{:08X}",
             self.files
                 .get(self.current_index)
                 .unwrap()

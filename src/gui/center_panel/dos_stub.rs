@@ -15,7 +15,7 @@ impl FileManager {
 
             if stub.is_empty() {
                 ui.label("该文件无 DOS Stub 数据");
-                return;
+                return ;
             }
 
             eframe::egui::ScrollArea::vertical()

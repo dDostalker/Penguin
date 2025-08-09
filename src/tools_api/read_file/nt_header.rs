@@ -36,6 +36,112 @@ pub(crate) enum Characteristics {
     ImageFileUpSystemOnly = 0x4000,         // 文件应该只在UP机器上运行
     ImageFileBytesReversedHi = 0x8000,      // 机器字节是反向的
 }
+pub(crate) enum DllCharacteristics {
+    APPCONTAINER = 4096,
+    ControlFlowGuard = 16384,
+    DynamicBase = 64,
+    ForceIntegrity = 128,
+    HighEntropyVA = 32,
+    NOBIND = 2048,
+    NOLSOLATION = 512,
+    NOSEH = 1024,
+    NXCOMPAT = 256,
+    PROCESSINIT = 1,
+    PROCESSTERM = 2,
+    TERMINALSERVERAWARE = 32768,
+    THREADINIT = 4,
+    THREADTERM = 8,
+    WDMDRIVER = 8192,
+}
+
+/// 辅助函数：根据特征值生成描述信息
+fn get_characteristics_descriptions(characteristics: u16) -> String {
+    const CHARACTERISTICS_DESCRIPTIONS: &[(u16, &str)] = &[
+        (Characteristics::ImageFileRelocsStripped as u16, "重定位信息被剥离"),
+        (Characteristics::ImageFileExecutableImage as u16, "文件是可执行的"),
+        (Characteristics::ImageFileLineNumsStripped as u16, "行号被剥离"),
+        (Characteristics::ImageFileLocalSymsStripped as u16, "本地符号被剥离"),
+        (Characteristics::ImageFileAggresiveWsTrim as u16, "积极地修剪工作集"),
+        (Characteristics::ImageFileLargeAddressAware as u16, "应用程序可以处理>2gb地址"),
+        (Characteristics::ImageFileBytesReversedLo as u16, "机器字节是反向的"),
+        (Characteristics::ImageFile32bitMachine as u16, "32位机器字"),
+        (Characteristics::ImageFileDebugStripped as u16, "调试信息被剥离"),
+        (Characteristics::ImageFileRemovableRunFromSwap as u16, "如果映像在可移动媒体上，则从交换文件中复制并运行"),
+        (Characteristics::ImageFileNetRunFromSwap as u16, "如果映像在网络上，则从交换文件中复制并运行"),
+        (Characteristics::ImageFileSystem as u16, "系统文件"),
+        (Characteristics::ImageFileDll as u16, "文件是DLL"),
+        (Characteristics::ImageFileUpSystemOnly as u16, "文件应该只在UP机器上运行"),
+        (Characteristics::ImageFileBytesReversedHi as u16, "机器字节是反向的"),
+    ];
+
+    CHARACTERISTICS_DESCRIPTIONS
+        .iter()
+        .filter_map(|(flag, description)| {
+            if characteristics & flag != 0 {
+                Some(*description)
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+fn get_dll_characteristics_description(dll_characteristics: u16) -> String {
+    const DLL_CHARACTERISTICS_DESCRIPTIONS: &[(u16, &str)] = &[
+        (DllCharacteristics::APPCONTAINER as u16, "映像必须在AppContainer中运行"),
+        (DllCharacteristics::ControlFlowGuard as u16, "控制流保护"),
+        (DllCharacteristics::DynamicBase as u16, "DLL可重定位"),
+        (DllCharacteristics::ForceIntegrity as u16, "强制实施代码完整性检查"),
+        (DllCharacteristics::HighEntropyVA as u16, "映像可以处理64位高熵VA空间"),
+        (DllCharacteristics::NOBIND as u16, "禁止绑定"),
+        (DllCharacteristics::NOLSOLATION as u16, "映像理解隔离但不隔离"),
+        (DllCharacteristics::NOSEH as u16, "不使用SEH，不能处理任何有SE的处理程序"),
+        (DllCharacteristics::NXCOMPAT as u16, "NX兼容"),
+        (DllCharacteristics::PROCESSINIT as u16, "进程初始化"),
+        (DllCharacteristics::PROCESSTERM as u16, "进程终止"),
+        (DllCharacteristics::TERMINALSERVERAWARE as u16, "终端服务器感知"),
+        (DllCharacteristics::THREADINIT as u16, "线程初始化"),
+        (DllCharacteristics::THREADTERM as u16, "线程终止"),
+        (DllCharacteristics::WDMDRIVER as u16, "WDM驱动程序"),
+    ];
+    DLL_CHARACTERISTICS_DESCRIPTIONS.iter().filter_map(|(flag, description)| {
+        if dll_characteristics & flag != 0 {
+            Some(*description)
+        } else {
+            None
+        }
+    }).collect::<Vec<_>>().join("\n")
+}
+fn get_machine_descriptions(machine: u16) -> &'static str {
+    match machine {
+        0x14c => "32位x86架构",             // 32位
+        0x0162 => "MIPS大端",               // 32位
+        0x0166 => "MIPS小端",               // 32位
+        0x0168 => "MIPS小端",               // 32位
+        0x0169 => "MIPS小端",               // 32位
+        0x0184 => "Alpha",                  // 32位
+        0x01a2 => "SH3小端",                // 32位
+        0x01a3 => "SH3小端",                // 32位
+        0x01a4 => "SH3E小端",               // 32位
+        0x01a6 => "SH4小端",                // 32位
+        0x01a8 => "SH5",                    // 32位
+        0x01c0 => "ARM小端",                // 32位
+        0x01c2 => "ARM Thumb/Thumb-2 小端", // 32位
+        0x01c4 => "ARM Thumb/Thumb-2 小端", // 32位
+        0x01d3 => "ARM",                    // 32位
+        0x01F0 => "IBM",                    // 32位
+        0x01f1 => "POWERCFP",               // 32位
+        0x0200 => "Intel 64",               // 64位
+        0x0266 => "MIPS",                   // 32位
+        0x0284 => "ALPHA64",                // 64位
+        0x0366 => "MIPS",                   // 32位
+        0x0466 => "MIPS",                   // 32位
+        0x0520 => "Infineon",               // 32位
+        0x8664 => "64位x64架构",            // 64位
+        0xAA64 => "ARM64 小端",             // 64位
+        _ => "unknown",
+    }
+}
 /// 为 64 位 和 32 位nt头特征
 pub mod traits {
     use crate::tools_api::read_file::{SerializableNtHeaders};
@@ -55,18 +161,19 @@ pub mod traits {
         fn get_size_of_optional_header(&self) -> String;
         fn get_characteristics(&self) -> String;
         fn get_characteristics_hover(&self) -> String;
-        fn get_magic(&self) -> String;
+        fn get_magic(&self) -> u16;
+        fn get_magic_hover(&self) -> String;
         fn get_major_linker_version(&self) -> String;
         fn get_long_minor_linker_version(&self) -> String;
         fn get_size_of_code(&self) -> String;
         fn get_size_of_initialized_data(&self) -> String;
         fn get_size_of_uninitialized_data(&self) -> String;
-        fn get_address_of_entry_point(&self) -> String;
-        fn get_base_of_code(&self) -> String;
-        fn get_base_of_data(&self) -> String;
-        fn get_image_base(&self) -> String;
-        fn get_section_alignment(&self) -> String;
-        fn get_file_alignment(&self) -> String;
+        fn get_address_of_entry_point(&self) -> u32;
+        fn get_base_of_code(&self) -> u32;
+        fn get_base_of_data(&self) -> u64;
+        fn get_image_base(&self) -> u64;
+        fn get_section_alignment(&self) -> u32;
+        fn get_file_alignment(&self) -> u32;
         fn get_major_os_version(&self) -> String;
         fn get_minor_os_version(&self) -> String;
         fn get_major_image_version(&self) -> String;
@@ -79,11 +186,12 @@ pub mod traits {
         fn get_checksum(&self) -> String;
         fn get_subsystem(&self) -> String;
         fn get_dll_characteristics(&self) -> String;
-        fn get_size_of_stack_reserve(&self) -> String;
-        fn get_size_of_stack_commit(&self) -> String;
-        fn get_size_of_heap_reserve(&self) -> String;
-        fn get_size_of_heap_commit(&self) -> String;
-        fn get_loader_flags(&self) -> String;
+        fn get_dll_characteristics_hover(&self) -> String;
+        fn get_size_of_stack_reserve(&self) -> u64;
+        fn get_size_of_stack_commit(&self) -> u64;
+        fn get_size_of_heap_reserve(&self) -> u64;
+        fn get_size_of_heap_commit(&self) -> u64;
+        fn get_loader_flags(&self) -> u32;
         fn get_number_of_rva_and_sizes(&self) -> u32;
 
         // 序列化
@@ -164,34 +272,7 @@ impl NtHeaders for ImageNtHeaders {
     }
 
     fn get_machine(&self) -> &str {
-        match self.file_header.machine {
-            0x14c => "32位x86架构",             // 32位
-            0x0162 => "MIPS大端",               // 32位
-            0x0166 => "MIPS小端",               // 32位
-            0x0168 => "MIPS小端",               // 32位
-            0x0169 => "MIPS小端",               // 32位
-            0x0184 => "Alpha",                  // 32位
-            0x01a2 => "SH3小端",                // 32位
-            0x01a3 => "SH3小端",                // 32位
-            0x01a4 => "SH3E小端",               // 32位
-            0x01a6 => "SH4小端",                // 32位
-            0x01a8 => "SH5",                    // 32位
-            0x01c0 => "ARM小端",                // 32位
-            0x01c2 => "ARM Thumb/Thumb-2 小端", // 32位
-            0x01c4 => "ARM Thumb/Thumb-2 小端", // 32位
-            0x01d3 => "ARM",                    // 32位
-            0x01F0 => "IBM",                    // 32位
-            0x01f1 => "POWERCFP",               // 32位
-            0x0200 => "Intel 64",               // 64位
-            0x0266 => "MIPS",                   // 32位
-            0x0284 => "ALPHA64",                // 64位
-            0x0366 => "MIPS",                   // 32位
-            0x0466 => "MIPS",                   // 32位
-            0x0520 => "Infineon",               // 32位
-            0x8664 => "64位x64架构",            // 64位
-            0xAA64 => "ARM64 小端",             // 64位
-            _ => "unknown",
-        }
+        get_machine_descriptions(self.file_header.machine)
     }
 
     fn get_number_of_sections(&self) -> String {
@@ -219,58 +300,19 @@ impl NtHeaders for ImageNtHeaders {
     }
 
     fn get_characteristics_hover(&self) -> String {
-        let mut characteristics_info = String::new();
-        let characteristics = self.file_header.characteristics;
-        if characteristics & Characteristics::ImageFileRelocsStripped as u16 != 0 {
-            characteristics_info.push_str("重定位信息被剥离\n");
-        }
-        if characteristics & Characteristics::ImageFileExecutableImage as u16 != 0 {
-            characteristics_info.push_str("文件是可执行的（即没有未解决的外部引用）\n");
-        }
-        if characteristics & Characteristics::ImageFileLineNumsStripped as u16 != 0 {
-            characteristics_info.push_str("行号被剥离\n");
-        }
-        if characteristics & Characteristics::ImageFileLocalSymsStripped as u16 != 0 {
-            characteristics_info.push_str("本地符号被剥离\n");
-        }
-        if characteristics & Characteristics::ImageFileAggresiveWsTrim as u16 != 0 {
-            characteristics_info.push_str("积极地修剪工作集\n");
-        }
-        if characteristics & Characteristics::ImageFileLargeAddressAware as u16 != 0 {
-            characteristics_info.push_str("应用程序可以处理>2gb地址\n");
-        }
-        if characteristics & Characteristics::ImageFileBytesReversedLo as u16 != 0 {
-            characteristics_info.push_str("机器字节是反向的\n");
-        }
-        if characteristics & Characteristics::ImageFile32bitMachine as u16 != 0 {
-            characteristics_info.push_str("32位机器字\n");
-        }
-        if characteristics & Characteristics::ImageFileDebugStripped as u16 != 0 {
-            characteristics_info.push_str("调试信息被剥离\n");
-        }
-        if characteristics & Characteristics::ImageFileRemovableRunFromSwap as u16 != 0 {
-            characteristics_info.push_str("如果映像在可移动媒体上，则从交换文件中复制并运行\n");
-        }
-        if characteristics & Characteristics::ImageFileNetRunFromSwap as u16 != 0 {
-            characteristics_info.push_str("如果映像在网络上，则从交换文件中复制并运行\n");
-        }
-        if characteristics & Characteristics::ImageFileSystem as u16 != 0 {
-            characteristics_info.push_str("系统文件\n");
-        }
-        if characteristics & Characteristics::ImageFileDll as u16 != 0 {
-            characteristics_info.push_str("文件是DLL\n");
-        }
-        if characteristics & Characteristics::ImageFileUpSystemOnly as u16 != 0 {
-            characteristics_info.push_str("文件应该只在UP机器上运行\n");
-        }
-        if characteristics & Characteristics::ImageFileBytesReversedHi as u16 != 0 {
-            characteristics_info.push_str("机器字节是反向的\n");
-        }
-        characteristics_info
+        get_characteristics_descriptions(self.file_header.characteristics)
     }
 
-    fn get_magic(&self) -> String {
-        format!("{}", self.optional_header.magic)
+    fn get_magic(&self) -> u16 {
+        self.optional_header.magic
+    }
+
+    fn get_magic_hover(&self) -> String {
+        match self.optional_header.magic {
+            0x10b => String::from("PE32"),
+            0x20b => String::from("PE64"),
+            _ => String::from("unknown"),
+        }
     }
 
     fn get_major_linker_version(&self) -> String {
@@ -293,28 +335,28 @@ impl NtHeaders for ImageNtHeaders {
         format!("{}", self.optional_header.size_of_uninitialized_data)
     }
 
-    fn get_address_of_entry_point(&self) -> String {
-        format!("{}", self.optional_header.address_of_entry_point)
+    fn get_address_of_entry_point(&self) -> u32 {
+        self.optional_header.address_of_entry_point
     }
 
-    fn get_base_of_code(&self) -> String {
-        format!("{}", self.optional_header.base_of_code)
+    fn get_base_of_code(&self) -> u32 {
+        self.optional_header.base_of_code
     }
 
-    fn get_base_of_data(&self) -> String {
-        format!("{}", self.optional_header.base_of_data)
+    fn get_base_of_data(&self) -> u64 {
+        self.optional_header.image_base as u64
     }
 
-    fn get_image_base(&self) -> String {
-        format!("{}", self.optional_header.image_base)
+    fn get_image_base(&self) -> u64 {
+        self.optional_header.image_base as u64
     }
 
-    fn get_section_alignment(&self) -> String {
-        format!("{}", self.optional_header.section_alignment)
+    fn get_section_alignment(&self) -> u32 {
+        self.optional_header.section_alignment
     }
 
-    fn get_file_alignment(&self) -> String {
-        format!("{}", self.optional_header.file_alignment)
+    fn get_file_alignment(&self) -> u32 {
+        self.optional_header.file_alignment
     }
 
     fn get_major_os_version(&self) -> String {
@@ -365,24 +407,28 @@ impl NtHeaders for ImageNtHeaders {
         format!("{}", self.optional_header.dll_characteristics)
     }
 
-    fn get_size_of_stack_reserve(&self) -> String {
-        format!("{}", self.optional_header.size_of_stack_reserve)
+    fn get_dll_characteristics_hover(&self) -> String {
+        get_dll_characteristics_description(self.optional_header.dll_characteristics)
+    }   
+
+    fn get_size_of_stack_reserve(&self) -> u64  {
+        self.optional_header.size_of_stack_reserve as u64
     }
 
-    fn get_size_of_stack_commit(&self) -> String {
-        format!("{}", self.optional_header.size_of_stack_commit)
+    fn get_size_of_stack_commit(&self) -> u64 {
+        self.optional_header.size_of_stack_commit as u64
     }
 
-    fn get_size_of_heap_reserve(&self) -> String {
-        format!("{}", self.optional_header.size_of_heap_reserve)
+    fn get_size_of_heap_reserve(&self) -> u64 {
+        self.optional_header.size_of_heap_reserve as u64
     }
 
-    fn get_size_of_heap_commit(&self) -> String {
-        format!("{}", self.optional_header.size_of_heap_commit)
+    fn get_size_of_heap_commit(&self) -> u64 {
+        self.optional_header.size_of_heap_commit as u64
     }
 
-    fn get_loader_flags(&self) -> String {
-        format!("{}", self.optional_header.loader_flags)
+    fn get_loader_flags(&self) -> u32 {
+        self.optional_header.loader_flags
     }
 
     fn get_number_of_rva_and_sizes(&self) -> u32 {
@@ -408,34 +454,7 @@ impl NtHeaders for ImageNtHeaders64 {
     }
 
     fn get_machine(&self) -> &str {
-        match self.file_header.machine {
-            0x14c => "32位x86架构",
-            0x0162 => "MIPS大端",
-            0x0166 => "MIPS小端",
-            0x0168 => "MIPS小端",
-            0x0169 => "MIPS小端",
-            0x0184 => "Alpha",
-            0x01a2 => "SH3小端",
-            0x01a3 => "SH3小端",
-            0x01a4 => "SH3E小端",
-            0x01a6 => "SH4小端",
-            0x01a8 => "SH5",
-            0x01c0 => "ARM小端",
-            0x01c2 => "ARM Thumb/Thumb-2 小端",
-            0x01c4 => "ARM Thumb/Thumb-2 小端",
-            0x01d3 => "ARM",
-            0x01F0 => "IBM",
-            0x01f1 => "POWERCFP",
-            0x0200 => "Intel 64",
-            0x0266 => "MIPS",
-            0x0284 => "ALPHA64",
-            0x0366 => "MIPS",
-            0x0466 => "MIPS",
-            0x0520 => "Infineon",
-            0x8664 => "64位x64架构",
-            0xAA64 => "ARM64 小端",
-            _ => "unknown",
-        }
+        get_machine_descriptions(self.file_header.machine)
     }
 
     fn get_number_of_sections(&self) -> String {
@@ -462,58 +481,19 @@ impl NtHeaders for ImageNtHeaders64 {
         format!("{}", self.file_header.characteristics)
     }
     fn get_characteristics_hover(&self) -> String {
-        let mut characteristics_info = String::new();
-        let characteristics = self.file_header.characteristics;
-        if characteristics & Characteristics::ImageFileRelocsStripped as u16 != 0 {
-            characteristics_info.push_str("重定位信息被剥离\n");
-        }
-        if characteristics & Characteristics::ImageFileExecutableImage as u16 != 0 {
-            characteristics_info.push_str("文件是可执行的（即没有未解决的外部引用）\n");
-        }
-        if characteristics & Characteristics::ImageFileLineNumsStripped as u16 != 0 {
-            characteristics_info.push_str("行号被剥离\n");
-        }
-        if characteristics & Characteristics::ImageFileLocalSymsStripped as u16 != 0 {
-            characteristics_info.push_str("本地符号被剥离\n");
-        }
-        if characteristics & Characteristics::ImageFileAggresiveWsTrim as u16 != 0 {
-            characteristics_info.push_str("积极地修剪工作集\n");
-        }
-        if characteristics & Characteristics::ImageFileLargeAddressAware as u16 != 0 {
-            characteristics_info.push_str("应用程序可以处理>2gb地址\n");
-        }
-        if characteristics & Characteristics::ImageFileBytesReversedLo as u16 != 0 {
-            characteristics_info.push_str("机器字节是反向的\n");
-        }
-        if characteristics & Characteristics::ImageFile32bitMachine as u16 != 0 {
-            characteristics_info.push_str("32位机器字\n");
-        }
-        if characteristics & Characteristics::ImageFileDebugStripped as u16 != 0 {
-            characteristics_info.push_str("调试信息被剥离\n");
-        }
-        if characteristics & Characteristics::ImageFileRemovableRunFromSwap as u16 != 0 {
-            characteristics_info.push_str("如果映像在可移动媒体上，则从交换文件中复制并运行\n");
-        }
-        if characteristics & Characteristics::ImageFileNetRunFromSwap as u16 != 0 {
-            characteristics_info.push_str("如果映像在网络上，则从交换文件中复制并运行\n");
-        }
-        if characteristics & Characteristics::ImageFileSystem as u16 != 0 {
-            characteristics_info.push_str("系统文件\n");
-        }
-        if characteristics & Characteristics::ImageFileDll as u16 != 0 {
-            characteristics_info.push_str("文件是DLL\n");
-        }
-        if characteristics & Characteristics::ImageFileUpSystemOnly as u16 != 0 {
-            characteristics_info.push_str("文件应该只在UP机器上运行\n");
-        }
-        if characteristics & Characteristics::ImageFileBytesReversedHi as u16 != 0 {
-            characteristics_info.push_str("机器字节是反向的\n");
-        }
-        characteristics_info
+        get_characteristics_descriptions(self.file_header.characteristics)
     }
 
-    fn get_magic(&self) -> String {
-        format!("{}", self.optional_header.magic)
+    fn get_magic(&self) -> u16 {
+        self.optional_header.magic
+    }
+
+    fn get_magic_hover(&self) -> String {
+        match self.optional_header.magic {
+            0x10b => String::from("PE32"),
+            0x20b => String::from("PE64"),
+            _ => String::from("unknown"),
+        }
     }
 
     fn get_major_linker_version(&self) -> String {
@@ -536,28 +516,28 @@ impl NtHeaders for ImageNtHeaders64 {
         format!("{}", self.optional_header.size_of_uninitialized_data)
     }
 
-    fn get_address_of_entry_point(&self) -> String {
-        format!("{}", self.optional_header.address_of_entry_point)
+    fn get_address_of_entry_point(&self) -> u32 {
+        self.optional_header.address_of_entry_point
     }
 
-    fn get_base_of_code(&self) -> String {
-        format!("{}", self.optional_header.base_of_code)
+    fn get_base_of_code(&self) -> u32 {
+        self.optional_header.base_of_code
     }
 
-    fn get_base_of_data(&self) -> String {
-        format!("{}", self.optional_header.image_base)
+    fn get_base_of_data(&self) -> u64 {
+        self.optional_header.image_base
     }
 
-    fn get_image_base(&self) -> String {
-        format!("{}", self.optional_header.image_base)
+    fn get_image_base(&self) -> u64 {
+        self.optional_header.image_base
     }
 
-    fn get_section_alignment(&self) -> String {
-        format!("{}", self.optional_header.section_alignment)
+    fn get_section_alignment(&self) -> u32 {
+        self.optional_header.section_alignment
     }
 
-    fn get_file_alignment(&self) -> String {
-        format!("{}", self.optional_header.file_alignment)
+    fn get_file_alignment(&self) -> u32 {
+        self.optional_header.file_alignment
     }
 
     fn get_major_os_version(&self) -> String {
@@ -608,24 +588,28 @@ impl NtHeaders for ImageNtHeaders64 {
         format!("{}", self.optional_header.dll_characteristics)
     }
 
-    fn get_size_of_stack_reserve(&self) -> String {
-        format!("{}", self.optional_header.size_of_stack_reserve)
+    fn get_dll_characteristics_hover(&self) -> String {
+        get_dll_characteristics_description(self.optional_header.dll_characteristics)
     }
 
-    fn get_size_of_stack_commit(&self) -> String {
-        format!("{}", self.optional_header.size_of_stack_commit)
+    fn get_size_of_stack_reserve(&self) -> u64 {
+        self.optional_header.size_of_stack_reserve
     }
 
-    fn get_size_of_heap_reserve(&self) -> String {
-        format!("{}", self.optional_header.size_of_heap_reserve)
+    fn get_size_of_stack_commit(&self) -> u64 {
+        self.optional_header.size_of_stack_commit as u64
     }
 
-    fn get_size_of_heap_commit(&self) -> String {
-        format!("{}", self.optional_header.size_of_heap_commit)
+    fn get_size_of_heap_reserve(&self) -> u64 {
+        self.optional_header.size_of_heap_reserve
     }
 
-    fn get_loader_flags(&self) -> String {
-        format!("{}", self.optional_header.loader_flags)
+    fn get_size_of_heap_commit(&self) -> u64 {
+        self.optional_header.size_of_heap_commit
+    }
+
+    fn get_loader_flags(&self) -> u32 {
+        self.optional_header.loader_flags
     }
 
     fn get_number_of_rva_and_sizes(&self) -> u32 {

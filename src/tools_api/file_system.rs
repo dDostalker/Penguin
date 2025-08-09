@@ -1,6 +1,7 @@
 use std::env;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::time::{SystemTime, UNIX_EPOCH, Duration};
 
 const SYSTEM_PATH: [&str; 2] = [r"C:\Windows\System32", r"C:\Windows\SysWOW64"];
 const WINDOWS_PATH: [&str; 2] = [r"C:\Windows", r"C:\Program Files"];
@@ -62,6 +63,14 @@ pub fn get_dll_folder(exe_path: PathBuf, dll_name: &str) -> anyhow::Result<PathB
 fn get_system_path() -> Vec<PathBuf> {
     let path = env::var("PATH").unwrap_or_default();
     path.split(";").map(|p| PathBuf::from(p)).collect()
+}
+
+fn time_stamp_to_string(time_stamp: u64) -> String {
+    let time = SystemTime::from(UNIX_EPOCH + Duration::from_secs(time_stamp));
+    let time = time.duration_since(UNIX_EPOCH).unwrap();
+    let time_stamp = time.as_secs();
+    let time_stamp = time_stamp.to_string();
+    time_stamp
 }
 
 #[cfg(test)]

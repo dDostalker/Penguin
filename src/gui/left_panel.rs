@@ -61,7 +61,7 @@ impl FileManager {
                     if response.clicked() {
                         self.current_index =
                             self.files.iter().position(|f| f == file).unwrap_or(0);
-                        self.sub_window_manager.clear_all_data();
+                        self.sub_window_manager.clear_data();
                     }
                     if response.hovered() {
                         self.hover_index = i + 1;

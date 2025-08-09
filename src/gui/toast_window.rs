@@ -13,77 +13,9 @@ const Y_OFFSET_STEP: f32 = 35.0;
 const RGB_COLOR: eframe::egui::Color32 = eframe::egui::Color32::from_rgb(54, 59, 64);
 
 impl SubWindowManager {
-    pub fn new() -> Self {
-        Self {
-            toasts: Vec::new(),
-            ..Default::default()
-        }
-    }
-    /// 清空所有数据
-    pub fn clear_all_data(&mut self) {
-        self.selected_export_index = None;
-        self.select_dll_index = None;
-        self.select_function_index = None;
-        self.selected_section_index = None;
-    }
-
-    /// 显示通用信息窗口
-    pub fn show_info_window(&mut self, ctx: &Context, title: &str, content: &str, window_id: &str) {
-        eframe::egui::Window::new(title)
-            .id(eframe::egui::Id::new(window_id))
-            .collapsible(false)
-            .resizable(true)
-            .default_size([TOAST_WINDOW_WIDTH, TOAST_WINDOW_HEIGHT])
-            .show(ctx, |ui| {
-                ui.vertical(|ui| {
-                    ui.label(content);
-                    ui.add_space(TOAST_WINDOW_SPACING);
-
-                    if ui.button("关闭").clicked() {
-                        // 根据窗口ID关闭对应的窗口
-                        match window_id {
-                            "about" => self.show_about_window = false,
-                            "settings" => self.show_settings_window = false,
-                            "help" => self.show_help_window = false,
-                            _ => {}
-                        }
-                    }
-                });
-            });
-    }
-
-    /// 显示确认对话框
-    pub fn show_confirm_dialog(
-        &mut self,
-        ctx: &Context,
-        title: &str,
-        message: &str,
-        on_confirm: impl FnOnce(),
-    ) {
-        eframe::egui::Window::new(title)
-            .collapsible(false)
-            .resizable(false)
-            .show(ctx, |ui| {
-                ui.vertical(|ui| {
-                    ui.label(message);
-                    ui.add_space(TOAST_WINDOW_SPACING);
-
-                    ui.horizontal(|ui: &mut eframe::egui::Ui| {
-                        if ui.button("确认").clicked() {
-                            on_confirm();
-                        }
-
-                        if ui.button("取消").clicked() {
-                            // 关闭窗口
-                        }
-                    });
-                });
-            });
-    }
-
     /// 显示关于窗口
     pub fn show_about_window(&mut self, ctx: &Context) {
-        if self.show_about_window {
+        if self.window_message.show_about_window {
             eframe::egui::Window::new("关于 Penguin")
                 .collapsible(false)
                 .resizable(false)
@@ -99,7 +31,7 @@ impl SubWindowManager {
 
                         ui.horizontal(|ui| {
                             if ui.button("确定").clicked() {
-                                self.show_about_window = false;
+                                self.window_message.show_about_window = false;
                             }
                         });
                     });
@@ -109,7 +41,7 @@ impl SubWindowManager {
 
     /// 显示设置窗口
     pub fn show_settings_window(&mut self, ctx: &Context) {
-        if self.show_settings_window {
+        if self.window_message.show_settings_window {
             eframe::egui::Window::new("设置")
                 .collapsible(false)
                 .resizable(true)
@@ -126,7 +58,7 @@ impl SubWindowManager {
                         }
 
                         if ui.button("取消").clicked() {
-                            self.show_settings_window = false;
+                            self.window_message.show_settings_window = false;
                         }
                     });
                 });
@@ -135,7 +67,7 @@ impl SubWindowManager {
 
     /// 显示帮助窗口
     pub fn show_help_window(&mut self, ctx: &Context) {
-        if self.show_help_window {
+        if self.window_message.show_help_window {
             eframe::egui::Window::new("帮助")
                 .collapsible(false)
                 .resizable(true)
@@ -162,7 +94,7 @@ impl SubWindowManager {
 
                         ui.horizontal(|ui| {
                             if ui.button("关闭").clicked() {
-                                self.show_help_window = false;
+                                self.window_message.show_help_window = false;
                             }
                         });
                     });

@@ -5,19 +5,13 @@ const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 const SPACING: Vec2 = Vec2::new(20.0, 8.0);
 const COLUMNS: usize = 5;
 impl FileManager {
-    pub(crate) fn section_header_panel(&mut self, ui: &mut Ui) {
+    pub(crate) fn section_header_panel(&mut self, ui: &mut Ui)->anyhow::Result<()> {
         // 获取节数量
-        let section_num = match self.get_section_num() {
-            Ok(num) => num,
-            Err(e) => {
-                self.sub_window_manager.show_error(&e.to_string());
-                return;
-            }
-        };
+        let section_num = self.get_section_num()?;
 
         if section_num == 0 {
             ui.add(Label::new("该文件无节表"));
-            return;
+            return Ok(());
         }
 
         // 创建数据副本以避免借用冲突
@@ -30,6 +24,7 @@ impl FileManager {
                         .unwrap_or("None".to_string()),
                     self.get_section_pointer_to_raw_data(i),
                     self.get_section_characteristics(i),
+                    self.get_section_number_of_relocations(i),
                 )
             })
             .collect();
@@ -49,16 +44,20 @@ impl FileManager {
                         ui.strong("虚拟地址");
                         ui.strong("大小");
                         ui.strong("文件偏移");
+                        ui.strong("重定位地址");
                         ui.strong("特征");
                         ui.strong("操作");
                         ui.end_row();
 
-                        for (name, virtual_addr, size, file_offset, characteristics) in section_items.iter() {
+                        for (index, (name, virtual_addr, size, file_offset, characteristics, relocations)) in section_items.iter().enumerate() {
                             ui.label(name);
                             ui.label(virtual_addr);
                             ui.label(size);
                             ui.label(file_offset);
-                            ui.label(characteristics);
+                            ui.label(relocations);
+                            if ui.button(characteristics).clicked() {
+                                self.sub_window_manager.show_info(&self.get_section_characteristics_hover(index));
+                            }
 
                             ui.horizontal(|ui| {
                                 if ui.button("复制").clicked() {
@@ -67,12 +66,12 @@ impl FileManager {
                                     ui.output_mut(|o| o.copied_text = info);
                                 }
                             });
-
                             ui.end_row();
-                        }
+                        }   
                     });
             });
         });
+        Ok(())
     }
     // unwrap or 修改
     pub(crate) fn get_section_num(&self) -> anyhow::Result<usize> {
@@ -85,7 +84,7 @@ impl FileManager {
     }
     pub(crate) fn get_section_size_of_raw_data(&self, index: usize) -> anyhow::Result<String> {
         Ok(format!(
-            "{}",
+            "0x{:08X}",
             self.files
                 .get(self.current_index)
                 .unwrap_or(&self.files[0])
@@ -105,7 +104,7 @@ impl FileManager {
     }
     pub(crate) fn get_section_pointer_to_raw_data(&self, index: usize) -> String {
         format!(
-            "{}",
+            "0x{:08X}",
             self.files
                 .get(self.current_index)
                 .unwrap_or(&self.files[0])
@@ -123,6 +122,13 @@ impl FileManager {
                 .get_section_characteristics(index)
         )
     }
+    pub(crate) fn get_section_characteristics_hover(&self, index: usize) -> String {
+        self.files
+            .get(self.current_index)
+            .unwrap_or(&self.files[0])
+            .section_headers
+            .get_section_characteristics_hover(index)
+    }
     pub(crate) fn _get_section_misc(&self, index: usize) -> anyhow::Result<String> {
         Ok(format!(
             "{}",
@@ -135,7 +141,7 @@ impl FileManager {
     }
     pub(crate) fn get_section_virtual_address(&self, index: usize) -> String {
         format!(
-            "{}",
+            "0x{:08X}",
             self.files
                 .get(self.current_index)
                 .unwrap_or(&self.files[0])
@@ -153,7 +159,7 @@ impl FileManager {
                 .get_section_number_of_linenumbers(index)
         )
     }
-    pub(crate) fn _get_section_number_of_relocations(&self, index: usize) -> String {
+    pub(crate) fn get_section_number_of_relocations(&self, index: usize) -> String {
         format!(
             "{}",
             self.files

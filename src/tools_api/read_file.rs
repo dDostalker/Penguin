@@ -10,9 +10,6 @@ pub mod nt_header;
 mod section_headers;
 
 
-
-
-
 #[repr(C)]
 #[derive(Serialize,Deserialize)]
 #[derive(Default, Debug, Clone, Eq, PartialEq)]

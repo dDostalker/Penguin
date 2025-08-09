@@ -21,7 +21,7 @@ impl FileManager {
 
         // 克隆数据以避免借用冲突
         let export_data_clone = export_data.fclone();
-        let selected_index = self.sub_window_manager.selected_export_index;
+        let selected_index = self.sub_window_manager.export_message.selected_export_index;
         
         eframe::egui::CentralPanel::default().show(ui.ctx(), |ui| {
             eframe::egui::ScrollArea::vertical()
@@ -67,7 +67,7 @@ impl FileManager {
                                 ui.allocate_ui(DESIGN_SIZE_FUNC_OPERATE, |ui| {
                                     ui.horizontal(|ui| {
                                         if ui.button("详情").clicked() {
-                                            self.sub_window_manager.selected_export_index =
+                                            self.sub_window_manager.export_message.selected_export_index =
                                                 Some(index);
                                         }
                                     });
@@ -108,7 +108,7 @@ impl FileManager {
                             }
                         }
                         if ui.button("X").clicked() {
-                            self.sub_window_manager.selected_export_index = None;
+                            self.sub_window_manager.export_message.selected_export_index = None;
                         }
                     });
                 });

@@ -29,17 +29,34 @@ pub struct Toast {
     pub duration: Duration,
 }
 
-/// 子窗口管理器
+/// 消息管理器
 #[derive(Default)]
 pub struct SubWindowManager {
-    pub selected_export_index: Option<usize>,
-    pub select_dll_index: Option<usize>,
-    pub select_function_index: Option<usize>,
+    pub export_message: ExportMessage,
+    pub import_message: ImportMessage,
     pub selected_section_index: Option<usize>,
+    pub window_message: WindowMessage,
+    pub toasts: Vec<Toast>, // 新增：toast 通知列表
+}
+/// 窗口信息
+#[derive(Default)]
+pub struct WindowMessage {
     pub show_about_window: bool,
     pub show_settings_window: bool,
     pub show_help_window: bool,
-    pub toasts: Vec<Toast>, // 新增：toast 通知列表
+}
+
+/// 导出消息管理器
+#[derive(Default)]
+pub struct ExportMessage {
+    pub selected_export_index: Option<usize>,
+}
+
+/// 导入信息管理器
+#[derive(Default)]
+pub struct ImportMessage {
+    selected_function_index: Option<usize>,
+    selected_dll_index: Option<usize>,
 }
 
 /// 窗口默认设置
@@ -93,6 +110,34 @@ pub fn create_native_options() -> eframe::NativeOptions {
         persistence_path: None,
         dithering: false,
     }
+}
+
+impl ExportMessage {
+    pub fn clear(&mut self) {
+        self.selected_export_index = None;
+    }
+}
+impl ImportMessage {
+    pub fn clear(&mut self) {
+        self.selected_function_index = None;
+        self.selected_dll_index = None;
+    }
+}
+impl SubWindowManager {
+    pub fn new() -> Self {
+        Self {
+            toasts: Vec::new(),
+            ..Default::default()
+        }
+    }
+    /// 清空所有数据
+    pub fn clear_data(&mut self) {
+        self.export_message.clear();
+        self.import_message.clear();
+        self.selected_section_index = None;
+    }
+
+
 }
 
 /// 主程序主题布局

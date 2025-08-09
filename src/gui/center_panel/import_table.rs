@@ -32,8 +32,8 @@ impl FileManager {
 
         // 克隆数据以避免借用冲突
         let imports_clone = imports.fclone();
-        let selected_index = self.sub_window_manager.select_dll_index;
-        let selected_function_index = self.sub_window_manager.select_function_index;
+        let selected_index = self.sub_window_manager.import_message.selected_dll_index;
+        let selected_function_index = self.sub_window_manager.import_message.selected_function_index;
 
         // 显示主标题
 
@@ -79,7 +79,7 @@ impl FileManager {
                                 .name,
                         );
                         if ui.button("X").clicked() {
-                            self.sub_window_manager.select_function_index = None;
+                            self.sub_window_manager.import_message.selected_function_index = None;
                         }
                     });
                 });
@@ -124,8 +124,8 @@ impl FileManager {
                             // 操作按钮
                             ui.horizontal(|ui| {
                                 if ui.button("选择").clicked() {
-                                    self.sub_window_manager.select_dll_index = Some(index);
-                                    self.sub_window_manager.select_function_index = None;
+                                    self.sub_window_manager.import_message.selected_dll_index = Some(index);
+                                    self.sub_window_manager.import_message.selected_function_index = None;
                                 }
                                 // 添加打开资源管理器按钮
                                 if ui.button("打开位置").clicked() {
@@ -172,7 +172,7 @@ impl FileManager {
                             // 操作按钮
                             ui.horizontal(|ui| {
                                 if ui.button("详细").clicked() {
-                                    self.sub_window_manager.select_function_index = Some(index);
+                                    self.sub_window_manager.import_message.selected_function_index = Some(index);
                                 }
                             });
                             ui.end_row();

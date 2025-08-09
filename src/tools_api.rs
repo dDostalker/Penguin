@@ -63,7 +63,8 @@ pub struct FileManager {
 impl FileManager {
     pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         Self {
-            sub_window_manager: SubWindowManager::new(),
+            sub_window_manager: SubWindowManager::
+            new(),
             ..Default::default()
         }
     }
