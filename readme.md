@@ -2,7 +2,7 @@
 
 Penguin ———— An open-source PE file parsing tool that originated from a project born out of learning PE files. It is not intended to replace any existing tools, but rather to provide reverse engineers with more options.
 
-[English](README.md) | [中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh-CN.md)
 
 ---
 
@@ -36,6 +36,7 @@ The following are Penguin's features:
 - Features are not complete, core parts like debugging are still under development
 - UI interface has some performance issues
 - PE integrity verification is not perfect, there may be parsing errors for maliciously constructed PE files targeting Penguin
+- Currently only supports PE files with the same endianness as the host
 
 ## Custom Language Support
 
