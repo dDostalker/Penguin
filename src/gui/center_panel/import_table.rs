@@ -1,7 +1,7 @@
 use crate::tools_api::file_system::{self, get_dll_folder};
 use crate::tools_api::read_file::ImportDll;
 
-use crate::{GLOBAL_RT, gui::FileManager};
+use crate::{GLOBAL_RT, gui::FileManager, tools_api::search};
 use eframe::egui::{ScrollArea, Ui, Vec2};
 use std::path::PathBuf;
 use crate::tools_api::read_file::ImportTable;
@@ -155,6 +155,9 @@ impl FileManager {
                     .spacing(SPACING)
                     .num_columns(COLUMNS)
                     .show(ui, |ui| {
+                        ui.label("🔍");
+                        ui.text_edit_singleline(&mut self.sub_window_manager.import_message.search_string);
+                        ui.end_row();
                         // 表头
                         ui.strong("序号");
                         ui.strong("函数名");
@@ -162,6 +165,9 @@ impl FileManager {
                         ui.end_row();
 
                         for (index, function) in dll.function_info.iter().enumerate() {
+                            if !search(&function.name, &self.sub_window_manager.import_message.search_string) {
+                                continue;
+                            }
                             // 序号显示
                             ui.label(&format!("{}", index + 1));
 

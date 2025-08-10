@@ -24,22 +24,22 @@ impl ImportDescriptor {
         T: NtHeaders + ?Sized,
     {
         let mut import_descriptor: ImportDescriptor = Default::default();
-        let fo: u32 = rva_2_fo(
+        if let Some(fo)  = rva_2_fo(
             nt_head,
             image_section_headers,
             data_dir.get_import_directory_address().await?,
         )
-        .await
-        .unwrap() as _;
-        file.seek(SeekFrom::Start((fo + index * 0x14) as u64))
-            .await?;
-        unsafe {
-            let read: &mut [u8; size_of::<ImportFunction>()] = transmute(&mut import_descriptor);
-            file.read(read).await?;
-        }
-        // 特殊的情况，有时pe的data dic的大小并不完全代表着他import dll的个数，而是类似列表最后为0来结束
-        if import_descriptor.name_address == 0 {
-            return Ok(None);
+        .await{
+            file.seek(SeekFrom::Start((fo + index * 0x14) as u64))
+                .await?;
+            unsafe {
+                let read: &mut [u8; size_of::<ImportFunction>()] = transmute(&mut import_descriptor);
+                file.read(read).await?;
+            }
+            // 特殊的情况，有时pe的data dic的大小并不完全代表着他import dll的个数，而是类似列表最后为0来结束
+            if import_descriptor.name_address == 0 {
+                return Ok(None);
+            }
         }
         Ok(Some(import_descriptor))
     }

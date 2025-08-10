@@ -1,6 +1,6 @@
 use eframe::egui::{Ui, Vec2};
 
-use crate::{GLOBAL_RT, gui::FileManager, tools_api::read_file::ExportTable};
+use crate::{GLOBAL_RT, gui::FileManager, tools_api::{read_file::ExportTable, search}};
 
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 const DESIGN_SIZE_FUNC_NAME: Vec2 = Vec2::new(400.0 * 0.5, 0.0);
@@ -34,6 +34,12 @@ impl FileManager {
                         .spacing(SPACING)
                         .num_columns(COLUMNS)
                         .show(ui, |ui| {
+
+                            ui.label("🔍");
+                            ui.allocate_ui(eframe::egui::vec2(200.0, ui.spacing().interact_size.y), |ui| {
+                                ui.text_edit_singleline(&mut self.sub_window_manager.export_message.search_string);
+                            });
+                            ui.end_row();
                             // 表头 - 使用强化的样式
                             ui.allocate_ui(DESIGN_SIZE_FUNC_NAME, |ui| {
                                 ui.strong("函数名");
@@ -46,7 +52,11 @@ impl FileManager {
                             });
                             ui.end_row();
 
+
                             for (index, item) in export_data_clone.0.borrow().iter().enumerate() {
+                                if !search(&item.name, &self.sub_window_manager.export_message.search_string){
+                                    continue;
+                                }
                                 // 函数名列 - 占用50%宽度
                                 ui.allocate_ui(DESIGN_SIZE_FUNC_NAME, |ui| {
                                     let display_name = if item.name.len() > MAX_FUNC_NAME_LENGTH {
@@ -136,4 +146,5 @@ impl FileManager {
             .unwrap()
             .export.fclone())
     }
+   
 }

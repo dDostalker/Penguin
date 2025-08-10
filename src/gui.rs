@@ -50,6 +50,7 @@ pub struct WindowMessage {
 #[derive(Default)]
 pub struct ExportMessage {
     pub selected_export_index: Option<usize>,
+    pub search_string: String,
 }
 
 /// 导入信息管理器
@@ -57,6 +58,7 @@ pub struct ExportMessage {
 pub struct ImportMessage {
     selected_function_index: Option<usize>,
     selected_dll_index: Option<usize>,
+    pub search_string: String,
 }
 
 /// 窗口默认设置
@@ -115,12 +117,14 @@ pub fn create_native_options() -> eframe::NativeOptions {
 impl ExportMessage {
     pub fn clear(&mut self) {
         self.selected_export_index = None;
+        self.search_string = String::new();
     }
 }
 impl ImportMessage {
     pub fn clear(&mut self) {
         self.selected_function_index = None;
         self.selected_dll_index = None;
+        self.search_string = String::new();
     }
 }
 impl SubWindowManager {

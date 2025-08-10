@@ -247,3 +247,10 @@ pub async fn is_64(file: &mut File, image_dos_header: &ImageDosHeader) -> anyhow
     }
     Err(anyhow::anyhow!("Not a normal machine image file"))
 }
+
+pub fn search(export_data: &str, search_string: &str) -> bool {
+    if search_string.is_empty() {
+        return true;
+    }
+    export_data.contains(search_string)
+}
