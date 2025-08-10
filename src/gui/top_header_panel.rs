@@ -39,6 +39,9 @@ impl FileManager {
                     if ui.button("设置").clicked() {
                         self.sub_window_manager.window_message.show_settings_window = true;
                     }
+                    if ui.button("虚拟地址->文件偏移").clicked() {
+                        self.sub_window_manager.window_message.show_virtual_address_to_file_offset_window = true;
+                    }
                     ui.menu_button("导出为...",|ui|{
                         if let Err(e) = self.save_serde(ui,"toml"){
                             self.sub_window_manager.show_error(&e.to_string());

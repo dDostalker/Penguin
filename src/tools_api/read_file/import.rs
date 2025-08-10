@@ -29,7 +29,7 @@ impl ImportDescriptor {
             image_section_headers,
             data_dir.get_import_directory_address().await?,
         )
-        .await{
+        {
             file.seek(SeekFrom::Start((fo + index * 0x14) as u64))
                 .await?;
             unsafe {
@@ -87,7 +87,7 @@ impl ImportDll {
         let mut addr;
         let function_info_address;
 
-        match rva_2_fo(nt_head, section_headers, import_descriptor.dummy_union_name).await {
+        match rva_2_fo(nt_head, section_headers, import_descriptor.dummy_union_name) {
             None => return Err(anyhow::anyhow!("End")),
             Some(ret) => function_info_address = ret,
         }
@@ -122,11 +122,7 @@ impl ImportDll {
             } else {
                 addr as u32
             };
-            #[cfg(debug_assertions)]
-            eprintln!("tools_api:read_file:imports.rs addr_rva:{}", addr);
-            if let Some(addr) = rva_2_fo(nt_head, section_headers, addr).await {
-                #[cfg(debug_assertions)]
-                eprintln!("tools_api:read_file:imports.rs addr_foa:{}", addr);
+            if let Some(addr) = rva_2_fo(nt_head, section_headers, addr) {
                 match ImportFunction::new(file, addr).await? {
                     None => {
                         break;
@@ -140,7 +136,6 @@ impl ImportDll {
         let mut name = [0u8; 256];
         file.seek(SeekFrom::Start(
             rva_2_fo(nt_head, section_headers, import_descriptor.name_address)
-                .await
                 .unwrap() as u64,
         ))
         .await?;

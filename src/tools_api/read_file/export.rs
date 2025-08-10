@@ -26,7 +26,6 @@ impl ExportDir {
             image_section_headers,
             data_dir.get_export_directory_address().await?,
         )
-        .await
         {
             file.seek(SeekFrom::Start(fo as u64)).await?;
             unsafe {
@@ -57,7 +56,6 @@ impl ExportInfo {
         let name_string_rva;
         file.seek(SeekFrom::Start(name_file_offset as _)).await?;
         name_string_rva = rva_2_fo(nt_head, section_headers, file.read_u32_le().await?)
-            .await
             .unwrap();
         file.seek(SeekFrom::Start(name_string_rva as u64)).await?;
         let mut buf = [0; 512];
@@ -108,21 +106,18 @@ impl ExportTable {
         let mut export_infos = Vec::<ExportInfo>::new();
         let mut name_array_address =
             rva_2_fo(nt_head, image_section_headers, export_dir.address_of_names)
-                .await
                 .unwrap();
         let mut function_array_address = rva_2_fo(
             nt_head,
             image_section_headers,
             export_dir.address_of_functions,
         )
-        .await
         .unwrap();
         let mut ordinals_array_address = rva_2_fo(
             nt_head,
             image_section_headers,
             export_dir.address_of_name_ordinals,
         )
-        .await
         .unwrap();
 
         for _ in 0..export_dir.number_of_names {

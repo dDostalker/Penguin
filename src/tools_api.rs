@@ -238,6 +238,28 @@ pub(crate) fn load_file_info(path: PathBuf) -> anyhow::Result<Box<FileInfo>> {
 }
 
 
+pub fn parse_address_string(input: &str) -> Result<usize, String> {
+    let input = input.trim();
+    if input.is_empty() {
+        return Ok(0);
+    }
+    
+    // 检查是否为16进制格式 (0x开头或包含字母)
+    if input.starts_with("0x") || input.starts_with("0X") {
+        usize::from_str_radix(&input[2..], 16)
+            .map_err(|e| format!("16进制解析错误: {}", e))
+    } else if input.chars().any(|c| c.is_ascii_alphabetic()) {
+        // 包含字母但没有0x前缀，尝试作为16进制解析
+        usize::from_str_radix(input, 16)
+            .map_err(|e| format!("16进制解析错误: {}", e))
+    } else {
+        // 纯数字，作为10进制解析
+        input.parse::<usize>()
+            .map_err(|e| format!("10进制解析错误: {}", e))
+    }
+}
+
+
 pub async fn is_64(file: &mut File, image_dos_header: &ImageDosHeader) -> anyhow::Result<bool> {
     let image_file_header = ImageFileHeader::new(file, image_dos_header).await?;
     if nt_header::MACHINE_32.contains(&image_file_header.machine) {

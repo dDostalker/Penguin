@@ -1,4 +1,5 @@
-use crate::gui::{SubWindowManager, Toast, ToastType};
+use crate::{gui::{SubWindowManager, Toast, ToastType}, tools_api::{parse_address_string, read_file::{nt_header::traits::NtHeaders, rva_2_fo, ImageSectionHeaders}}};
+
 use eframe::egui::Context;
 use std::time::{Duration, Instant};
 const TOAST_WINDOW_WIDTH: f32 = 400.0;
@@ -61,6 +62,49 @@ impl SubWindowManager {
                             self.window_message.show_settings_window = false;
                         }
                     });
+                });
+        }
+    }
+
+    /// 显示虚拟地址->文件偏移窗口
+
+    /// 解析16进制或10进制字符串为usize
+
+
+    pub fn show_virtual_address_to_file_offset_window<T>(&mut self, ctx: &Context,nt_header:&T,section_headers:&ImageSectionHeaders)
+    where T:NtHeaders + ?Sized {
+        if self.window_message.show_virtual_address_to_file_offset_window {
+            eframe::egui::Window::new("虚拟地址->文件偏移")
+                .collapsible(false)
+                .resizable(true)
+                .default_size([TOAST_WINDOW_WIDTH, TOAST_WINDOW_HEIGHT])
+                .show(ctx, |ui| {
+                    ui.label("虚拟地址->文件偏移");
+                    ui.add_space(TOAST_WINDOW_SPACING);
+                    ui.label("虚拟地址 (支持10进制和16进制，如: 1234 或 0x4D2):");
+                    if ui.text_edit_singleline(&mut self.window_message.virtual_address_string).changed()
+                    {
+                        match parse_address_string(&self.window_message.virtual_address_string) {
+                            Ok(addr) => {
+                                self.window_message.virtual_address = addr;
+                            }
+                            Err(e) => {
+
+                            }
+                        }
+                    }
+                    ui.label("文件偏移:");
+                    let fo = rva_2_fo(nt_header,&section_headers,self.window_message.virtual_address as u32);
+                    if let Some(fo) = fo {
+                        ui.label(format!("{} (0x{:X})", fo, fo));
+                    }
+                    else {
+                        ui.label("未找到");
+                    }
+                    if ui.button("关闭").clicked() {
+                        self.window_message.show_virtual_address_to_file_offset_window = false;
+                    }
+                    ui.add_space(TOAST_WINDOW_SPACING);
                 });
         }
     }

@@ -259,7 +259,7 @@ pub(crate) struct SectionData {
 }
 
 /// Rva转化文件地址
-pub async fn rva_2_fo<T>(nt_head: &T, section_heads: &ImageSectionHeaders, rva: u32) -> Option<u32>
+pub  fn rva_2_fo<T>(nt_head: &T, section_heads: &ImageSectionHeaders, rva: u32) -> Option<u32>
 where
     T: NtHeaders + ?Sized,
 {

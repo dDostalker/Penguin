@@ -44,6 +44,9 @@ pub struct WindowMessage {
     pub show_about_window: bool,
     pub show_settings_window: bool,
     pub show_help_window: bool,
+    pub show_virtual_address_to_file_offset_window: bool,
+    pub virtual_address_string: String,
+    pub virtual_address: usize,
 }
 
 /// 导出消息管理器
@@ -157,6 +160,13 @@ impl eframe::App for FileManager {
         self.sub_window_manager.show_settings_window(ctx);
         self.sub_window_manager.show_help_window(ctx);
         self.sub_window_manager.render_toasts(ctx); // 渲染 toast
+
+        if self.files.len() != 0 {
+            let file = &self.files[self.current_index];
+            self.sub_window_manager.show_virtual_address_to_file_offset_window(ctx,&*file.nt_head,&file.section_headers);
+        }
+        
+
     }
 }
 
