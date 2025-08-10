@@ -2,7 +2,7 @@
 
 Penguin ———— 一个开源PE的文件解析工具，它起源于对PE的学习而产生的项目，它不会成为任何工具的代替品，而是为逆向分析者提供更多的选择
 
-[English](README.md) | [中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh-CN.md)
 
 ---
 
