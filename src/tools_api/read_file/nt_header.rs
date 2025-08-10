@@ -4,6 +4,7 @@ use crate::tools_api::read_file::{
     ImageNtHeaders64,
 };
 use crate::tools_api::read_file::{SerializableNtHeaders};
+use crate::i18n;
 
 use std::io::SeekFrom;
 use std::mem::transmute;
@@ -57,21 +58,21 @@ pub(crate) enum DllCharacteristics {
 /// 辅助函数：根据特征值生成描述信息
 fn get_characteristics_descriptions(characteristics: u16) -> String {
     const CHARACTERISTICS_DESCRIPTIONS: &[(u16, &str)] = &[
-        (Characteristics::ImageFileRelocsStripped as u16, "重定位信息被剥离"),
-        (Characteristics::ImageFileExecutableImage as u16, "文件是可执行的"),
-        (Characteristics::ImageFileLineNumsStripped as u16, "行号被剥离"),
-        (Characteristics::ImageFileLocalSymsStripped as u16, "本地符号被剥离"),
-        (Characteristics::ImageFileAggresiveWsTrim as u16, "积极地修剪工作集"),
-        (Characteristics::ImageFileLargeAddressAware as u16, "应用程序可以处理>2gb地址"),
-        (Characteristics::ImageFileBytesReversedLo as u16, "机器字节是反向的"),
-        (Characteristics::ImageFile32bitMachine as u16, "32位机器字"),
-        (Characteristics::ImageFileDebugStripped as u16, "调试信息被剥离"),
-        (Characteristics::ImageFileRemovableRunFromSwap as u16, "如果映像在可移动媒体上，则从交换文件中复制并运行"),
-        (Characteristics::ImageFileNetRunFromSwap as u16, "如果映像在网络上，则从交换文件中复制并运行"),
-        (Characteristics::ImageFileSystem as u16, "系统文件"),
-        (Characteristics::ImageFileDll as u16, "文件是DLL"),
-        (Characteristics::ImageFileUpSystemOnly as u16, "文件应该只在UP机器上运行"),
-        (Characteristics::ImageFileBytesReversedHi as u16, "机器字节是反向的"),
+        (Characteristics::ImageFileRelocsStripped as u16, i18n::CHARACTERISTICS_RELOCS_STRIPPED),
+        (Characteristics::ImageFileExecutableImage as u16, i18n::CHARACTERISTICS_EXECUTABLE_IMAGE),
+        (Characteristics::ImageFileLineNumsStripped as u16, i18n::CHARACTERISTICS_LINE_NUMS_STRIPPED),
+        (Characteristics::ImageFileLocalSymsStripped as u16, i18n::CHARACTERISTICS_LOCAL_SYMS_STRIPPED),
+        (Characteristics::ImageFileAggresiveWsTrim as u16, i18n::CHARACTERISTICS_AGGRESSIVE_WS_TRIM),
+        (Characteristics::ImageFileLargeAddressAware as u16, i18n::CHARACTERISTICS_LARGE_ADDRESS_AWARE),
+        (Characteristics::ImageFileBytesReversedLo as u16, i18n::CHARACTERISTICS_BYTES_REVERSED_LO),
+        (Characteristics::ImageFile32bitMachine as u16, i18n::CHARACTERISTICS_32BIT_MACHINE),
+        (Characteristics::ImageFileDebugStripped as u16, i18n::CHARACTERISTICS_DEBUG_STRIPPED),
+        (Characteristics::ImageFileRemovableRunFromSwap as u16, i18n::CHARACTERISTICS_REMOVABLE_RUN_FROM_SWAP),
+        (Characteristics::ImageFileNetRunFromSwap as u16, i18n::CHARACTERISTICS_NET_RUN_FROM_SWAP),
+        (Characteristics::ImageFileSystem as u16, i18n::CHARACTERISTICS_SYSTEM),
+        (Characteristics::ImageFileDll as u16, i18n::CHARACTERISTICS_DLL),
+        (Characteristics::ImageFileUpSystemOnly as u16, i18n::CHARACTERISTICS_UP_SYSTEM_ONLY),
+        (Characteristics::ImageFileBytesReversedHi as u16, i18n::CHARACTERISTICS_BYTES_REVERSED_HI),
     ];
 
     CHARACTERISTICS_DESCRIPTIONS
@@ -88,21 +89,21 @@ fn get_characteristics_descriptions(characteristics: u16) -> String {
 }
 fn get_dll_characteristics_description(dll_characteristics: u16) -> String {
     const DLL_CHARACTERISTICS_DESCRIPTIONS: &[(u16, &str)] = &[
-        (DllCharacteristics::APPCONTAINER as u16, "映像必须在AppContainer中运行"),
-        (DllCharacteristics::ControlFlowGuard as u16, "控制流保护"),
-        (DllCharacteristics::DynamicBase as u16, "DLL可重定位"),
-        (DllCharacteristics::ForceIntegrity as u16, "强制实施代码完整性检查"),
-        (DllCharacteristics::HighEntropyVA as u16, "映像可以处理64位高熵VA空间"),
-        (DllCharacteristics::NOBIND as u16, "禁止绑定"),
-        (DllCharacteristics::NOLSOLATION as u16, "映像理解隔离但不隔离"),
-        (DllCharacteristics::NOSEH as u16, "不使用SEH，不能处理任何有SE的处理程序"),
-        (DllCharacteristics::NXCOMPAT as u16, "NX兼容"),
-        (DllCharacteristics::PROCESSINIT as u16, "进程初始化"),
-        (DllCharacteristics::PROCESSTERM as u16, "进程终止"),
-        (DllCharacteristics::TERMINALSERVERAWARE as u16, "终端服务器感知"),
-        (DllCharacteristics::THREADINIT as u16, "线程初始化"),
-        (DllCharacteristics::THREADTERM as u16, "线程终止"),
-        (DllCharacteristics::WDMDRIVER as u16, "WDM驱动程序"),
+        (DllCharacteristics::APPCONTAINER as u16, i18n::DLL_CHARACTERISTICS_APPCONTAINER),
+        (DllCharacteristics::ControlFlowGuard as u16, i18n::DLL_CHARACTERISTICS_CONTROL_FLOW_GUARD),
+        (DllCharacteristics::DynamicBase as u16, i18n::DLL_CHARACTERISTICS_DYNAMIC_BASE),
+        (DllCharacteristics::ForceIntegrity as u16, i18n::DLL_CHARACTERISTICS_FORCE_INTEGRITY),
+        (DllCharacteristics::HighEntropyVA as u16, i18n::DLL_CHARACTERISTICS_HIGH_ENTROPY_VA),
+        (DllCharacteristics::NOBIND as u16, i18n::DLL_CHARACTERISTICS_NOBIND),
+        (DllCharacteristics::NOLSOLATION as u16, i18n::DLL_CHARACTERISTICS_NOLSOLATION),
+        (DllCharacteristics::NOSEH as u16, i18n::DLL_CHARACTERISTICS_NOSEH),
+        (DllCharacteristics::NXCOMPAT as u16, i18n::DLL_CHARACTERISTICS_NXCOMPAT),
+        (DllCharacteristics::PROCESSINIT as u16, i18n::DLL_CHARACTERISTICS_PROCESSINIT),
+        (DllCharacteristics::PROCESSTERM as u16, i18n::DLL_CHARACTERISTICS_PROCESSTERM),
+        (DllCharacteristics::TERMINALSERVERAWARE as u16, i18n::DLL_CHARACTERISTICS_TERMINALSERVERAWARE),
+        (DllCharacteristics::THREADINIT as u16, i18n::DLL_CHARACTERISTICS_THREADINIT),
+        (DllCharacteristics::THREADTERM as u16, i18n::DLL_CHARACTERISTICS_THREADTERM),
+        (DllCharacteristics::WDMDRIVER as u16, i18n::DLL_CHARACTERISTICS_WDMDRIVER),
     ];
     DLL_CHARACTERISTICS_DESCRIPTIONS.iter().filter_map(|(flag, description)| {
         if dll_characteristics & flag != 0 {
@@ -114,32 +115,32 @@ fn get_dll_characteristics_description(dll_characteristics: u16) -> String {
 }
 fn get_machine_descriptions(machine: u16) -> &'static str {
     match machine {
-        0x14c => "32位x86架构",             // 32位
-        0x0162 => "MIPS大端",               // 32位
-        0x0166 => "MIPS小端",               // 32位
-        0x0168 => "MIPS小端",               // 32位
-        0x0169 => "MIPS小端",               // 32位
-        0x0184 => "Alpha",                  // 32位
-        0x01a2 => "SH3小端",                // 32位
-        0x01a3 => "SH3小端",                // 32位
-        0x01a4 => "SH3E小端",               // 32位
-        0x01a6 => "SH4小端",                // 32位
-        0x01a8 => "SH5",                    // 32位
-        0x01c0 => "ARM小端",                // 32位
-        0x01c2 => "ARM Thumb/Thumb-2 小端", // 32位
-        0x01c4 => "ARM Thumb/Thumb-2 小端", // 32位
-        0x01d3 => "ARM",                    // 32位
-        0x01F0 => "IBM",                    // 32位
-        0x01f1 => "POWERCFP",               // 32位
-        0x0200 => "Intel 64",               // 64位
-        0x0266 => "MIPS",                   // 32位
-        0x0284 => "ALPHA64",                // 64位
-        0x0366 => "MIPS",                   // 32位
-        0x0466 => "MIPS",                   // 32位
-        0x0520 => "Infineon",               // 32位
-        0x8664 => "64位x64架构",            // 64位
-        0xAA64 => "ARM64 小端",             // 64位
-        _ => "unknown",
+        0x14c => i18n::MACHINE_X86_32,
+        0x0162 => i18n::MACHINE_MIPS_BIG_ENDIAN,
+        0x0166 => i18n::MACHINE_MIPS_LITTLE_ENDIAN,
+        0x0168 => i18n::MACHINE_MIPS_LITTLE_ENDIAN,
+        0x0169 => i18n::MACHINE_MIPS_LITTLE_ENDIAN,
+        0x0184 => i18n::MACHINE_ALPHA,
+        0x01a2 => i18n::MACHINE_SH3_LITTLE_ENDIAN,
+        0x01a3 => i18n::MACHINE_SH3_LITTLE_ENDIAN,
+        0x01a4 => i18n::MACHINE_SH3E_LITTLE_ENDIAN,
+        0x01a6 => i18n::MACHINE_SH4_LITTLE_ENDIAN,
+        0x01a8 => i18n::MACHINE_SH5,
+        0x01c0 => i18n::MACHINE_ARM_LITTLE_ENDIAN,
+        0x01c2 => i18n::MACHINE_ARM_THUMB_LITTLE_ENDIAN,
+        0x01c4 => i18n::MACHINE_ARM_THUMB_LITTLE_ENDIAN,
+        0x01d3 => i18n::MACHINE_ARM,
+        0x01F0 => i18n::MACHINE_IBM,
+        0x01f1 => i18n::MACHINE_POWERCFP,
+        0x0200 => i18n::MACHINE_INTEL_64,
+        0x0266 => i18n::MACHINE_MIPS,
+        0x0284 => i18n::MACHINE_ALPHA64,
+        0x0366 => i18n::MACHINE_MIPS,
+        0x0466 => i18n::MACHINE_MIPS,
+        0x0520 => i18n::MACHINE_INFINEON,
+        0x8664 => i18n::MACHINE_X64_64,
+        0xAA64 => i18n::MACHINE_ARM64_LITTLE_ENDIAN,
+        _ => i18n::MACHINE_UNKNOWN,
     }
 }
 /// 为 64 位 和 32 位nt头特征

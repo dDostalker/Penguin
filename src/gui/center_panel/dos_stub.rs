@@ -1,4 +1,5 @@
 use crate::gui::FileManager;
+use crate::i18n;
 use eframe::egui::Vec2;
 
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
@@ -14,7 +15,7 @@ impl FileManager {
             Self::show_main_title(ui, "DOS Stub");
 
             if stub.is_empty() {
-                ui.label("该文件无 DOS Stub 数据");
+                ui.label(i18n::NO_DOS_STUB);
                 return ;
             }
 
@@ -28,8 +29,8 @@ impl FileManager {
                         .num_columns(COLUMNS)
                         .show(ui, |ui| {
                             // 表头
-                            ui.strong("偏移");
-                            ui.strong("十六进制");
+                            ui.strong(i18n::OFFSET);
+                            ui.strong(i18n::HEXADECIMAL);
                             ui.strong("ASCII");
                             ui.end_row();
 

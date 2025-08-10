@@ -2,6 +2,7 @@ use std::env;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{SystemTime, UNIX_EPOCH, Duration};
+use crate::i18n;
 
 const SYSTEM_PATH: [&str; 2] = [r"C:\Windows\System32", r"C:\Windows\SysWOW64"];
 const WINDOWS_PATH: [&str; 2] = [r"C:\Windows", r"C:\Program Files"];
@@ -25,8 +26,8 @@ pub fn open_file_location(file_path: &PathBuf) -> anyhow::Result<()> {
         return open_explorer(parent_str);
     }
     Err(anyhow::anyhow!(
-        "无法获取文件所在目录: {}",
-        file_path.display()
+        "{}",
+        i18n::CANNOT_GET_FILE_DIRECTORY.replace("{}", &file_path.display().to_string())
     ))
 }
 

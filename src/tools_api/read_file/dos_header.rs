@@ -2,6 +2,7 @@ use crate::tools_api::read_file::ImageDosHeader;
 use std::mem::transmute;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
+use crate::i18n;
 
 impl ImageDosHeader {
     /// 获取nt头文件地址
@@ -17,7 +18,7 @@ impl ImageDosHeader {
         }
         // 验证dos头
         if dos_head.e_magic != 0x5A4D {
-            return Err(anyhow::anyhow!("打开文件不是有效的PE文件"));
+            return Err(anyhow::anyhow!("{}", i18n::NOT_VALID_PE_FILE));
         }
         Ok(dos_head)
     }

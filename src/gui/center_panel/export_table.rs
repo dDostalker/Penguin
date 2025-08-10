@@ -1,4 +1,5 @@
 use eframe::egui::{Ui, Vec2};
+use crate::i18n;
 
 use crate::{GLOBAL_RT, gui::FileManager, tools_api::{read_file::ExportTable, search}};
 
@@ -42,13 +43,13 @@ impl FileManager {
                             ui.end_row();
                             // 表头 - 使用强化的样式
                             ui.allocate_ui(DESIGN_SIZE_FUNC_NAME, |ui| {
-                                ui.strong("函数名");
+                                ui.strong(i18n::EXPORT_FUNCTION_NAME);
                             });
                             ui.allocate_ui(DESIGN_SIZE_FUNC_ADDR, |ui| {
-                                ui.strong("函数地址");
+                                ui.strong(i18n::EXPORT_FUNCTION_VIRTUAL_ADDRESS);
                             });
                             ui.allocate_ui(DESIGN_SIZE_FUNC_OPERATE, |ui| {
-                                ui.strong("操作");
+                                ui.strong(i18n::EXPORT_OPERATION);
                             });
                             ui.end_row();
 
@@ -76,7 +77,7 @@ impl FileManager {
                                 // 操作列 - 占用25%宽度
                                 ui.allocate_ui(DESIGN_SIZE_FUNC_OPERATE, |ui| {
                                     ui.horizontal(|ui| {
-                                        if ui.button("详情").clicked() {
+                                        if ui.button(i18n::EXPORT_DETAIL_BUTTON).clicked() {
                                             self.sub_window_manager.export_message.selected_export_index =
                                                 Some(index);
                                         }
@@ -93,13 +94,13 @@ impl FileManager {
             let mut export_table_ref = self.files[self.current_index].export.0.borrow_mut();
             if selected_index < export_table_ref.len() {
                 eframe::egui::TopBottomPanel::bottom("export_detail_window").show(ui.ctx(), |ui| {
-                    ui.label("导出函数详情");
+                    ui.label(i18n::EXPORT_FUNCTION_DETAILS);
                     ui.horizontal(|ui| {
-                        ui.label("函数名:");
+                        ui.label(i18n::FUNCTION_NAME);
                         ui.text_edit_singleline(
                             &mut export_table_ref[selected_index].name,
                         );
-                        ui.label("目标地址:");
+                        ui.label(i18n::TARGET_VIRTUAL_ADDRESS);
 
                         // 将 u32 地址转换为字符串进行编辑
                         let mut addr_string = format!(
@@ -112,9 +113,9 @@ impl FileManager {
                                 u32::from_str_radix(addr_string.trim_start_matches("0x"), 16)
                             {
                                 export_table_ref[selected_index].function = addr;
-                                self.sub_window_manager.show_success("地址已更新");
+                                self.sub_window_manager.show_success(i18n::ADDRESS_UPDATED);
                             } else {
-                                self.sub_window_manager.show_error("无效的十六进制地址格式");
+                                self.sub_window_manager.show_error(i18n::INVALID_HEX_ADDRESS_FORMAT);
                             }
                         }
                         if ui.button("X").clicked() {

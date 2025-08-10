@@ -1,4 +1,5 @@
 use crate::gui::FileManager;
+use crate::i18n;
 use eframe::egui::{Label, Ui, Vec2};
 
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
@@ -10,7 +11,7 @@ impl FileManager {
         let section_num = self.get_section_num()?;
 
         if section_num == 0 {
-            ui.add(Label::new("该文件无节表"));
+            ui.add(Label::new(i18n::NO_SECTIONS));
             return Ok(());
         }
 
@@ -40,13 +41,13 @@ impl FileManager {
                     .num_columns(COLUMNS)
                     .show(ui, |ui| {
                         // 表头
-                        ui.strong("节名称");
-                        ui.strong("虚拟地址");
-                        ui.strong("大小");
-                        ui.strong("文件偏移");
-                        ui.strong("重定位地址");
-                        ui.strong("特征");
-                        ui.strong("操作");
+                        ui.strong(i18n::SECTION_NAME);
+                        ui.strong(i18n::VIRTUAL_ADDRESS);
+                        ui.strong(i18n::SIZE);
+                        ui.strong(i18n::FILE_OFFSET);
+                        ui.strong(i18n::RELOCATION_ADDRESS);
+                        ui.strong(i18n::CHARACTERISTICS);
+                        ui.strong(i18n::OPERATION);
                         ui.end_row();
 
                         for (index, (name, virtual_addr, size, file_offset, characteristics, relocations)) in section_items.iter().enumerate() {
@@ -60,9 +61,13 @@ impl FileManager {
                             }
 
                             ui.horizontal(|ui| {
-                                if ui.button("复制").clicked() {
-                                    let info = format!("节名: {}\n虚拟地址: {}\n大小: {}\n文件偏移: {}\n特征: {}",
-                                        name, virtual_addr, size, file_offset, characteristics);
+                                if ui.button(i18n::COPY_BUTTON).clicked() {
+                                    let info = format!("{}", i18n::SECTION_INFO_FORMAT
+                                        .replace("{}", name)
+                                        .replace("{}", virtual_addr)
+                                        .replace("{}", size)
+                                        .replace("{}", file_offset)
+                                        .replace("{}", characteristics));
                                     ui.output_mut(|o| o.copied_text = info);
                                 }
                             });

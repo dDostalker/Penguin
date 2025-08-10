@@ -1,4 +1,5 @@
 use crate::gui::FileManager;
+use crate::i18n;
 use eframe::egui::{Ui, Vec2};
 
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
@@ -8,7 +9,7 @@ impl FileManager {
     /// dos_header 窗口
     pub(crate) fn dos_header_panel(&self, ui: &mut Ui)->anyhow::Result<()> {
         eframe::egui::CentralPanel::default().show(ui.ctx(), |ui| {
-            Self::show_main_title(ui, "DOS Header");
+            Self::show_main_title(ui, i18n::DOS_HEADER_TITLE);
 
             eframe::egui::ScrollArea::vertical()
                 .min_scrolled_height(MIN_SCROLLED_HEIGHT)
@@ -20,100 +21,100 @@ impl FileManager {
                         .num_columns(COLUMNS)
                         .show(ui, |ui| {
                             // 表头
-                            ui.strong("字段名");
-                            ui.strong("值");
-                            ui.strong("描述");
+                            ui.strong(i18n::DOS_HEADER_FIELD_NAME);
+                            ui.strong(i18n::DOS_HEADER_VALUE);
+                            ui.strong(i18n::DOS_HEADER_DESCRIPTION);
                             ui.end_row();
 
                             // DOS Header 字段
                             ui.label("e_cblp");
                             ui.label(&self.get_cblp());
-                            ui.label("文件中的全部和部分页数");
+                            ui.label(i18n::DOS_HEADER_E_CBLP);
                             ui.end_row();
 
                             ui.label("e_cp");
                             ui.label(&self.get_cp());
-                            ui.label("文件中的全部和部分页数");
+                            ui.label(i18n::DOS_HEADER_E_CP);
                             ui.end_row();
 
                             ui.label("e_crlc");
                             ui.label(&self.get_crlc());
-                            ui.label("重定位表中的指针数");
+                            ui.label(i18n::DOS_HEADER_E_CRLC);
                             ui.end_row();
 
                             ui.label("e_cparhdr");
                             ui.label(&self.get_cparhdr());
-                            ui.label("头部尺寸以段落为单位");
+                            ui.label(i18n::DOS_HEADER_E_CPARHDR);
                             ui.end_row();
 
                             ui.label("e_minalloc");
                             ui.label(&self.get_minalloc());
-                            ui.label("所需最小附件段");
+                            ui.label(i18n::DOS_HEADER_E_MINALLOC);
                             ui.end_row();
 
                             ui.label("e_maxalloc");
                             ui.label(&self.get_maxalloc());
-                            ui.label("所需最大附件段");
+                            ui.label(i18n::DOS_HEADER_E_MAXALLOC);
                             ui.end_row();
 
                             ui.label("e_ss");
                             ui.label(&self.get_ss());
-                            ui.label("初始堆栈段");
+                            ui.label(i18n::DOS_HEADER_E_SS);
                             ui.end_row();
 
                             ui.label("e_sp");
                             ui.label(&self.get_sp());
-                            ui.label("初始堆栈指针");
+                            ui.label(i18n::DOS_HEADER_E_SP);
                             ui.end_row();
 
                             ui.label("e_csum");
                             ui.label(&self.get_csum());
-                            ui.label("文件校验和");
+                            ui.label(i18n::DOS_HEADER_E_CSUM);
                             ui.end_row();
 
                             ui.label("e_ip");
                             ui.label(&self.get_ip());
-                            ui.label("入口点段");
+                            ui.label(i18n::DOS_HEADER_E_IP);
                             ui.end_row();
 
                             ui.label("e_cs");
                             ui.label(&self.get_cs());
-                            ui.label("入口点段段");
+                            ui.label(i18n::DOS_HEADER_E_CS);
                             ui.end_row();
 
                             ui.label("e_lfarlc");
                             ui.label(&self.get_lfarlc());
-                            ui.label("重定位表段");
+                            ui.label(i18n::DOS_HEADER_E_LFARLC);
                             ui.end_row();
 
                             ui.label("e_ovno");
                             ui.label(&self.get_ovno());
-                            ui.label("OEM信息段");
+                            ui.label(i18n::DOS_HEADER_E_OVNO);
                             ui.end_row();
 
                             ui.label("e_res");
                             ui.label(&self.get_res());
-                            ui.label("保留段");
+                            ui.label(i18n::DOS_HEADER_E_RES);
                             ui.end_row();
 
                             ui.label("e_oemid");
                             ui.label(&self.get_oemid());
-                            ui.label("OEM ID");
+                            ui.label(i18n::DOS_HEADER_E_OEMID);
                             ui.end_row();
 
                             ui.label("e_oeminfo");
                             ui.label(&self.get_oeminfo());
-                            ui.label("OEM信息段");
+                            ui.label(i18n::DOS_HEADER_E_OEMINFO);
                             ui.end_row();
 
                             ui.label("e_res2");
                             ui.label(&self.get_res2());
-                            ui.label("保留段");
+                            ui.label(i18n::DOS_HEADER_E_RES2);
                             ui.end_row();
 
                             ui.label("e_lfanew");
                             ui.label(&self.get_lfanew());
-                            ui.label("文件头段");
+                            ui.label(i18n::DOS_HEADER_E_LFANEW);
                             ui.end_row();
                         });
                 });

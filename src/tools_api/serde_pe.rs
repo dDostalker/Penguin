@@ -1,5 +1,6 @@
 use anyhow::anyhow;
 use crate::tools_api::{FileInfo, HashInfo};
+use crate::i18n;
 use crate::tools_api::read_file::{
     SerializableImportTable, SerializableExportTable, SerializableDataDirectory,
     SerializableImageSectionHeaders, SerializableNtHeaders
@@ -58,13 +59,13 @@ impl SerializableFileInfo {
 pub fn pe_info_to_toml(file_info: &mut FileInfo) -> anyhow::Result<String> {
     let serializable_info = SerializableFileInfo::from_file_info(file_info)?;
     let toml_string = toml::to_string_pretty(&serializable_info)
-        .map_err(|e| anyhow!("序列化TOML失败: {}", e))?;
+        .map_err(|e| anyhow!("{}", i18n::SERIALIZE_TOML_FAILED.replace("{}", &e.to_string())))?;
     Ok(toml_string)
 }
 pub fn pe_info_to_json(file_info: &mut FileInfo) -> anyhow::Result<String> {
     let serializable_info = SerializableFileInfo::from_file_info(file_info)?;
     let json_string = serde_json::to_string_pretty(&serializable_info)
-        .map_err(|e| anyhow!("序列化JSON失败: {}", e))?;
+        .map_err(|e| anyhow!("{}", i18n::SERIALIZE_JSON_FAILED.replace("{}", &e.to_string())))?;
     Ok(json_string)
 }
 
@@ -72,14 +73,14 @@ pub async fn save_to_file(file_info: &mut FileInfo, file_path: &PathBuf, file_ty
     let serde_string = match file_type {
         "toml" => pe_info_to_toml(file_info),
         "json" => pe_info_to_json(file_info),
-        _ => return Err(anyhow!("不支持的文件类型: {}", file_type)),
+        _ => return Err(anyhow!("{}", i18n::UNSUPPORTED_FILE_TYPE.replace("{}", file_type))),
     };
     let serde_string = match serde_string {
         Ok(string) => string,
         Err(e) => {
-            return Err(anyhow!("序列化失败: {}", e));
+            return Err(anyhow!("{}", i18n::SERIALIZE_FAILED.replace("{}", &e.to_string())));
         }   
     };
-    write(file_path, serde_string).await.map_err(|e| anyhow!("保存失败: {}", e))?;
+    write(file_path, serde_string).await.map_err(|e| anyhow!("{}", i18n::SAVE_FAILED_ERROR.replace("{}", &e.to_string())))?;
     Ok(())
 }

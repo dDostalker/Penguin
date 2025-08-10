@@ -1,6 +1,7 @@
 use crate::GLOBAL_RT;
 use crate::gui::FileManager;
 use crate::tools_api::{load_file_info, serde_pe::{save_to_file}};
+use crate::i18n;
 use eframe::egui::Ui;
 use rfd::FileDialog;
 use std::path::PathBuf;
@@ -10,8 +11,8 @@ impl FileManager {
     pub(crate) fn top_label(&mut self, ctx: &eframe::egui::Context) {
         eframe::egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             eframe::egui::MenuBar::new().ui(ui, |ui| {
-                ui.menu_button("File", |ui| {
-                    if ui.button("open").clicked() {
+                ui.menu_button(i18n::FILE_MENU, |ui| {
+                    if ui.button(i18n::OPEN_BUTTON).clicked() {
                         let files = FileDialog::new().pick_files();
                         if let Some(paths) = files {
                             for path in paths {
@@ -29,20 +30,20 @@ impl FileManager {
                     if let Err(e) = self.save_file(ui){
                         self.sub_window_manager.show_error(&e.to_string());
                     }
-                    if ui.button("exit").clicked() {
+                    if ui.button(i18n::EXIT_BUTTON).clicked() {
                         // 后续添加释放其他行为的功能
                         std::process::exit(0);
                     }
                 });
 
-                ui.menu_button("工具", |ui| {
-                    if ui.button("设置").clicked() {
+                ui.menu_button(i18n::TOOLS_MENU, |ui| {
+                    if ui.button(i18n::SETTINGS_MENU).clicked() {
                         self.sub_window_manager.window_message.show_settings_window = true;
                     }
-                    if ui.button("虚拟地址->文件偏移").clicked() {
+                    if ui.button(i18n::VIRTUAL_ADDRESS_TO_FILE_OFFSET_MENU).clicked() {
                         self.sub_window_manager.window_message.show_virtual_address_to_file_offset_window = true;
                     }
-                    ui.menu_button("导出为...",|ui|{
+                    ui.menu_button(i18n::EXPORT_MENU,|ui|{
                         if let Err(e) = self.save_serde(ui,"toml"){
                             self.sub_window_manager.show_error(&e.to_string());
                         }
@@ -53,11 +54,11 @@ impl FileManager {
 
                 });
 
-                ui.menu_button("帮助", |ui| {
-                    if ui.button("使用帮助").clicked() {
+                ui.menu_button(i18n::HELP_MENU, |ui| {
+                    if ui.button(i18n::USAGE_HELP_MENU).clicked() {
                         self.sub_window_manager.window_message.show_help_window = true;
                     }
-                    if ui.button("关于").clicked() {
+                    if ui.button(i18n::ABOUT_MENU).clicked() {
                         self.sub_window_manager.window_message.show_about_window = true;
                     }
                 });
@@ -65,23 +66,23 @@ impl FileManager {
         });
     }
     fn save_serde(&mut self,ui:&mut Ui,file_type:&str)->anyhow::Result<()> {
-        if ui.button(format!("保存为{}",file_type)).clicked() {
-            let file_info = self.files.get_mut(self.current_index).ok_or(anyhow::anyhow!("文件不存在"))?;
+        if ui.button(format!("{}", i18n::SAVE_AS_FORMAT.replace("{}", file_type))).clicked() {
+            let file_info = self.files.get_mut(self.current_index).ok_or(anyhow::anyhow!(i18n::FILE_NOT_FOUND))?;
             let file_path = FileDialog::new().set_file_name(format!(".{}",file_type)).save_file();
             if file_path.is_none() {
-                return Err(anyhow::anyhow!("保存失败"));
+                return Err(anyhow::anyhow!(i18n::SAVE_FAILED));
             }
             if let Some(file_path) = file_path {
                 GLOBAL_RT.block_on(save_to_file(file_info, &file_path, file_type))?;
-                self.sub_window_manager.show_success("保存成功");
+                self.sub_window_manager.show_success(i18n::SAVE_SUCCESS);
             }
         }
         Ok(())
     }
     fn save_file(&mut self,ui:&mut Ui)->anyhow::Result<()> {
-        if ui.button("save").clicked() {
+        if ui.button(i18n::SAVE_BUTTON).clicked() {
             // todo 迁移到tools_api
-            let file_info = self.files.get_mut(self.current_index).ok_or(anyhow::anyhow!("文件不存在"))?;
+            let file_info = self.files.get_mut(self.current_index).ok_or(anyhow::anyhow!(i18n::FILE_NOT_FOUND))?;
             // 文件 -> 保存 的逻辑
             // 创建恢复文件
             let mut file_path = PathBuf::from(&file_info.file_path);
@@ -94,7 +95,7 @@ impl FileManager {
                 }
                 let mut file = file_info.get_mut_file()?;
                 GLOBAL_RT.block_on(copy_file(&mut file, &file_path))?;
-                self.sub_window_manager.show_success("备份成功");
+                self.sub_window_manager.show_success(i18n::BACKUP_SUCCESS);
                 break;
             }
             let import_dll = GLOBAL_RT.block_on(file_info.get_imports())?;
@@ -108,7 +109,7 @@ impl FileManager {
                                 let mut f = file_info.get_mut_file()?;
                                     GLOBAL_RT.block_on(k.write_func_name(&mut f, &l.name))
                                 ?;
-                                self.sub_window_manager.show_success("修改导入表成功");
+                                self.sub_window_manager.show_success(i18n::IMPORT_TABLE_MODIFIED);
                             }
                         }
                     }
@@ -124,15 +125,15 @@ impl FileManager {
                     if i != j {
                         let mut f = file_info.get_mut_file()?;
                         GLOBAL_RT.block_on(i.write_func_name(&mut f, &j.name))?;
-                        self.sub_window_manager.show_success("修改导出表成功");
+                        self.sub_window_manager.show_success(i18n::EXPORT_TABLE_MODIFIED);
                             GLOBAL_RT
                             .block_on(i.write_func_address(&mut f, j.function))
                         ?;
-                        self.sub_window_manager.show_success("修改导出表成功");
+                        self.sub_window_manager.show_success(i18n::EXPORT_TABLE_MODIFIED);
                     }
                 }
             }
-            self.sub_window_manager.show_success("保存成功");
+            self.sub_window_manager.show_success(i18n::SAVE_SUCCESS);
         }
         Ok(())
     }

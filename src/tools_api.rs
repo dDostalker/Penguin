@@ -9,6 +9,7 @@ use crate::tools_api::read_file::{
     DataDirectory, ExportDir, ExportTable, ImageDosHeader, ImageDosStub, ImageFileHeader, ImageNtHeaders,
     ImageNtHeaders64, ImageSectionHeaders, ImportDescriptor, ImportDll, ImportTable, nt_header,
 };
+use crate::i18n;
 use std::cell::{Ref, RefCell, RefMut};
 use std::sync::Arc;
 use std::path::PathBuf;
@@ -87,14 +88,14 @@ impl FileInfo {
         if let Some(file) = &self.file {
             Ok(file.borrow_mut())
         } else {
-            Err(anyhow::anyhow!("文件句柄已关闭"))
+            Err(anyhow::anyhow!(i18n::FILE_HANDLE_CLOSED))
         }
     }
     pub fn get_file(&self) -> anyhow::Result<Ref<'_, File>> {
         if let Some(file) = &self.file {
             Ok(file.borrow())
         } else {
-            Err(anyhow::anyhow!("文件句柄已关闭"))
+            Err(anyhow::anyhow!(i18n::FILE_HANDLE_CLOSED))
         }
     }
     /// 转换状态，为后续dll调试提供准备
@@ -165,7 +166,7 @@ impl FileInfo {
             .file_name()
             .and_then(|name| name.to_str())
             .map(|s| s.to_string())
-            .ok_or_else(|| anyhow::anyhow!("无法提取文件名"))
+            .ok_or_else(|| anyhow::anyhow!(i18n::CANNOT_EXTRACT_FILENAME))
     }
 
     /// 解析NT头部信息
@@ -247,15 +248,15 @@ pub fn parse_address_string(input: &str) -> Result<usize, String> {
     // 检查是否为16进制格式 (0x开头或包含字母)
     if input.starts_with("0x") || input.starts_with("0X") {
         usize::from_str_radix(&input[2..], 16)
-            .map_err(|e| format!("16进制解析错误: {}", e))
+            .map_err(|e| format!("{}", i18n::HEX_PARSE_ERROR.replace("{}", &e.to_string())))
     } else if input.chars().any(|c| c.is_ascii_alphabetic()) {
         // 包含字母但没有0x前缀，尝试作为16进制解析
         usize::from_str_radix(input, 16)
-            .map_err(|e| format!("16进制解析错误: {}", e))
+            .map_err(|e| format!("{}", i18n::HEX_PARSE_ERROR.replace("{}", &e.to_string())))
     } else {
         // 纯数字，作为10进制解析
         input.parse::<usize>()
-            .map_err(|e| format!("10进制解析错误: {}", e))
+            .map_err(|e| format!("{}", i18n::DECIMAL_PARSE_ERROR.replace("{}", &e.to_string())))
     }
 }
 
@@ -267,7 +268,7 @@ pub async fn is_64(file: &mut File, image_dos_header: &ImageDosHeader) -> anyhow
     } else if nt_header::MACHINE_64.contains(&image_file_header.machine) {
         return Ok(true);
     }
-    Err(anyhow::anyhow!("Not a normal machine image file"))
+    Err(anyhow::anyhow!(i18n::NOT_NORMAL_MACHINE_IMAGE))
 }
 
 pub fn search(export_data: &str, search_string: &str) -> bool {

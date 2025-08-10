@@ -1,4 +1,4 @@
-use crate::{gui::{SubWindowManager, Toast, ToastType}, tools_api::{parse_address_string, read_file::{nt_header::traits::NtHeaders, rva_2_fo, ImageSectionHeaders}}};
+use crate::{gui::{SubWindowManager, Toast, ToastType}, tools_api::{parse_address_string, read_file::{nt_header::traits::NtHeaders, rva_2_fo, ImageSectionHeaders}}, i18n};
 
 use eframe::egui::Context;
 use std::time::{Duration, Instant};
@@ -17,21 +17,21 @@ impl SubWindowManager {
     /// 显示关于窗口
     pub fn show_about_window(&mut self, ctx: &Context) {
         if self.window_message.show_about_window {
-            eframe::egui::Window::new("关于 Penguin")
+            eframe::egui::Window::new(i18n::ABOUT_TITLE)
                 .collapsible(false)
                 .resizable(false)
                 .default_size([TOAST_WINDOW_WIDTH, TOAST_WINDOW_HEIGHT])
                 .show(ctx, |ui| {
                     ui.vertical(|ui| {
-                        ui.heading("Penguin PE 分析器");
+                        ui.heading(i18n::APP_TITLE);
                         ui.add_space(TOAST_WINDOW_SPACING);
-                        ui.label("版本: 0.1.0");
-                        ui.label("作者: dDostalker");
-                        ui.label("描述: 一个强大的PE文件分析工具");
+                        ui.label(i18n::VERSION);
+                        ui.label(i18n::AUTHOR);
+                        ui.label(i18n::PEDESCRIPTION);
                         ui.add_space(TOAST_WINDOW_SPACING);
 
                         ui.horizontal(|ui| {
-                            if ui.button("确定").clicked() {
+                            if ui.button(i18n::OK_BUTTON).clicked() {
                                 self.window_message.show_about_window = false;
                             }
                         });
@@ -43,22 +43,22 @@ impl SubWindowManager {
     /// 显示设置窗口
     pub fn show_settings_window(&mut self, ctx: &Context) {
         if self.window_message.show_settings_window {
-            eframe::egui::Window::new("设置")
+            eframe::egui::Window::new(i18n::SETTINGS_TITLE)
                 .collapsible(false)
                 .resizable(true)
                 .default_size([TOAST_WINDOW_WIDTH, TOAST_WINDOW_HEIGHT])
                 .show(ctx, |ui| {
                     ui.vertical(|ui| {
-                        ui.heading("应用程序设置");
+                        ui.heading(i18n::APP_SETTINGS);
                         ui.add_space(TOAST_WINDOW_SPACING);
 
                         // 主题设置
 
-                        if ui.button("演示通知").clicked() {
+                        if ui.button(i18n::DEMO_NOTIFICATIONS).clicked() {
                             self.demo_toasts();
                         }
 
-                        if ui.button("取消").clicked() {
+                        if ui.button(i18n::CANCEL_BUTTON).clicked() {
                             self.window_message.show_settings_window = false;
                         }
                     });
@@ -74,14 +74,14 @@ impl SubWindowManager {
     pub fn show_virtual_address_to_file_offset_window<T>(&mut self, ctx: &Context,nt_header:&T,section_headers:&ImageSectionHeaders)
     where T:NtHeaders + ?Sized {
         if self.window_message.show_virtual_address_to_file_offset_window {
-            eframe::egui::Window::new("虚拟地址->文件偏移")
+            eframe::egui::Window::new(i18n::VIRTUAL_ADDRESS_TO_FILE_OFFSET)
                 .collapsible(false)
                 .resizable(true)
                 .default_size([TOAST_WINDOW_WIDTH, TOAST_WINDOW_HEIGHT])
                 .show(ctx, |ui| {
-                    ui.label("虚拟地址->文件偏移");
+                    ui.label(i18n::VIRTUAL_ADDRESS_TO_FILE_OFFSET);
                     ui.add_space(TOAST_WINDOW_SPACING);
-                    ui.label("虚拟地址 (支持10进制和16进制，如: 1234 或 0x4D2):");
+                    ui.label(i18n::VIRTUAL_ADDRESS_LABEL);
                     if ui.text_edit_singleline(&mut self.window_message.virtual_address_string).changed()
                     {
                         match parse_address_string(&self.window_message.virtual_address_string) {
@@ -93,15 +93,15 @@ impl SubWindowManager {
                             }
                         }
                     }
-                    ui.label("文件偏移:");
+                    ui.label(i18n::FILE_OFFSET_LABEL);
                     let fo = rva_2_fo(nt_header,&section_headers,self.window_message.virtual_address as u32);
                     if let Some(fo) = fo {
                         ui.label(format!("{} (0x{:X})", fo, fo));
                     }
                     else {
-                        ui.label("未找到");
+                        ui.label(i18n::NOT_FOUND);
                     }
-                    if ui.button("关闭").clicked() {
+                    if ui.button(i18n::CLOSE_BUTTON).clicked() {
                         self.window_message.show_virtual_address_to_file_offset_window = false;
                     }
                     ui.add_space(TOAST_WINDOW_SPACING);
@@ -112,32 +112,21 @@ impl SubWindowManager {
     /// 显示帮助窗口
     pub fn show_help_window(&mut self, ctx: &Context) {
         if self.window_message.show_help_window {
-            eframe::egui::Window::new("帮助")
+            eframe::egui::Window::new(i18n::HELP_TITLE)
                 .collapsible(false)
                 .resizable(true)
                 .default_size([TOAST_WINDOW_WIDTH, TOAST_WINDOW_HEIGHT])
                 .show(ctx, |ui| {
                     ui.vertical(|ui| {
-                        ui.heading("使用帮助");
+                        ui.heading(i18n::USAGE_HELP);
                         ui.add_space(TOAST_WINDOW_SPACING);
 
-                        // ui.label("基本操作:");
-                        // ui.label("• 点击左侧面板选择要分析的文件");
-                        // ui.label("• 使用顶部标签页切换不同的分析视图");
-                        // ui.label("• 在导出表中点击'详情'按钮查看详细信息");
-                        // ui.label("• 使用'编辑'按钮修改函数信息");
 
-                        // ui.add_space(20.0);
-
-                        // ui.label("快捷键:");
-                        // ui.label("• Ctrl+O: 打开文件");
-                        // ui.label("• Ctrl+S: 保存文件");
-                        // ui.label("• F1: 显示帮助");
 
                         ui.add_space(TOAST_WINDOW_BUTTON_SPACING);
 
                         ui.horizontal(|ui| {
-                            if ui.button("关闭").clicked() {
+                            if ui.button(i18n::CLOSE_BUTTON).clicked() {
                                 self.window_message.show_help_window = false;
                             }
                         });
@@ -253,9 +242,9 @@ impl SubWindowManager {
 
     /// 演示所有类型的 toast 通知
     pub fn demo_toasts(&mut self) {
-        self.show_success("操作成功完成！");
-        self.show_error("发生了一个错误");
-        self.show_warning("请注意这个警告");
-        self.show_info("这是一条信息提示");
+        self.show_success(i18n::DEMO_OPERATION_SUCCESS);
+        self.show_error(i18n::DEMO_ERROR_OCCURRED);
+        self.show_warning(i18n::DEMO_WARNING_NOTICE);
+        self.show_info(i18n::DEMO_INFO_MESSAGE);
     }
 }

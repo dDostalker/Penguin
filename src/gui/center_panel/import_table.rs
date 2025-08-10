@@ -1,7 +1,7 @@
 use crate::tools_api::file_system::{self, get_dll_folder};
 use crate::tools_api::read_file::ImportDll;
 
-use crate::{GLOBAL_RT, gui::FileManager, tools_api::search};
+use crate::{GLOBAL_RT, gui::FileManager, tools_api::search, i18n};
 use eframe::egui::{ScrollArea, Ui, Vec2};
 use std::path::PathBuf;
 use crate::tools_api::read_file::ImportTable;
@@ -43,22 +43,22 @@ impl FileManager {
             ui.horizontal(|ui| {
                 // 左侧表格：DLL列表
                 ui.vertical(|ui| {
-                    ui.label("DLL列表");
+                    ui.label(i18n::DLL_LIST);
                     self.show_dll_table(ui, &imports_clone.0.borrow());
                 });
 
                 // 添加分隔线
                 ui.separator();
                 ui.vertical(|ui| {
-                    ui.label("函数列表");
+                    ui.label(i18n::FUNCTION_LIST);
                     if let Some(selected_index) = selected_index {
                         if let Some(selected_dll) = imports_clone.0.borrow().get(selected_index) {
                             self.show_function_table(ui, selected_dll);
                         } else {
-                            ui.label("请选择一个DLL查看其函数");
+                            ui.label(i18n::SELECT_DLL_PROMPT);
                         }
                     } else {
-                        ui.label("请选择一个DLL查看其函数");
+                        ui.label(i18n::SELECT_DLL_PROMPT);
                     }
                 });
             });
@@ -69,10 +69,10 @@ impl FileManager {
         {
             eframe::egui::TopBottomPanel::bottom("export_detail_window").show(ui.ctx(), |ui| {
                 ui.horizontal(|ui| {
-                    ui.label("导出函数详情");
+                    ui.label(i18n::FUNCTION_DETAILS);
                     let mut import_dll = self.files[self.current_index].import_dll.0.borrow_mut();
                     ui.horizontal(|ui| {
-                        ui.label("函数名:");
+                        ui.label(i18n::FUNCTION_NAME);
                         ui.text_edit_singleline(
                             &mut import_dll[selected_index]
                                 .function_info[selected_function_index]
@@ -108,9 +108,9 @@ impl FileManager {
                     .num_columns(COLUMNS)
                     .show(ui, |ui| {
                         // 表头
-                        ui.strong("DLL名称");
-                        ui.strong("函数数量");
-                        ui.strong("操作");
+                        ui.strong(i18n::DLL_NAME);
+                        ui.strong(i18n::FUNCTION_COUNT);
+                        ui.strong(i18n::OPERATION);
                         ui.end_row();
 
                         for (index, dll) in imports.iter().enumerate() {
@@ -123,12 +123,12 @@ impl FileManager {
 
                             // 操作按钮
                             ui.horizontal(|ui| {
-                                if ui.button("选择").clicked() {
+                                if ui.button(i18n::SELECT_BUTTON).clicked() {
                                     self.sub_window_manager.import_message.selected_dll_index = Some(index);
                                     self.sub_window_manager.import_message.selected_function_index = None;
                                 }
                                 // 添加打开资源管理器按钮
-                                if ui.button("打开位置").clicked() {
+                                if ui.button(i18n::OPEN_LOCATION).clicked() {
                                     let dll_folder = get_dll_folder(
                                         PathBuf::from(&self.files[self.current_index].file_path),
                                         &dll.name,
@@ -159,9 +159,9 @@ impl FileManager {
                         ui.text_edit_singleline(&mut self.sub_window_manager.import_message.search_string);
                         ui.end_row();
                         // 表头
-                        ui.strong("序号");
-                        ui.strong("函数名");
-                        ui.strong("操作");
+                        ui.strong(i18n::SEQUENCE_NUMBER);
+                        ui.strong(i18n::FUNCTION_NAME);
+                        ui.strong(i18n::OPERATION);
                         ui.end_row();
 
                         for (index, function) in dll.function_info.iter().enumerate() {
@@ -177,7 +177,7 @@ impl FileManager {
 
                             // 操作按钮
                             ui.horizontal(|ui| {
-                                if ui.button("详细").clicked() {
+                                if ui.button(i18n::DETAIL_BUTTON).clicked() {
                                     self.sub_window_manager.import_message.selected_function_index = Some(index);
                                 }
                             });
