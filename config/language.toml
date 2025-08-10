@@ -1,5 +1,5 @@
 # 🌏: chinese, english
-language = "english"
+language = "chinese"
 
 [chinese]
 app_title = "Penguin PE 分析器"
