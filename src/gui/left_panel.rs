@@ -28,7 +28,7 @@ impl FileManager {
                 let file_name = if file.file.is_some() {
                     file.file_name.clone() + "🔒"
                 } else {
-                    file.file_name.clone() 
+                    file.file_name.clone()
                 };
                 // 判断状态设置颜色
                 if i + 1 == self.hover_index {
@@ -73,8 +73,8 @@ impl FileManager {
                 });
             }
         });
-        
-    
+
+
         for &index in files_to_drop.iter().rev() {
             if index < self.files.len() {
                 if let Err(e) = self.files[index].lock_file() {

@@ -9,7 +9,9 @@ use serde_derive::{Deserialize, Serialize};
 use std::path::PathBuf;
 use serde_json;
 use crate::GLOBAL_RT;
-use tokio::fs::write;
+use std::fs::File;
+use std::io::{BufReader, Read};
+use tokio::fs::{write};
 // 为FileInfo创建可序列化的结构体
 #[derive(Serialize, Deserialize)]
 pub struct SerializableFileInfo {
@@ -26,6 +28,37 @@ pub struct SerializableFileInfo {
     pub section_headers: SerializableImageSectionHeaders,
     pub import_dll: SerializableImportTable,
     pub export: SerializableExportTable,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct DangerousFunction{
+    pub dangerous: Vec<String>,
+    pub warning: Vec<String>,
+}
+impl Default for DangerousFunction{
+    fn default() -> Self {
+        Self {
+            dangerous: vec![
+                "VirtualAlloc".to_string(),
+                "VirtualFree".to_string(),
+                "VirtualProtect".to_string(),
+                "VirtualQuery".to_string(),
+                "VirtualProtectEx".to_string(),
+                "VirtualQueryEx".to_string(),
+                //todo!添加危险函数
+            ],
+            warning: vec![
+                "CreateProcessA".to_string(),
+                "CreateProcessW".to_string(),
+                "CreateProcess".to_string(),
+                "CreateProcessAsUserA".to_string(),
+                "CreateProcessAsUserW".to_string(),
+                "CreateProcessWithTokenW".to_string(),
+                "CreateProcessWithLogonW".to_string(),
+                "CreateProcessWithTokenW".to_string(),
+            ],
+        }
+    }
 }
 
 impl SerializableFileInfo {
@@ -53,6 +86,16 @@ impl SerializableFileInfo {
             import_dll: file_info.import_dll.to_serializable(),
             export: file_info.export.to_serializable(),
         })
+    }
+}
+
+impl DangerousFunction{
+    pub fn from_file_info(file_path:&PathBuf) -> anyhow::Result<Self> {
+        let file = File::open(file_path)?;
+        let mut reader_str = String::new();
+        BufReader::new(file).read_to_string(&mut reader_str)?;
+        let dangerous_function: DangerousFunction = toml::from_str(&reader_str)?;
+        Ok(dangerous_function)
     }
 }
 

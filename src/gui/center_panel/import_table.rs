@@ -2,9 +2,10 @@ use crate::tools_api::file_system::{self, get_dll_folder};
 use crate::tools_api::read_file::ImportDll;
 
 use crate::{GLOBAL_RT, gui::FileManager, tools_api::search, i18n};
-use eframe::egui::{ScrollArea, Ui, Vec2};
+use eframe::egui::{Color32, RichText, ScrollArea, Ui, Vec2};
 use std::path::PathBuf;
 use crate::tools_api::read_file::ImportTable;
+use crate::DANGEROUS_FUNCTION_TOML_PATH;
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 const SPACING: Vec2 = Vec2::new(20.0, 8.0);
 const COLUMNS: usize = 3;
@@ -170,10 +171,16 @@ impl FileManager {
                             }
                             // 序号显示
                             ui.label(&format!("{}", index + 1));
-
+                            let name_color = if DANGEROUS_FUNCTION_TOML_PATH.dangerous.contains(&function.name) {
+                                Color32::from_rgb(230, 0, 0)
+                            } else if DANGEROUS_FUNCTION_TOML_PATH.warning.contains(&function.name) {
+                                Color32::from_rgb(255, 165, 0)
+                            } else {
+                                Color32::GRAY
+                            };
                             // 函数名显示（限制最大40个字符）
                             let truncated_function_name = Self::truncate_text(&function.name, 40);
-                            ui.label(&truncated_function_name);
+                            ui.label(RichText::new(&truncated_function_name).color(name_color));
 
                             // 操作按钮
                             ui.horizontal(|ui| {

@@ -61,6 +61,7 @@ pub struct FileManager {
     pub(crate) hover_index: usize,                   // 左边栏悬停
     pub(crate) sub_window_manager: SubWindowManager, // 子窗口管理器
 }
+
 impl FileManager {
     pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         Self {
@@ -277,3 +278,5 @@ pub fn search(export_data: &str, search_string: &str) -> bool {
     }
     export_data.contains(search_string)
 }
+
+

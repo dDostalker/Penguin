@@ -1,7 +1,6 @@
 use crate::{gui::{SubWindowManager, Toast, ToastType}, tools_api::{parse_address_string, read_file::{nt_header::traits::NtHeaders, rva_2_fo, ImageSectionHeaders}}, i18n};
-
 use eframe::egui::Context;
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant}; 
 const TOAST_WINDOW_WIDTH: f32 = 400.0;
 const TOAST_WINDOW_HEIGHT: f32 = 300.0;
 const TOAST_WINDOW_SPACING: f32 = 20.0;
@@ -51,13 +50,9 @@ impl SubWindowManager {
                     ui.vertical(|ui| {
                         ui.heading(i18n::APP_SETTINGS);
                         ui.add_space(TOAST_WINDOW_SPACING);
-
-                        // 主题设置
-
                         if ui.button(i18n::DEMO_NOTIFICATIONS).clicked() {
                             self.demo_toasts();
                         }
-
                         if ui.button(i18n::CANCEL_BUTTON).clicked() {
                             self.window_message.show_settings_window = false;
                         }
@@ -69,7 +64,6 @@ impl SubWindowManager {
     /// 显示虚拟地址->文件偏移窗口
 
     /// 解析16进制或10进制字符串为usize
-
 
     pub fn show_virtual_address_to_file_offset_window<T>(&mut self, ctx: &Context,nt_header:&T,section_headers:&ImageSectionHeaders)
     where T:NtHeaders + ?Sized {
@@ -120,11 +114,7 @@ impl SubWindowManager {
                     ui.vertical(|ui| {
                         ui.heading(i18n::USAGE_HELP);
                         ui.add_space(TOAST_WINDOW_SPACING);
-
-
-
                         ui.add_space(TOAST_WINDOW_BUTTON_SPACING);
-
                         ui.horizontal(|ui| {
                             if ui.button(i18n::CLOSE_BUTTON).clicked() {
                                 self.window_message.show_help_window = false;

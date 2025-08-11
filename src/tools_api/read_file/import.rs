@@ -158,5 +158,4 @@ impl ImportTable {
     pub fn fclone(&self) -> Self {
         ImportTable(Arc::clone(&self.0))
     }
-    
 }

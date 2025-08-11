@@ -8,6 +8,7 @@ mod export;
 mod import;
 pub mod nt_header;
 mod section_headers;
+mod resource_header;
 
 
 #[repr(C)]
@@ -319,6 +320,34 @@ impl ExportTable {
             exports: self.0.borrow().clone(),
         }
     }
+}
+
+/// 资源表根目录
+#[repr(C)]
+#[derive(Default, Debug, Eq, PartialEq)]
+struct ImageResourceDirectory {
+    pub(crate) characteristics: u32,
+    pub(crate) time_date_stamp: u32,
+    pub(crate) major_version: u16,
+    pub(crate) minor_version: u16,
+    pub(crate) number_of_named_entries: u16,
+    pub(crate) number_of_id_entries: u16,
+}
+
+#[repr(C)]
+#[derive(Default, Debug, Eq, PartialEq)]
+struct ImageResourceDirectoryEntry {
+    pub(crate) name_offset: u32, // 资源名偏移，如果为高位为1，则表示为字符串指针
+    pub(crate) offset_to_data: u32, // 数据偏移地址，如果高位为1，则表示子目录
+}
+
+#[repr(C)]
+#[derive(Default, Debug, Eq, PartialEq)]
+struct ImageResourceDataEntry {
+    pub(crate) data_offset: u32, // 数据偏移地址
+    pub(crate) data_size: u32, // 数据大小
+    pub(crate) code_page: u32, // 代码页
+    pub(crate) reserved: u32, // 保留
 }
 
 #[repr(C)]

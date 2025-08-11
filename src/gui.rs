@@ -165,8 +165,7 @@ impl eframe::App for FileManager {
             let file = &self.files[self.current_index];
             self.sub_window_manager.show_virtual_address_to_file_offset_window(ctx,&*file.nt_head,&file.section_headers);
         }
-        
-
+    
     }
 }
 

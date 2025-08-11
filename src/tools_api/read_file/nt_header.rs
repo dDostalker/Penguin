@@ -235,12 +235,12 @@ impl DataDirectory {
             .unwrap()
             .virtual_address)
     }
-    pub(crate) async fn _get_resource_directory_address(&self) -> anyhow::Result<u32> {
+    pub(crate) async fn get_resource_directory_address(&self) -> anyhow::Result<u32> {
         Ok(self
             .0
             .get(crate::tools_api::read_file::nt_header::DIRECTORY_RESOURCE)
             .unwrap()
-            .size)
+            .virtual_address)
     }
     pub(crate) fn get_import_directory_size(&self) -> anyhow::Result<u32> {
         Ok(self.0.get(DIRECTORY_IMPORT).unwrap().size)
