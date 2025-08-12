@@ -217,6 +217,7 @@ impl ImageFileHeader {
 }
 
 impl DataDirectory {
+    /// 去除async
     /// 添加data_directory内容
     pub(crate) fn add(&mut self, data: ImageDataDirectory) {
         self.0.push(data);
@@ -235,7 +236,7 @@ impl DataDirectory {
             .unwrap()
             .virtual_address)
     }
-    pub(crate) async fn get_resource_directory_address(&self) -> anyhow::Result<u32> {
+    pub(crate) fn get_resource_directory_address(&self) -> anyhow::Result<u32> {
         Ok(self
             .0
             .get(crate::tools_api::read_file::nt_header::DIRECTORY_RESOURCE)

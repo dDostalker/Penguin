@@ -1,6 +1,6 @@
 use crate::{gui::{SubWindowManager, Toast, ToastType}, tools_api::{parse_address_string, read_file::{nt_header::traits::NtHeaders, rva_2_fo, ImageSectionHeaders}}, i18n};
 use eframe::egui::Context;
-use std::time::{Duration, Instant}; 
+use std::time::{Duration, Instant};
 const TOAST_WINDOW_WIDTH: f32 = 400.0;
 const TOAST_WINDOW_HEIGHT: f32 = 300.0;
 const TOAST_WINDOW_SPACING: f32 = 20.0;

@@ -78,6 +78,7 @@ impl FileManager {
 impl PartialEq<Self> for FileInfo {
     fn eq(&self, other: &Self) -> bool {
         self.file_path == other.file_path
+
     }
 }
 
@@ -122,7 +123,7 @@ impl FileInfo {
             .write(true)
             .open(&file_path)
             .await?;
-        
+
         let file_name = Self::extract_file_name(&file_path)?;
         let file_size = file.metadata().await?.len();
         let is_little_endian = true;//todo 需要根据文件头判断
@@ -139,7 +140,7 @@ impl FileInfo {
             nt_head.section_start(nt_addr),
             nt_head.section_number(),
         ).await?;
-        
+
         let dos_stub = ImageDosStub::new(&mut file, nt_addr).await?;
 
         // 5. 构建FileInfo结构
@@ -245,7 +246,7 @@ pub fn parse_address_string(input: &str) -> Result<usize, String> {
     if input.is_empty() {
         return Ok(0);
     }
-    
+
     // 检查是否为16进制格式 (0x开头或包含字母)
     if input.starts_with("0x") || input.starts_with("0X") {
         usize::from_str_radix(&input[2..], 16)
@@ -278,5 +279,3 @@ pub fn search(export_data: &str, search_string: &str) -> bool {
     }
     export_data.contains(search_string)
 }
-
-

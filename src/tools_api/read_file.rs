@@ -322,6 +322,8 @@ impl ExportTable {
     }
 }
 
+
+
 /// 资源表根目录
 #[repr(C)]
 #[derive(Default, Debug, Eq, PartialEq)]
@@ -350,6 +352,14 @@ struct ImageResourceDataEntry {
     pub(crate) reserved: u32, // 保留
 }
 
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct ResourceTree{
+    pub(crate) name: String,
+    pub(crate) children: Option<Vec<ResourceTree>>,
+    pub(crate) data_address: u32,
+    pub(crate) size: u32,
+}
 #[repr(C)]
 #[derive(Default, Debug)]
 pub struct ImportDescriptor {
@@ -372,6 +382,7 @@ pub struct ImportDll {
     pub(crate) function_info: Vec<ImportFunction>,
     pub(crate) function_size: u32,
 }
+
 #[derive(Default, Eq, PartialEq)]
 pub struct ImportTable(pub(crate) Arc<RefCell<Vec<ImportDll>>>);
 
