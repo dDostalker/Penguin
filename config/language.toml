@@ -314,6 +314,9 @@ section_mem_write = "可以写入节"
 # DLL调试相关
 function_not_found = "函数不存在"
 
+# 资源表导出相关
+EXTRACT_RESOURCE_MENU = "资源表导出"
+
 [english]
 app_title = "Penguin PE Analyzer"
 virtual_address_to_file_offset = "Virtual Address -> File Offset"
@@ -626,3 +629,6 @@ section_mem_write = "Section can be written"
 
 # DLL debugging related
 function_not_found = "Function not found"
+
+# resource export
+EXTRACT_RESOURCE_MENU = "export resources"

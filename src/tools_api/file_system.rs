@@ -1,7 +1,7 @@
+use crate::i18n;
 use std::env;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use crate::i18n;
 
 const SYSTEM_PATH: [&str; 2] = [r"C:\Windows\System32", r"C:\Windows\SysWOW64"];
 const WINDOWS_PATH: [&str; 2] = [r"C:\Windows", r"C:\Program Files"];
@@ -64,7 +64,6 @@ fn get_system_path() -> Vec<PathBuf> {
     let path = env::var("PATH").unwrap_or_default();
     path.split(";").map(|p| PathBuf::from(p)).collect()
 }
-
 
 #[cfg(test)]
 mod tests {

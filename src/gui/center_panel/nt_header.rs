@@ -121,8 +121,7 @@ impl FileManager {
 
                             ui.label("Magic");
                             if ui.button(&self.get_magic()).clicked() {
-                                self.sub_window_manager
-                                    .show_info(&self.get_magic_hover());
+                                self.sub_window_manager.show_info(&self.get_magic_hover());
                             }
                             ui.label(i18n::NT_HEADER_MAGIC);
                             ui.end_row();

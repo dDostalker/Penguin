@@ -5,12 +5,12 @@ use std::sync::Arc;
 use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncSeekExt};
 
-use crate::tools_api::read_file::{
-    DataDirectory, ImageDosHeader, ImageSectionHeaders, ImportDescriptor, ImportDll, ImportTable,
-    ImportFunction, rva_2_fo,
-};
-use crate::tools_api::is_64;    
+use crate::tools_api::is_64;
 use crate::tools_api::read_file::nt_header::traits::NtHeaders;
+use crate::tools_api::read_file::{
+    DataDirectory, ImageDosHeader, ImageSectionHeaders, ImportDescriptor, ImportDll,
+    ImportFunction, ImportTable, rva_2_fo,
+};
 
 impl ImportDescriptor {
     pub async fn new<T>(
@@ -24,16 +24,16 @@ impl ImportDescriptor {
         T: NtHeaders + ?Sized,
     {
         let mut import_descriptor: ImportDescriptor = Default::default();
-        if let Some(fo)  = rva_2_fo(
+        if let Some(fo) = rva_2_fo(
             nt_head,
             image_section_headers,
             data_dir.get_import_directory_address().await?,
-        )
-        {
+        ) {
             file.seek(SeekFrom::Start((fo + index * 0x14) as u64))
                 .await?;
             unsafe {
-                let read: &mut [u8; size_of::<ImportFunction>()] = transmute(&mut import_descriptor);
+                let read: &mut [u8; size_of::<ImportFunction>()] =
+                    transmute(&mut import_descriptor);
                 file.read(read).await?;
             }
             // 特殊的情况，有时pe的data dic的大小并不完全代表着他import dll的个数，而是类似列表最后为0来结束
@@ -135,8 +135,7 @@ impl ImportDll {
         }
         let mut name = [0u8; 256];
         file.seek(SeekFrom::Start(
-            rva_2_fo(nt_head, section_headers, import_descriptor.name_address)
-                .unwrap() as u64,
+            rva_2_fo(nt_head, section_headers, import_descriptor.name_address).unwrap() as u64,
         ))
         .await?;
         file.read(&mut name).await? as u64;

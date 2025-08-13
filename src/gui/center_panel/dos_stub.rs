@@ -16,7 +16,7 @@ impl FileManager {
 
             if stub.is_empty() {
                 ui.label(i18n::NO_DOS_STUB);
-                return ;
+                return;
             }
 
             eframe::egui::ScrollArea::vertical()

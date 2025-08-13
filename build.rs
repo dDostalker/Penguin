@@ -5,10 +5,10 @@ use std::path::Path;
 fn main() {
     // 告诉 Cargo 如果配置文件改变就重新运行
     println!("cargo:rerun-if-changed=config/language.toml");
-    
+
     // 读取配置文件
     let config_path = "config/language.toml";
-    
+
     // 安全的配置文件处理
     let config = match load_or_create_config(config_path) {
         Ok(config) => config,
@@ -19,15 +19,18 @@ fn main() {
             create_default_config()
         }
     };
-    
+
     // 获取当前选择的语言
     let language = config["language"].as_str().unwrap_or("chinese");
-    
+
     // 获取对应语言的配置
     let lang_config = if let Some(lang_cfg) = config.get(language) {
         lang_cfg
     } else {
-        eprintln!("Warning: Language '{}' not found in config, falling back to chinese", language);
+        eprintln!(
+            "Warning: Language '{}' not found in config, falling back to chinese",
+            language
+        );
         if let Some(chinese_cfg) = config.get("chinese") {
             chinese_cfg
         } else {
@@ -35,19 +38,19 @@ fn main() {
             &create_default_config()["chinese"]
         }
     };
-    
+
     // 生成语言常量代码
     let constants = generate_constants(language, lang_config);
-    
+
     // 安全地写入生成的文件
     let out_dir = env::var("OUT_DIR").expect("OUT_DIR not set");
     let output_path = format!("{}/language_constants.rs", out_dir);
-    
+
     if let Err(e) = fs::write(&output_path, constants) {
         eprintln!("Error writing constants file: {}", e);
         std::process::exit(1);
     }
-    
+
     // 设置环境变量，让主程序知道当前语言
     println!("cargo:rustc-env=CURRENT_LANGUAGE={}", language);
 }
@@ -58,17 +61,17 @@ fn load_or_create_config(config_path: &str) -> Result<toml::Value, Box<dyn std::
         if let Err(e) = fs::create_dir_all("config") {
             return Err(format!("Failed to create config directory: {}", e).into());
         }
-        
+
         let default_config = create_default_config_string();
         if let Err(e) = fs::write(config_path, default_config) {
             return Err(format!("Failed to write default config: {}", e).into());
         }
     }
-    
+
     // 读取配置文件内容
     let config_content = fs::read_to_string(config_path)?;
     let config: toml::Value = toml::from_str(&config_content)?;
-    
+
     Ok(config)
 }
 
@@ -712,7 +715,7 @@ fn generate_constants(language: &str, lang_config: &toml::Value) -> String {
     constants.push_str("pub const CURRENT_LANGUAGE: &str = \"");
     constants.push_str(language);
     constants.push_str("\";\n\n");
-    
+
     // 为每个配置项生成常量
     if let Some(table) = lang_config.as_table() {
         for (key, value) in table {
@@ -725,6 +728,6 @@ fn generate_constants(language: &str, lang_config: &toml::Value) -> String {
             }
         }
     }
-    
+
     constants
 }

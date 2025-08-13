@@ -4,13 +4,13 @@ mod export_table;
 mod import_table;
 mod nt_header;
 mod section;
-
 use crate::gui::FileManager;
-use crate::tools_api::load_file_info;
 use crate::tools_api::calc::{calc_md5, calc_sha1};
 use crate::tools_api::file_system::open_file_location;
+use crate::tools_api::load_file_info;
 use crate::tools_api::{FileInfo, HashInfo, Page};
 use eframe::egui::{Area, CentralPanel, Color32, Context, Frame, Id, RichText, Ui};
+
 const CENTER_PANEL_FILL_COLOR: Color32 = Color32::from_rgb(30, 31, 34);
 const CENTER_PANEL_BOTTOM_FILL_COLOR: Color32 = Color32::from_rgb(43, 45, 48);
 const CENTER_PANEL_TITLE_COLOR: Color32 = Color32::from_rgb(255, 255, 255);
@@ -43,7 +43,7 @@ impl FileManager {
             .frame(Frame::new().fill(CENTER_PANEL_BOTTOM_FILL_COLOR))
             .show(ctx, |ui| {
                 ui.label(format!("File Name: {:?}", file.file_name));
-                ui.horizontal(|ui|->anyhow::Result<()> {
+                ui.horizontal(|ui| -> anyhow::Result<()> {
                     ui.label(format!("File Path: {:?}", file.file_path));
                     if ui.button("jump").clicked() {
                         open_file_location(&file.file_path)?;
@@ -138,7 +138,6 @@ impl FileManager {
                                     }
                                     Page::Export => {
                                         self.export_panel(ui);
-
                                     }
                                 }
                             });

@@ -7,7 +7,7 @@ const SPACING: Vec2 = Vec2::new(20.0, 8.0);
 const COLUMNS: usize = 3;
 impl FileManager {
     /// dos_header 窗口
-    pub(crate) fn dos_header_panel(&self, ui: &mut Ui)->anyhow::Result<()> {
+    pub(crate) fn dos_header_panel(&self, ui: &mut Ui) -> anyhow::Result<()> {
         eframe::egui::CentralPanel::default().show(ui.ctx(), |ui| {
             Self::show_main_title(ui, i18n::DOS_HEADER_TITLE);
 

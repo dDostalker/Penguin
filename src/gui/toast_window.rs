@@ -1,4 +1,11 @@
-use crate::{gui::{SubWindowManager, Toast, ToastType}, tools_api::{parse_address_string, read_file::{nt_header::traits::NtHeaders, rva_2_fo, ImageSectionHeaders}}, i18n};
+use crate::{
+    gui::{SubWindowManager, Toast, ToastType},
+    i18n,
+    tools_api::{
+        parse_address_string,
+        read_file::{ImageSectionHeaders, nt_header::traits::NtHeaders, rva_2_fo},
+    },
+};
 use eframe::egui::Context;
 use std::time::{Duration, Instant};
 const TOAST_WINDOW_WIDTH: f32 = 400.0;
@@ -65,9 +72,18 @@ impl SubWindowManager {
 
     /// 解析16进制或10进制字符串为usize
 
-    pub fn show_virtual_address_to_file_offset_window<T>(&mut self, ctx: &Context,nt_header:&T,section_headers:&ImageSectionHeaders)
-    where T:NtHeaders + ?Sized {
-        if self.window_message.show_virtual_address_to_file_offset_window {
+    pub fn show_virtual_address_to_file_offset_window<T>(
+        &mut self,
+        ctx: &Context,
+        nt_header: &T,
+        section_headers: &ImageSectionHeaders,
+    ) where
+        T: NtHeaders + ?Sized,
+    {
+        if self
+            .window_message
+            .show_virtual_address_to_file_offset_window
+        {
             eframe::egui::Window::new(i18n::VIRTUAL_ADDRESS_TO_FILE_OFFSET)
                 .collapsible(false)
                 .resizable(true)
@@ -76,27 +92,31 @@ impl SubWindowManager {
                     ui.label(i18n::VIRTUAL_ADDRESS_TO_FILE_OFFSET);
                     ui.add_space(TOAST_WINDOW_SPACING);
                     ui.label(i18n::VIRTUAL_ADDRESS_LABEL);
-                    if ui.text_edit_singleline(&mut self.window_message.virtual_address_string).changed()
+                    if ui
+                        .text_edit_singleline(&mut self.window_message.virtual_address_string)
+                        .changed()
                     {
                         match parse_address_string(&self.window_message.virtual_address_string) {
                             Ok(addr) => {
                                 self.window_message.virtual_address = addr;
                             }
-                            Err(e) => {
-
-                            }
+                            Err(e) => {}
                         }
                     }
                     ui.label(i18n::FILE_OFFSET_LABEL);
-                    let fo = rva_2_fo(nt_header,&section_headers,self.window_message.virtual_address as u32);
+                    let fo = rva_2_fo(
+                        nt_header,
+                        &section_headers,
+                        self.window_message.virtual_address as u32,
+                    );
                     if let Some(fo) = fo {
                         ui.label(format!("{} (0x{:X})", fo, fo));
-                    }
-                    else {
+                    } else {
                         ui.label(i18n::NOT_FOUND);
                     }
                     if ui.button(i18n::CLOSE_BUTTON).clicked() {
-                        self.window_message.show_virtual_address_to_file_offset_window = false;
+                        self.window_message
+                            .show_virtual_address_to_file_offset_window = false;
                     }
                     ui.add_space(TOAST_WINDOW_SPACING);
                 });

@@ -1,10 +1,10 @@
+use crate::i18n;
+use crate::tools_api::read_file::SerializableNtHeaders;
 use crate::tools_api::read_file::nt_header::traits::NtHeaders;
 use crate::tools_api::read_file::{
     DataDirectory, ImageDataDirectory, ImageDosHeader, ImageFileHeader, ImageNtHeaders,
     ImageNtHeaders64,
 };
-use crate::tools_api::read_file::{SerializableNtHeaders};
-use crate::i18n;
 
 use std::io::SeekFrom;
 use std::mem::transmute;
@@ -58,21 +58,66 @@ pub(crate) enum DllCharacteristics {
 /// 辅助函数：根据特征值生成描述信息
 fn get_characteristics_descriptions(characteristics: u16) -> String {
     const CHARACTERISTICS_DESCRIPTIONS: &[(u16, &str)] = &[
-        (Characteristics::ImageFileRelocsStripped as u16, i18n::CHARACTERISTICS_RELOCS_STRIPPED),
-        (Characteristics::ImageFileExecutableImage as u16, i18n::CHARACTERISTICS_EXECUTABLE_IMAGE),
-        (Characteristics::ImageFileLineNumsStripped as u16, i18n::CHARACTERISTICS_LINE_NUMS_STRIPPED),
-        (Characteristics::ImageFileLocalSymsStripped as u16, i18n::CHARACTERISTICS_LOCAL_SYMS_STRIPPED),
-        (Characteristics::ImageFileAggresiveWsTrim as u16, i18n::CHARACTERISTICS_AGGRESSIVE_WS_TRIM),
-        (Characteristics::ImageFileLargeAddressAware as u16, i18n::CHARACTERISTICS_LARGE_ADDRESS_AWARE),
-        (Characteristics::ImageFileBytesReversedLo as u16, i18n::CHARACTERISTICS_BYTES_REVERSED_LO),
-        (Characteristics::ImageFile32bitMachine as u16, i18n::CHARACTERISTICS_32BIT_MACHINE),
-        (Characteristics::ImageFileDebugStripped as u16, i18n::CHARACTERISTICS_DEBUG_STRIPPED),
-        (Characteristics::ImageFileRemovableRunFromSwap as u16, i18n::CHARACTERISTICS_REMOVABLE_RUN_FROM_SWAP),
-        (Characteristics::ImageFileNetRunFromSwap as u16, i18n::CHARACTERISTICS_NET_RUN_FROM_SWAP),
-        (Characteristics::ImageFileSystem as u16, i18n::CHARACTERISTICS_SYSTEM),
-        (Characteristics::ImageFileDll as u16, i18n::CHARACTERISTICS_DLL),
-        (Characteristics::ImageFileUpSystemOnly as u16, i18n::CHARACTERISTICS_UP_SYSTEM_ONLY),
-        (Characteristics::ImageFileBytesReversedHi as u16, i18n::CHARACTERISTICS_BYTES_REVERSED_HI),
+        (
+            Characteristics::ImageFileRelocsStripped as u16,
+            i18n::CHARACTERISTICS_RELOCS_STRIPPED,
+        ),
+        (
+            Characteristics::ImageFileExecutableImage as u16,
+            i18n::CHARACTERISTICS_EXECUTABLE_IMAGE,
+        ),
+        (
+            Characteristics::ImageFileLineNumsStripped as u16,
+            i18n::CHARACTERISTICS_LINE_NUMS_STRIPPED,
+        ),
+        (
+            Characteristics::ImageFileLocalSymsStripped as u16,
+            i18n::CHARACTERISTICS_LOCAL_SYMS_STRIPPED,
+        ),
+        (
+            Characteristics::ImageFileAggresiveWsTrim as u16,
+            i18n::CHARACTERISTICS_AGGRESSIVE_WS_TRIM,
+        ),
+        (
+            Characteristics::ImageFileLargeAddressAware as u16,
+            i18n::CHARACTERISTICS_LARGE_ADDRESS_AWARE,
+        ),
+        (
+            Characteristics::ImageFileBytesReversedLo as u16,
+            i18n::CHARACTERISTICS_BYTES_REVERSED_LO,
+        ),
+        (
+            Characteristics::ImageFile32bitMachine as u16,
+            i18n::CHARACTERISTICS_32BIT_MACHINE,
+        ),
+        (
+            Characteristics::ImageFileDebugStripped as u16,
+            i18n::CHARACTERISTICS_DEBUG_STRIPPED,
+        ),
+        (
+            Characteristics::ImageFileRemovableRunFromSwap as u16,
+            i18n::CHARACTERISTICS_REMOVABLE_RUN_FROM_SWAP,
+        ),
+        (
+            Characteristics::ImageFileNetRunFromSwap as u16,
+            i18n::CHARACTERISTICS_NET_RUN_FROM_SWAP,
+        ),
+        (
+            Characteristics::ImageFileSystem as u16,
+            i18n::CHARACTERISTICS_SYSTEM,
+        ),
+        (
+            Characteristics::ImageFileDll as u16,
+            i18n::CHARACTERISTICS_DLL,
+        ),
+        (
+            Characteristics::ImageFileUpSystemOnly as u16,
+            i18n::CHARACTERISTICS_UP_SYSTEM_ONLY,
+        ),
+        (
+            Characteristics::ImageFileBytesReversedHi as u16,
+            i18n::CHARACTERISTICS_BYTES_REVERSED_HI,
+        ),
     ];
 
     CHARACTERISTICS_DESCRIPTIONS
@@ -89,29 +134,78 @@ fn get_characteristics_descriptions(characteristics: u16) -> String {
 }
 fn get_dll_characteristics_description(dll_characteristics: u16) -> String {
     const DLL_CHARACTERISTICS_DESCRIPTIONS: &[(u16, &str)] = &[
-        (DllCharacteristics::APPCONTAINER as u16, i18n::DLL_CHARACTERISTICS_APPCONTAINER),
-        (DllCharacteristics::ControlFlowGuard as u16, i18n::DLL_CHARACTERISTICS_CONTROL_FLOW_GUARD),
-        (DllCharacteristics::DynamicBase as u16, i18n::DLL_CHARACTERISTICS_DYNAMIC_BASE),
-        (DllCharacteristics::ForceIntegrity as u16, i18n::DLL_CHARACTERISTICS_FORCE_INTEGRITY),
-        (DllCharacteristics::HighEntropyVA as u16, i18n::DLL_CHARACTERISTICS_HIGH_ENTROPY_VA),
-        (DllCharacteristics::NOBIND as u16, i18n::DLL_CHARACTERISTICS_NOBIND),
-        (DllCharacteristics::NOLSOLATION as u16, i18n::DLL_CHARACTERISTICS_NOLSOLATION),
-        (DllCharacteristics::NOSEH as u16, i18n::DLL_CHARACTERISTICS_NOSEH),
-        (DllCharacteristics::NXCOMPAT as u16, i18n::DLL_CHARACTERISTICS_NXCOMPAT),
-        (DllCharacteristics::PROCESSINIT as u16, i18n::DLL_CHARACTERISTICS_PROCESSINIT),
-        (DllCharacteristics::PROCESSTERM as u16, i18n::DLL_CHARACTERISTICS_PROCESSTERM),
-        (DllCharacteristics::TERMINALSERVERAWARE as u16, i18n::DLL_CHARACTERISTICS_TERMINALSERVERAWARE),
-        (DllCharacteristics::THREADINIT as u16, i18n::DLL_CHARACTERISTICS_THREADINIT),
-        (DllCharacteristics::THREADTERM as u16, i18n::DLL_CHARACTERISTICS_THREADTERM),
-        (DllCharacteristics::WDMDRIVER as u16, i18n::DLL_CHARACTERISTICS_WDMDRIVER),
+        (
+            DllCharacteristics::APPCONTAINER as u16,
+            i18n::DLL_CHARACTERISTICS_APPCONTAINER,
+        ),
+        (
+            DllCharacteristics::ControlFlowGuard as u16,
+            i18n::DLL_CHARACTERISTICS_CONTROL_FLOW_GUARD,
+        ),
+        (
+            DllCharacteristics::DynamicBase as u16,
+            i18n::DLL_CHARACTERISTICS_DYNAMIC_BASE,
+        ),
+        (
+            DllCharacteristics::ForceIntegrity as u16,
+            i18n::DLL_CHARACTERISTICS_FORCE_INTEGRITY,
+        ),
+        (
+            DllCharacteristics::HighEntropyVA as u16,
+            i18n::DLL_CHARACTERISTICS_HIGH_ENTROPY_VA,
+        ),
+        (
+            DllCharacteristics::NOBIND as u16,
+            i18n::DLL_CHARACTERISTICS_NOBIND,
+        ),
+        (
+            DllCharacteristics::NOLSOLATION as u16,
+            i18n::DLL_CHARACTERISTICS_NOLSOLATION,
+        ),
+        (
+            DllCharacteristics::NOSEH as u16,
+            i18n::DLL_CHARACTERISTICS_NOSEH,
+        ),
+        (
+            DllCharacteristics::NXCOMPAT as u16,
+            i18n::DLL_CHARACTERISTICS_NXCOMPAT,
+        ),
+        (
+            DllCharacteristics::PROCESSINIT as u16,
+            i18n::DLL_CHARACTERISTICS_PROCESSINIT,
+        ),
+        (
+            DllCharacteristics::PROCESSTERM as u16,
+            i18n::DLL_CHARACTERISTICS_PROCESSTERM,
+        ),
+        (
+            DllCharacteristics::TERMINALSERVERAWARE as u16,
+            i18n::DLL_CHARACTERISTICS_TERMINALSERVERAWARE,
+        ),
+        (
+            DllCharacteristics::THREADINIT as u16,
+            i18n::DLL_CHARACTERISTICS_THREADINIT,
+        ),
+        (
+            DllCharacteristics::THREADTERM as u16,
+            i18n::DLL_CHARACTERISTICS_THREADTERM,
+        ),
+        (
+            DllCharacteristics::WDMDRIVER as u16,
+            i18n::DLL_CHARACTERISTICS_WDMDRIVER,
+        ),
     ];
-    DLL_CHARACTERISTICS_DESCRIPTIONS.iter().filter_map(|(flag, description)| {
-        if dll_characteristics & flag != 0 {
-            Some(*description)
-        } else {
-            None
-        }
-    }).collect::<Vec<_>>().join("\n")
+    DLL_CHARACTERISTICS_DESCRIPTIONS
+        .iter()
+        .filter_map(|(flag, description)| {
+            if dll_characteristics & flag != 0 {
+                Some(*description)
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 fn get_machine_descriptions(machine: u16) -> &'static str {
     match machine {
@@ -145,7 +239,7 @@ fn get_machine_descriptions(machine: u16) -> &'static str {
 }
 /// 为 64 位 和 32 位nt头特征
 pub mod traits {
-    use crate::tools_api::read_file::{SerializableNtHeaders};
+    use crate::tools_api::read_file::SerializableNtHeaders;
     pub trait NtHeaders {
         /// 获取数据目录的数量
         fn num_of_rva(&self) -> u32;
@@ -411,9 +505,9 @@ impl NtHeaders for ImageNtHeaders {
 
     fn get_dll_characteristics_hover(&self) -> String {
         get_dll_characteristics_description(self.optional_header.dll_characteristics)
-    }   
+    }
 
-    fn get_size_of_stack_reserve(&self) -> u64  {
+    fn get_size_of_stack_reserve(&self) -> u64 {
         self.optional_header.size_of_stack_reserve as u64
     }
 

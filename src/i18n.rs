@@ -20,8 +20,6 @@ pub fn is_language(lang: &str) -> bool {
     CURRENT_LANGUAGE == lang
 }
 
-
-
 #[cfg(test)]
 mod tests {
     use super::*;

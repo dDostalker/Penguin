@@ -1,5 +1,5 @@
 use crate::tools_api::FileManager;
-use eframe::egui::{Context, vec2, Vec2};
+use eframe::egui::{Context, Vec2, vec2};
 use eframe::{HardwareAcceleration, Renderer};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -8,7 +8,6 @@ mod center_panel;
 mod left_panel;
 mod toast_window;
 mod top_header_panel;
-
 
 const MIN_INNER_SIZE: Vec2 = vec2(1000.0, 600.0);
 /// Toast 通知类型
@@ -143,8 +142,6 @@ impl SubWindowManager {
         self.import_message.clear();
         self.selected_section_index = None;
     }
-
-
 }
 
 /// 主程序主题布局
@@ -163,9 +160,13 @@ impl eframe::App for FileManager {
 
         if self.files.len() != 0 {
             let file = &self.files[self.current_index];
-            self.sub_window_manager.show_virtual_address_to_file_offset_window(ctx,&*file.nt_head,&file.section_headers);
+            self.sub_window_manager
+                .show_virtual_address_to_file_offset_window(
+                    ctx,
+                    &*file.nt_head,
+                    &file.section_headers,
+                );
         }
-    
     }
 }
 

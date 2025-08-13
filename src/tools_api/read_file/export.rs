@@ -2,12 +2,12 @@ use crate::tools_api::read_file::nt_header::traits::NtHeaders;
 use crate::tools_api::read_file::{
     DataDirectory, ExportDir, ExportInfo, ExportTable, ImageSectionHeaders, rva_2_fo,
 };
+use std::cell::RefCell;
 use std::io::SeekFrom;
 use std::mem::transmute;
+use std::sync::Arc;
 use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncSeekExt};
-use std::sync::Arc;
-use std::cell::RefCell;
 
 impl ExportDir {
     /// 读取导出表信息
@@ -25,8 +25,7 @@ impl ExportDir {
             nt_head,
             image_section_headers,
             data_dir.get_export_directory_address().await?,
-        )
-        {
+        ) {
             file.seek(SeekFrom::Start(fo as u64)).await?;
             unsafe {
                 let read: &mut [u8; size_of::<ExportDir>()] = transmute(&mut export_dir);
@@ -55,8 +54,7 @@ impl ExportInfo {
     {
         let name_string_rva;
         file.seek(SeekFrom::Start(name_file_offset as _)).await?;
-        name_string_rva = rva_2_fo(nt_head, section_headers, file.read_u32_le().await?)
-            .unwrap();
+        name_string_rva = rva_2_fo(nt_head, section_headers, file.read_u32_le().await?).unwrap();
         file.seek(SeekFrom::Start(name_string_rva as u64)).await?;
         let mut buf = [0; 512];
         file.read(&mut buf).await?;
@@ -105,8 +103,7 @@ impl ExportTable {
     {
         let mut export_infos = Vec::<ExportInfo>::new();
         let mut name_array_address =
-            rva_2_fo(nt_head, image_section_headers, export_dir.address_of_names)
-                .unwrap();
+            rva_2_fo(nt_head, image_section_headers, export_dir.address_of_names).unwrap();
         let mut function_array_address = rva_2_fo(
             nt_head,
             image_section_headers,
@@ -140,7 +137,7 @@ impl ExportTable {
         }
         Ok(ExportTable(Arc::new(RefCell::new(export_infos))))
     }
-    
+
     pub fn fclone(&self) -> Self {
         ExportTable(Arc::clone(&self.0))
     }

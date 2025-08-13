@@ -1,11 +1,11 @@
 use crate::tools_api::file_system::{self, get_dll_folder};
 use crate::tools_api::read_file::ImportDll;
 
-use crate::{GLOBAL_RT, gui::FileManager, tools_api::search, i18n};
+use crate::DANGEROUS_FUNCTION_TOML_PATH;
+use crate::tools_api::read_file::ImportTable;
+use crate::{GLOBAL_RT, gui::FileManager, i18n, tools_api::search};
 use eframe::egui::{Color32, RichText, ScrollArea, Ui, Vec2};
 use std::path::PathBuf;
-use crate::tools_api::read_file::ImportTable;
-use crate::DANGEROUS_FUNCTION_TOML_PATH;
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 const SPACING: Vec2 = Vec2::new(20.0, 8.0);
 const COLUMNS: usize = 3;
@@ -34,7 +34,10 @@ impl FileManager {
         // 克隆数据以避免借用冲突
         let imports_clone = imports.fclone();
         let selected_index = self.sub_window_manager.import_message.selected_dll_index;
-        let selected_function_index = self.sub_window_manager.import_message.selected_function_index;
+        let selected_function_index = self
+            .sub_window_manager
+            .import_message
+            .selected_function_index;
 
         // 显示主标题
 
@@ -75,12 +78,13 @@ impl FileManager {
                     ui.horizontal(|ui| {
                         ui.label(i18n::FUNCTION_NAME);
                         ui.text_edit_singleline(
-                            &mut import_dll[selected_index]
-                                .function_info[selected_function_index]
+                            &mut import_dll[selected_index].function_info[selected_function_index]
                                 .name,
                         );
                         if ui.button("X").clicked() {
-                            self.sub_window_manager.import_message.selected_function_index = None;
+                            self.sub_window_manager
+                                .import_message
+                                .selected_function_index = None;
                         }
                     });
                 });
@@ -116,7 +120,8 @@ impl FileManager {
 
                         for (index, dll) in imports.iter().enumerate() {
                             // DLL名称显示（限制最大30个字符）
-                                let truncated_dll_name = Self::truncate_text(&dll.name, MAX_DLL_NAME_LENGTH);
+                            let truncated_dll_name =
+                                Self::truncate_text(&dll.name, MAX_DLL_NAME_LENGTH);
                             ui.label(&truncated_dll_name);
 
                             // 函数数量显示
@@ -125,8 +130,11 @@ impl FileManager {
                             // 操作按钮
                             ui.horizontal(|ui| {
                                 if ui.button(i18n::SELECT_BUTTON).clicked() {
-                                    self.sub_window_manager.import_message.selected_dll_index = Some(index);
-                                    self.sub_window_manager.import_message.selected_function_index = None;
+                                    self.sub_window_manager.import_message.selected_dll_index =
+                                        Some(index);
+                                    self.sub_window_manager
+                                        .import_message
+                                        .selected_function_index = None;
                                 }
                                 // 添加打开资源管理器按钮
                                 if ui.button(i18n::OPEN_LOCATION).clicked() {
@@ -157,7 +165,9 @@ impl FileManager {
                     .num_columns(COLUMNS)
                     .show(ui, |ui| {
                         ui.label("🔍");
-                        ui.text_edit_singleline(&mut self.sub_window_manager.import_message.search_string);
+                        ui.text_edit_singleline(
+                            &mut self.sub_window_manager.import_message.search_string,
+                        );
                         ui.end_row();
                         // 表头
                         ui.strong(i18n::SEQUENCE_NUMBER);
@@ -166,14 +176,23 @@ impl FileManager {
                         ui.end_row();
 
                         for (index, function) in dll.function_info.iter().enumerate() {
-                            if !search(&function.name, &self.sub_window_manager.import_message.search_string) {
+                            if !search(
+                                &function.name,
+                                &self.sub_window_manager.import_message.search_string,
+                            ) {
                                 continue;
                             }
                             // 序号显示
                             ui.label(&format!("{}", index + 1));
-                            let name_color = if DANGEROUS_FUNCTION_TOML_PATH.dangerous.contains(&function.name) {
+                            let name_color = if DANGEROUS_FUNCTION_TOML_PATH
+                                .dangerous
+                                .contains(&function.name)
+                            {
                                 Color32::from_rgb(230, 0, 0)
-                            } else if DANGEROUS_FUNCTION_TOML_PATH.warning.contains(&function.name) {
+                            } else if DANGEROUS_FUNCTION_TOML_PATH
+                                .warning
+                                .contains(&function.name)
+                            {
                                 Color32::from_rgb(255, 165, 0)
                             } else {
                                 Color32::GRAY
@@ -185,7 +204,9 @@ impl FileManager {
                             // 操作按钮
                             ui.horizontal(|ui| {
                                 if ui.button(i18n::DETAIL_BUTTON).clicked() {
-                                    self.sub_window_manager.import_message.selected_function_index = Some(index);
+                                    self.sub_window_manager
+                                        .import_message
+                                        .selected_function_index = Some(index);
                                 }
                             });
                             ui.end_row();

@@ -1,17 +1,17 @@
-use anyhow::anyhow;
-use crate::tools_api::{FileInfo, HashInfo};
+use crate::GLOBAL_RT;
 use crate::i18n;
 use crate::tools_api::read_file::{
-    SerializableImportTable, SerializableExportTable, SerializableDataDirectory,
-    SerializableImageSectionHeaders, SerializableNtHeaders
+    SerializableDataDirectory, SerializableExportTable, SerializableImageSectionHeaders,
+    SerializableImportTable, SerializableNtHeaders,
 };
+use crate::tools_api::{FileInfo, HashInfo};
+use anyhow::anyhow;
 use serde_derive::{Deserialize, Serialize};
-use std::path::PathBuf;
 use serde_json;
-use crate::GLOBAL_RT;
 use std::fs::File;
 use std::io::{BufReader, Read};
-use tokio::fs::{write};
+use std::path::PathBuf;
+use tokio::fs::write;
 // 为FileInfo创建可序列化的结构体
 #[derive(Serialize, Deserialize)]
 pub struct SerializableFileInfo {
@@ -31,11 +31,11 @@ pub struct SerializableFileInfo {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct DangerousFunction{
+pub struct DangerousFunction {
     pub dangerous: Vec<String>,
     pub warning: Vec<String>,
 }
-impl Default for DangerousFunction{
+impl Default for DangerousFunction {
     fn default() -> Self {
         Self {
             dangerous: vec![
@@ -63,8 +63,8 @@ impl Default for DangerousFunction{
 
 impl SerializableFileInfo {
     pub fn from_file_info(file_info: &mut FileInfo) -> anyhow::Result<Self> {
-        let  import_dll_geted= file_info.import_dll.0.borrow().is_empty();
-        if  import_dll_geted{
+        let import_dll_geted = file_info.import_dll.0.borrow().is_empty();
+        if import_dll_geted {
             file_info.import_dll = GLOBAL_RT.block_on(file_info.get_imports())?;
         }
         let export_geted = file_info.export.0.borrow().is_empty();
@@ -89,8 +89,8 @@ impl SerializableFileInfo {
     }
 }
 
-impl DangerousFunction{
-    pub fn from_file_info(file_path:&PathBuf) -> anyhow::Result<Self> {
+impl DangerousFunction {
+    pub fn from_file_info(file_path: &PathBuf) -> anyhow::Result<Self> {
         let file = File::open(file_path)?;
         let mut reader_str = String::new();
         BufReader::new(file).read_to_string(&mut reader_str)?;
@@ -101,29 +101,51 @@ impl DangerousFunction{
 
 pub fn pe_info_to_toml(file_info: &mut FileInfo) -> anyhow::Result<String> {
     let serializable_info = SerializableFileInfo::from_file_info(file_info)?;
-    let toml_string = toml::to_string_pretty(&serializable_info)
-        .map_err(|e| anyhow!("{}", i18n::SERIALIZE_TOML_FAILED.replace("{}", &e.to_string())))?;
+    let toml_string = toml::to_string_pretty(&serializable_info).map_err(|e| {
+        anyhow!(
+            "{}",
+            i18n::SERIALIZE_TOML_FAILED.replace("{}", &e.to_string())
+        )
+    })?;
     Ok(toml_string)
 }
 pub fn pe_info_to_json(file_info: &mut FileInfo) -> anyhow::Result<String> {
     let serializable_info = SerializableFileInfo::from_file_info(file_info)?;
-    let json_string = serde_json::to_string_pretty(&serializable_info)
-        .map_err(|e| anyhow!("{}", i18n::SERIALIZE_JSON_FAILED.replace("{}", &e.to_string())))?;
+    let json_string = serde_json::to_string_pretty(&serializable_info).map_err(|e| {
+        anyhow!(
+            "{}",
+            i18n::SERIALIZE_JSON_FAILED.replace("{}", &e.to_string())
+        )
+    })?;
     Ok(json_string)
 }
 
-pub async fn save_to_file(file_info: &mut FileInfo, file_path: &PathBuf, file_type: &str) -> anyhow::Result<()> {
+pub async fn save_to_file(
+    file_info: &mut FileInfo,
+    file_path: &PathBuf,
+    file_type: &str,
+) -> anyhow::Result<()> {
     let serde_string = match file_type {
         "toml" => pe_info_to_toml(file_info),
         "json" => pe_info_to_json(file_info),
-        _ => return Err(anyhow!("{}", i18n::UNSUPPORTED_FILE_TYPE.replace("{}", file_type))),
+        _ => {
+            return Err(anyhow!(
+                "{}",
+                i18n::UNSUPPORTED_FILE_TYPE.replace("{}", file_type)
+            ));
+        }
     };
     let serde_string = match serde_string {
         Ok(string) => string,
         Err(e) => {
-            return Err(anyhow!("{}", i18n::SERIALIZE_FAILED.replace("{}", &e.to_string())));
-        }   
+            return Err(anyhow!(
+                "{}",
+                i18n::SERIALIZE_FAILED.replace("{}", &e.to_string())
+            ));
+        }
     };
-    write(file_path, serde_string).await.map_err(|e| anyhow!("{}", i18n::SAVE_FAILED_ERROR.replace("{}", &e.to_string())))?;
+    write(file_path, serde_string)
+        .await
+        .map_err(|e| anyhow!("{}", i18n::SAVE_FAILED_ERROR.replace("{}", &e.to_string())))?;
     Ok(())
 }

@@ -1,19 +1,17 @@
 use crate::tools_api::read_file::nt_header::traits::NtHeaders;
-use std::sync::Arc;
-use std::cell::RefCell;
 use serde_derive::{Deserialize, Serialize};
+use std::cell::RefCell;
+use std::sync::Arc;
 mod dos_header;
 mod dos_stub;
 mod export;
 mod import;
 pub mod nt_header;
-mod section_headers;
 mod resource_header;
-
+mod section_headers;
 
 #[repr(C)]
-#[derive(Serialize,Deserialize)]
-#[derive(Default, Debug, Clone, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Default, Debug, Clone, Eq, PartialEq)]
 pub struct ImageDosHeader {
     pub(crate) e_magic: u16,      // MZ标记 0x5A4D
     pub(crate) e_cblp: u16,       // 最后(部分)页中的字节数
@@ -37,16 +35,14 @@ pub struct ImageDosHeader {
 }
 
 /// 存根内容
-#[derive(Serialize, Deserialize)]
-#[derive(Debug, Eq, PartialEq,Clone)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct ImageDosStub {
     pub buffer: Vec<u8>,
 }
 
 /// image_file_header 位于nt头中
 #[repr(C)]
-#[derive(Serialize,Deserialize)]
-#[derive(Default, Debug, Clone, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Default, Debug, Clone, Eq, PartialEq)]
 pub(crate) struct ImageFileHeader {
     pub(crate) machine: u16,                 //标记可以程序可以运行在什么样的CPU上
     pub(crate) number_of_sections: u16,      //节区的数量
@@ -63,8 +59,7 @@ struct MageDataDirectory {
     size: u32,
 }
 #[repr(C)]
-#[derive(Serialize,Deserialize)]
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Default, Clone, Debug, Eq, PartialEq)]
 pub struct ImageOptionalHeader64 {
     pub(crate) magic: u16, // 标识PE文件的魔数，例如0x20B表示64位PE文件
     pub(crate) major_linker_version: u8, // 链接器主要版本号
@@ -124,8 +119,7 @@ pub struct ImageOptionalHeader64 {
 }
 
 #[repr(C)]
-#[derive(Serialize,Deserialize)]
-#[derive(Debug, Clone, Default, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default, Eq, PartialEq)]
 pub struct ImageOptionalHeader {
     // 标准字段
     pub magic: u16,                      // 标识PE文件魔数（0x10B=32位, 0x20B=64位）
@@ -161,15 +155,13 @@ pub struct ImageOptionalHeader {
     pub loader_flags: u32,                   // 加载器标志（通常为0）
     pub number_of_rva_and_sizes: u32,        // 数据目录数量
 }
-#[derive(Serialize, Deserialize)]
-#[derive(Default, Debug, Clone, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Default, Debug, Clone, Eq, PartialEq)]
 pub(crate) struct ImageDataDirectory {
     pub(crate) virtual_address: u32,
     pub(crate) size: u32,
 }
 #[derive(Default, Debug, Clone, Eq, PartialEq)]
 pub struct DataDirectory(Vec<ImageDataDirectory>);
-
 
 #[derive(Serialize, Deserialize)]
 pub struct SerializableDataDirectory {
@@ -185,16 +177,14 @@ impl DataDirectory {
 }
 
 #[repr(C)]
-#[derive(Serialize,Deserialize)]
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Default, Clone, Debug, Eq, PartialEq)]
 pub struct ImageNtHeaders64 {
     pub(crate) signature: u32,
     pub(crate) file_header: ImageFileHeader,
     pub(crate) optional_header: ImageOptionalHeader64,
 }
 #[repr(C)]
-#[derive(Serialize,Deserialize)]
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Default, Clone, Debug, Eq, PartialEq)]
 pub struct ImageNtHeaders {
     pub(crate) signature: u32,
     pub(crate) file_header: ImageFileHeader,
@@ -219,8 +209,7 @@ impl ImageSectionHeaders {
 
 /// 节头结构体 - 表示PE文件中每个节的元数据
 #[repr(C)]
-#[derive(Serialize,Deserialize)]
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default, Eq, PartialEq)]
 pub struct ImageSectionHeader {
     /// 节名称（最多8个字符）
     pub name: [u8; 8],
@@ -246,8 +235,7 @@ pub struct ImageSectionHeader {
 
 /// 处理节头的联合体字段
 #[repr(C)]
-#[derive(Serialize,Deserialize)]
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default, Eq, PartialEq)]
 pub struct SectionHeaderMisc {
     /// 当前节在内存中未对齐时的大小（真实大小）
     pub virtual_size: u32,
@@ -260,7 +248,7 @@ pub(crate) struct SectionData {
 }
 
 /// Rva转化文件地址
-pub  fn rva_2_fo<T>(nt_head: &T, section_heads: &ImageSectionHeaders, rva: u32) -> Option<u32>
+pub fn rva_2_fo<T>(nt_head: &T, section_heads: &ImageSectionHeaders, rva: u32) -> Option<u32>
 where
     T: NtHeaders + ?Sized,
 {
@@ -292,8 +280,7 @@ pub struct ExportDir {
     pub(crate) address_of_name_ordinals: u32,
 }
 /// ExportInfo 用于转递给egui
-#[derive(Serialize, Deserialize)]
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
 pub struct ExportInfo {
     pub name_rva: u32,
     pub name_string_fo: u32,
@@ -322,8 +309,6 @@ impl ExportTable {
     }
 }
 
-
-
 /// 资源表根目录
 #[repr(C)]
 #[derive(Default, Debug, Eq, PartialEq)]
@@ -347,14 +332,13 @@ struct ImageResourceDirectoryEntry {
 #[derive(Default, Debug, Eq, PartialEq)]
 struct ImageResourceDataEntry {
     pub(crate) data_offset: u32, // 数据偏移地址
-    pub(crate) data_size: u32, // 数据大小
-    pub(crate) code_page: u32, // 代码页
-    pub(crate) reserved: u32, // 保留
+    pub(crate) data_size: u32,   // 数据大小
+    pub(crate) code_page: u32,   // 代码页
+    pub(crate) reserved: u32,    // 保留
 }
 
-
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct ResourceTree{
+pub struct ResourceTree {
     pub(crate) name: String,
     pub(crate) children: Option<Vec<ResourceTree>>,
     pub(crate) data_address: u32,
@@ -370,8 +354,7 @@ pub struct ImportDescriptor {
     first_thunk: u32,
 }
 /// import dll 用于传递egui
-#[derive(Serialize,Deserialize)]
-#[derive(Default, Debug, Eq, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Default, Debug, Eq, PartialEq, Clone)]
 pub struct ImportDll {
     pub(crate) name_address: u32,
     pub(crate) name_length: u32,
@@ -401,8 +384,7 @@ impl ImportTable {
 }
 
 /// import function 用于传递egui
-#[derive(Serialize,Deserialize)]
-#[derive(Default, Debug, Eq, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Default, Debug, Eq, PartialEq, Clone)]
 pub struct ImportFunction {
     pub(crate) name_address: u32,
     pub(crate) name_length: u32,
@@ -416,4 +398,3 @@ pub enum SerializableNtHeaders {
     ImageNtHeaders32(ImageNtHeaders),
     ImageNtHeaders64(ImageNtHeaders64),
 }
-

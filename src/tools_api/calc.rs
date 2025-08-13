@@ -1,8 +1,8 @@
+use crate::i18n;
 use file_hashing::get_hash_file;
 use md5::{Digest, Md5};
 use sha1::Sha1;
 use std::path::PathBuf;
-use crate::i18n;
 
 /// 计算文件md-5
 pub fn calc_md5(file_path: &PathBuf) -> String {
@@ -26,7 +26,7 @@ pub fn parse_address_string(input: &str) -> Result<usize, String> {
     if input.is_empty() {
         return Ok(0);
     }
-    
+
     // 检查是否为16进制格式 (0x开头或包含字母)
     if input.starts_with("0x") || input.starts_with("0X") {
         usize::from_str_radix(&input[2..], 16)
@@ -37,8 +37,12 @@ pub fn parse_address_string(input: &str) -> Result<usize, String> {
             .map_err(|e| format!("{}", i18n::HEX_PARSE_ERROR.replace("{}", &e.to_string())))
     } else {
         // 纯数字，作为10进制解析
-        input.parse::<usize>()
-            .map_err(|e| format!("{}", i18n::DECIMAL_PARSE_ERROR.replace("{}", &e.to_string())))
+        input.parse::<usize>().map_err(|e| {
+            format!(
+                "{}",
+                i18n::DECIMAL_PARSE_ERROR.replace("{}", &e.to_string())
+            )
+        })
     }
 }
 

@@ -1,8 +1,8 @@
+use crate::i18n;
 use crate::tools_api::read_file::ImageDosHeader;
 use std::mem::transmute;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
-use crate::i18n;
 
 impl ImageDosHeader {
     /// 获取nt头文件地址

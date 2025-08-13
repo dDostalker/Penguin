@@ -18,7 +18,7 @@ impl FileManager {
                 Self::scroll_area(self, ui);
             });
     }
-    fn scroll_area(&mut self, ui: &mut Ui){
+    fn scroll_area(&mut self, ui: &mut Ui) {
         let mut files_to_drop = Vec::new();
         eframe::egui::ScrollArea::vertical().show(ui, |ui| {
             // 循环输出文件名
@@ -36,13 +36,11 @@ impl FileManager {
                     self.hover_index = 0;
                 }
                 if file == self.get_file() {
-                    text_context = RichText::from(file_name)
-                        .color(LEFT_PANEL_TEXT_SELECTED_COLOR);
+                    text_context = RichText::from(file_name).color(LEFT_PANEL_TEXT_SELECTED_COLOR);
 
                     color = LEFT_PANEL_BACKGROUND_HOVER_COLOR;
                 } else {
-                    text_context =
-                        RichText::from(file_name).color(LEFT_PANEL_TEXT_COLOR);
+                    text_context = RichText::from(file_name).color(LEFT_PANEL_TEXT_COLOR);
                 }
 
                 // 每一个文件名都是Frame
@@ -59,8 +57,7 @@ impl FileManager {
                     );
 
                     if response.clicked() {
-                        self.current_index =
-                            self.files.iter().position(|f| f == file).unwrap_or(0);
+                        self.current_index = self.files.iter().position(|f| f == file).unwrap_or(0);
                         self.sub_window_manager.clear_data();
                     }
                     if response.hovered() {
@@ -73,7 +70,6 @@ impl FileManager {
                 });
             }
         });
-
 
         for &index in files_to_drop.iter().rev() {
             if index < self.files.len() {
