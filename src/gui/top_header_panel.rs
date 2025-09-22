@@ -1,13 +1,13 @@
 use crate::GLOBAL_RT;
 use crate::gui::FileManager;
 use crate::i18n;
+use crate::tools_api::read_file::ResourceTree;
 use crate::tools_api::write_file::copy_file;
 use crate::tools_api::{load_file_info, serde_pe::save_to_file};
 use eframe::egui::Ui;
 use rfd::FileDialog;
-use std::path::PathBuf;
-use crate::tools_api::read_file::ResourceTree;
 use std::path::Path;
+use std::path::PathBuf;
 
 impl FileManager {
     pub(crate) fn top_label(&mut self, ctx: &eframe::egui::Context) {
@@ -59,7 +59,7 @@ impl FileManager {
                         }
                     });
                     if ui.button(i18n::EXTRACT_RESOURCE_MENU).clicked() {
-                        let files  = match self.files.get(self.current_index) {
+                        let files = match self.files.get(self.current_index) {
                             Some(file) => file,
                             None => {
                                 self.sub_window_manager.show_error(i18n::FILE_NOT_FOUND);
@@ -67,32 +67,35 @@ impl FileManager {
                             }
                         };
                         let mut file = std::fs::File::open(&files.file_path).unwrap();
-                            let resource_tree = match ResourceTree::get_resource_tree(
-                                &mut file,
-                                self.files[self.current_index].data_directory.get_resource_directory_address().unwrap(),
-                                &*self.files[self.current_index].nt_head,
-                                &self.files[self.current_index].section_headers,
-                                &self.files[self.current_index].data_directory,
-                            ) {
-                                Ok(resource_tree) => resource_tree,
-                                Err(e) => {
-                                    self.sub_window_manager.show_error(&e.to_string());
-                                    return;
-                                }
-                            };
-                            let extracted_files = match resource_tree.extract_resources(
-                                &mut file,
-                                Path::new("./resource-export"),
-                                &*self.files[self.current_index].nt_head,
-                                &self.files[self.current_index].section_headers,
-                                &self.files[self.current_index].data_directory,
-                            ) {
-                                Ok(extracted_files) => extracted_files,
-                                Err(e) => {
-                                    self.sub_window_manager.show_error(&e.to_string());
-                                    return;
-                                }
-                            };
+                        let resource_tree = match ResourceTree::get_resource_tree(
+                            &mut file,
+                            self.files[self.current_index]
+                                .data_directory
+                                .get_resource_directory_address()
+                                .unwrap(),
+                            &*self.files[self.current_index].nt_head,
+                            &self.files[self.current_index].section_headers,
+                            &self.files[self.current_index].data_directory,
+                        ) {
+                            Ok(resource_tree) => resource_tree,
+                            Err(e) => {
+                                self.sub_window_manager.show_error(&e.to_string());
+                                return;
+                            }
+                        };
+                        match resource_tree.extract_resources(
+                            &mut file,
+                            Path::new("./resource-export"),
+                            &*self.files[self.current_index].nt_head,
+                            &self.files[self.current_index].section_headers,
+                            &self.files[self.current_index].data_directory,
+                        ) {
+                            Ok(extracted_files) => extracted_files,
+                            Err(e) => {
+                                self.sub_window_manager.show_error(&e.to_string());
+                                return;
+                            }
+                        };
                     }
                 });
 

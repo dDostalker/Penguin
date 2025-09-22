@@ -244,5 +244,3 @@ pub struct ResourceInfo {
     pub data_address: u32,
     pub resource_type: String,
 }
-
-

@@ -6,6 +6,7 @@ use crate::tools_api::read_file::{
 };
 use crate::tools_api::{FileInfo, HashInfo};
 use anyhow::anyhow;
+use eframe::egui::Color32;
 use serde_derive::{Deserialize, Serialize};
 use serde_json;
 use std::fs::File;
@@ -30,10 +31,22 @@ pub struct SerializableFileInfo {
     pub export: SerializableExportTable,
 }
 
+#[derive(Serialize, Deserialize, Default)]
+/// 用于序列化Color32
+pub struct SerializableColor32 {
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct DangerousFunction {
     pub dangerous: Vec<String>,
     pub warning: Vec<String>,
+
+    pub danger_color: Option<SerializableColor32>,
+
+    pub warning_color: Option<SerializableColor32>,
 }
 impl Default for DangerousFunction {
     fn default() -> Self {
@@ -57,6 +70,12 @@ impl Default for DangerousFunction {
                 "CreateProcessWithLogonW".to_string(),
                 "CreateProcessWithTokenW".to_string(),
             ],
+            danger_color: Some(SerializableColor32 { r: 230, g: 0, b: 0 }),
+            warning_color: Some(SerializableColor32 {
+                r: 255,
+                g: 165,
+                b: 0,
+            }),
         }
     }
 }

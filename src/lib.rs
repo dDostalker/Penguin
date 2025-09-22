@@ -12,12 +12,9 @@ pub static GLOBAL_RT: LazyLock<tokio::runtime::Runtime> =
 /// 全局配置文件
 pub static DANGEROUS_FUNCTION_TOML_PATH: LazyLock<DangerousFunction> = LazyLock::new(|| {
     let mut path = PathBuf::from("./");
-    path.push("dangerous_function.toml");
+    path.push("DangerFunc.toml");
     match DangerousFunction::from_file_info(&path) {
         Ok(dangerous_function) => dangerous_function,
-        Err(e) => {
-            eprintln!("{}", e);
-            DangerousFunction::default()
-        }
+        Err(_) => DangerousFunction::default(),
     }
 });

@@ -174,7 +174,41 @@ impl FileManager {
                         ui.strong(i18n::FUNCTION_NAME);
                         ui.strong(i18n::OPERATION);
                         ui.end_row();
-
+                        let (er, eg, eb) = (
+                            DANGEROUS_FUNCTION_TOML_PATH
+                                .danger_color
+                                .as_ref()
+                                .unwrap()
+                                .r,
+                            DANGEROUS_FUNCTION_TOML_PATH
+                                .danger_color
+                                .as_ref()
+                                .unwrap()
+                                .g,
+                            DANGEROUS_FUNCTION_TOML_PATH
+                                .danger_color
+                                .as_ref()
+                                .unwrap()
+                                .b,
+                        );
+                        
+                        let (wr, wg, wb) = (
+                            DANGEROUS_FUNCTION_TOML_PATH
+                                .warning_color
+                                .as_ref()
+                                .unwrap()
+                                .r,
+                            DANGEROUS_FUNCTION_TOML_PATH
+                                .warning_color
+                                .as_ref()
+                                .unwrap()
+                                .g,
+                            DANGEROUS_FUNCTION_TOML_PATH
+                                .warning_color
+                                .as_ref()
+                                .unwrap()
+                                .b,
+                        );
                         for (index, function) in dll.function_info.iter().enumerate() {
                             if !search(
                                 &function.name,
@@ -188,12 +222,12 @@ impl FileManager {
                                 .dangerous
                                 .contains(&function.name)
                             {
-                                Color32::from_rgb(230, 0, 0)
+                                Color32::from_rgb(er, eg, eb)
                             } else if DANGEROUS_FUNCTION_TOML_PATH
                                 .warning
                                 .contains(&function.name)
                             {
-                                Color32::from_rgb(255, 165, 0)
+                                Color32::from_rgb(wr, wg, wb)
                             } else {
                                 Color32::GRAY
                             };
