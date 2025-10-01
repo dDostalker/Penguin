@@ -1,4 +1,3 @@
-use crate::GLOBAL_RT;
 use crate::i18n;
 use crate::tools_api::read_file::{
     SerializableDataDirectory, SerializableExportTable, SerializableImageSectionHeaders,
@@ -10,9 +9,9 @@ use eframe::egui::Color32;
 use serde_derive::{Deserialize, Serialize};
 use serde_json;
 use std::fs::File;
+use std::fs::write;
 use std::io::{BufReader, Read};
 use std::path::PathBuf;
-use tokio::fs::write;
 // 为FileInfo创建可序列化的结构体
 #[derive(Serialize, Deserialize)]
 pub struct SerializableFileInfo {
@@ -84,11 +83,11 @@ impl SerializableFileInfo {
     pub fn from_file_info(file_info: &mut FileInfo) -> anyhow::Result<Self> {
         let import_dll_geted = file_info.import_dll.0.borrow().is_empty();
         if import_dll_geted {
-            file_info.import_dll = GLOBAL_RT.block_on(file_info.get_imports())?;
+            file_info.import_dll = file_info.get_imports()?;
         }
         let export_geted = file_info.export.0.borrow().is_empty();
         if export_geted {
-            file_info.export = GLOBAL_RT.block_on(file_info.get_export())?;
+            file_info.export = file_info.get_export()?;
         }
         Ok(Self {
             file_name: file_info.file_name.clone(),
@@ -139,7 +138,7 @@ pub fn pe_info_to_json(file_info: &mut FileInfo) -> anyhow::Result<String> {
     Ok(json_string)
 }
 
-pub async fn save_to_file(
+pub fn save_to_file(
     file_info: &mut FileInfo,
     file_path: &PathBuf,
     file_type: &str,
@@ -164,7 +163,6 @@ pub async fn save_to_file(
         }
     };
     write(file_path, serde_string)
-        .await
         .map_err(|e| anyhow!("{}", i18n::SAVE_FAILED_ERROR.replace("{}", &e.to_string())))?;
     Ok(())
 }

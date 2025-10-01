@@ -1,9 +1,9 @@
 use crate::i18n;
 use crate::tools_api::read_file::{ImageSectionHeader, ImageSectionHeaders, SectionData};
+use std::fs::File;
 use std::io::SeekFrom;
+use std::io::{Read, Seek};
 use std::mem::transmute;
-use tokio::fs::File;
-use tokio::io::{AsyncReadExt, AsyncSeekExt};
 
 #[repr(u32)]
 pub enum SectionCharacteristics {
@@ -251,26 +251,26 @@ pub fn section_description(section_characteristics: u32) -> String {
 }
 
 impl ImageSectionHeader {
-    pub(crate) async fn new(file: &mut File) -> anyhow::Result<ImageSectionHeader> {
+    pub(crate) fn new(file: &mut File) -> anyhow::Result<ImageSectionHeader> {
         let mut section_header: ImageSectionHeader = Default::default();
         unsafe {
             let f: &mut [u8; size_of::<ImageSectionHeader>()] = transmute(&mut section_header);
-            file.read(f).await?;
+            file.read(f)?;
         }
         Ok(section_header)
     }
 }
 
 impl ImageSectionHeaders {
-    pub async fn new(
+    pub fn new(
         file: &mut File,
         section_addr: u32,
         section_num: u16,
     ) -> anyhow::Result<ImageSectionHeaders> {
-        file.seek(SeekFrom::Start(section_addr as u64)).await?;
+        file.seek(SeekFrom::Start(section_addr as u64))?;
         let mut section_headers: ImageSectionHeaders = Default::default();
         for _ in 0..section_num {
-            section_headers.add(ImageSectionHeader::new(file).await?);
+            section_headers.add(ImageSectionHeader::new(file)?);
         }
         Ok(section_headers)
     }
@@ -327,18 +327,18 @@ impl ImageSectionHeaders {
 }
 
 impl SectionData {
-    pub async fn new(
+    pub fn new(
         file: &mut File,
         point_to_raw_data: u32,
         size_of_raw_data: u32,
     ) -> anyhow::Result<Box<SectionData>> {
-        file.seek(SeekFrom::Start(point_to_raw_data as u64)).await?;
+        file.seek(SeekFrom::Start(point_to_raw_data as u64))?;
         let mut section_data: Box<SectionData> = Box::new(SectionData {
             f_address: point_to_raw_data,
             f_size: size_of_raw_data,
             data: vec![0u8; size_of_raw_data as usize],
         });
-        file.read(&mut section_data.data).await?;
+        file.read(&mut section_data.data)?;
         Ok(section_data)
     }
 }

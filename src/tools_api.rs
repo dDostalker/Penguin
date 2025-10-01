@@ -3,7 +3,6 @@ pub(crate) mod file_system;
 pub(crate) mod read_file;
 pub(crate) mod serde_pe;
 pub(crate) mod write_file;
-use crate::GLOBAL_RT;
 use crate::gui::SubWindowManager;
 use crate::i18n;
 use crate::tools_api::read_file::nt_header::traits::NtHeaders;
@@ -14,9 +13,9 @@ use crate::tools_api::read_file::{
 };
 use serde_derive::{Deserialize, Serialize};
 use std::cell::{Ref, RefCell, RefMut};
+use std::fs::File;
 use std::path::PathBuf;
 use std::sync::Arc;
-use tokio::fs::File;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct HashInfo {
@@ -104,41 +103,37 @@ impl FileInfo {
             self.file = None;
             Ok(())
         } else {
-            let file =
-                GLOBAL_RT.block_on(File::options().read(true).write(true).open(&self.file_path))?;
+            let file = File::options()
+                .read(true)
+                .write(true)
+                .open(&self.file_path)?;
             self.file = Some(RefCell::new(file));
             Ok(())
         }
     }
 
-    pub async fn new(file_path: PathBuf) -> anyhow::Result<Box<Self>> {
+    pub fn new(file_path: PathBuf) -> anyhow::Result<Box<Self>> {
         // 1. 打开文件并提取基本信息
-        let mut file = File::options()
-            .read(true)
-            .write(true)
-            .open(&file_path)
-            .await?;
+        let mut file = File::options().read(true).write(true).open(&file_path)?;
 
         let file_name = Self::extract_file_name(&file_path)?;
-        let file_size = file.metadata().await?.len();
+        let file_size = file.metadata()?.len();
         let is_little_endian = true; //todo 需要根据文件头判断
         // 2. 解析DOS头
-        let dos_head = Box::new(ImageDosHeader::new(&mut file).await?);
-        let nt_addr = dos_head.get_nt_addr().await;
+        let dos_head = Box::new(ImageDosHeader::new(&mut file)?);
+        let nt_addr = dos_head.get_nt_addr();
         // 3. 判断架构并解析NT头
-        let is_64_bit = is_64(&mut file, &dos_head).await?;
-        let (nt_head, data_directory) =
-            Self::parse_nt_headers(&mut file, nt_addr, is_64_bit).await?;
+        let is_64_bit = is_64(&mut file, &dos_head)?;
+        let (nt_head, data_directory) = Self::parse_nt_headers(&mut file, nt_addr, is_64_bit)?;
 
         // 4. 解析其他结构
         let section_headers = ImageSectionHeaders::new(
             &mut file,
             nt_head.section_start(nt_addr),
             nt_head.section_number(),
-        )
-        .await?;
+        )?;
 
-        let dos_stub = ImageDosStub::new(&mut file, nt_addr).await?;
+        let dos_stub = ImageDosStub::new(&mut file, nt_addr)?;
 
         // 5. 构建FileInfo结构
         Ok(Box::new(FileInfo {
@@ -170,42 +165,37 @@ impl FileInfo {
     }
 
     /// 解析NT头部信息
-    async fn parse_nt_headers(
+    fn parse_nt_headers(
         file: &mut File,
         nt_addr: u16,
         is_64_bit: bool,
     ) -> anyhow::Result<(Box<dyn NtHeaders>, DataDirectory)> {
         if is_64_bit {
-            let (nt_header, data_dir) =
-                nt_header::read_nt_head::<ImageNtHeaders64>(file, nt_addr).await?;
+            let (nt_header, data_dir) = nt_header::read_nt_head::<ImageNtHeaders64>(file, nt_addr)?;
             Ok((Box::new(nt_header), data_dir))
         } else {
-            let (nt_header, data_dir) =
-                nt_header::read_nt_head::<ImageNtHeaders>(file, nt_addr).await?;
+            let (nt_header, data_dir) = nt_header::read_nt_head::<ImageNtHeaders>(file, nt_addr)?;
             Ok((Box::new(nt_header), data_dir))
         }
     }
 
-    pub async fn get_export(&self) -> anyhow::Result<ExportTable> {
+    pub fn get_export(&self) -> anyhow::Result<ExportTable> {
         let mut f = self.get_mut_file()?;
         if let Some(export_dir) = ExportDir::new(
             &mut f,
             &*self.nt_head,
             &self.section_headers,
             &self.data_directory,
-        )
-        .await?
-        {
+        )? {
             let export_info =
-                ExportTable::new(&mut f, &*self.nt_head, &self.section_headers, &export_dir)
-                    .await?;
+                ExportTable::new(&mut f, &*self.nt_head, &self.section_headers, &export_dir)?;
             return Ok(export_info);
         }
         Ok(ExportTable::default())
     }
 
     /// 获取导入表
-    pub async fn get_imports(&self) -> anyhow::Result<ImportTable> {
+    pub fn get_imports(&self) -> anyhow::Result<ImportTable> {
         let f = &mut self.get_mut_file()?;
         let mut import_infos = Vec::new();
         let mut index = 0;
@@ -216,8 +206,7 @@ impl FileInfo {
                 &self.section_headers,
                 &self.data_directory,
                 index,
-            )
-            .await?;
+            )?;
             if let Some(import) = import {
                 let import_info = ImportDll::new(
                     f,
@@ -225,8 +214,7 @@ impl FileInfo {
                     import,
                     &*self.nt_head,
                     &self.section_headers,
-                )
-                .await?;
+                )?;
                 import_infos.push(import_info);
             } else {
                 break;
@@ -238,7 +226,7 @@ impl FileInfo {
 }
 
 pub(crate) fn load_file_info(path: PathBuf) -> anyhow::Result<Box<FileInfo>> {
-    GLOBAL_RT.block_on(FileInfo::new(path))
+    FileInfo::new(path)
 }
 
 pub fn parse_address_string(input: &str) -> Result<usize, String> {
@@ -266,8 +254,8 @@ pub fn parse_address_string(input: &str) -> Result<usize, String> {
     }
 }
 
-pub async fn is_64(file: &mut File, image_dos_header: &ImageDosHeader) -> anyhow::Result<bool> {
-    let image_file_header = ImageFileHeader::new(file, image_dos_header).await?;
+pub fn is_64(file: &mut File, image_dos_header: &ImageDosHeader) -> anyhow::Result<bool> {
+    let image_file_header = ImageFileHeader::new(file, image_dos_header)?;
     if nt_header::MACHINE_32.contains(&image_file_header.machine) {
         return Ok(false);
     } else if nt_header::MACHINE_64.contains(&image_file_header.machine) {

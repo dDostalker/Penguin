@@ -1,9 +1,10 @@
+use byteorder::{LittleEndian, ReadBytesExt};
 use std::any::Any;
+use std::fs::File;
 use std::io::SeekFrom;
+use std::io::{Read, Seek};
 use std::mem::transmute;
 use std::sync::Arc;
-use tokio::fs::File;
-use tokio::io::{AsyncReadExt, AsyncSeekExt};
 
 use crate::tools_api::is_64;
 use crate::tools_api::read_file::nt_header::traits::NtHeaders;
@@ -13,7 +14,7 @@ use crate::tools_api::read_file::{
 };
 
 impl ImportDescriptor {
-    pub async fn new<T>(
+    pub fn new<T>(
         file: &mut File,
         nt_head: &T,
         image_section_headers: &ImageSectionHeaders,
@@ -27,14 +28,13 @@ impl ImportDescriptor {
         if let Some(fo) = rva_2_fo(
             nt_head,
             image_section_headers,
-            data_dir.get_import_directory_address().await?,
+            data_dir.get_import_directory_address()?,
         ) {
-            file.seek(SeekFrom::Start((fo + index * 0x14) as u64))
-                .await?;
+            file.seek(SeekFrom::Start((fo + index * 0x14) as u64))?;
             unsafe {
                 let read: &mut [u8; size_of::<ImportFunction>()] =
                     transmute(&mut import_descriptor);
-                file.read(read).await?;
+                file.read(read)?;
             }
             // 特殊的情况，有时pe的data dic的大小并不完全代表着他import dll的个数，而是类似列表最后为0来结束
             if import_descriptor.name_address == 0 {
@@ -45,10 +45,10 @@ impl ImportDescriptor {
     }
 }
 impl ImportFunction {
-    pub async fn new(file: &mut File, addr: u32) -> anyhow::Result<Option<ImportFunction>> {
-        file.seek(SeekFrom::Start((addr + 2) as u64)).await?;
+    pub fn new(file: &mut File, addr: u32) -> anyhow::Result<Option<ImportFunction>> {
+        file.seek(SeekFrom::Start((addr + 2) as u64))?;
         let mut buf = [0; 256];
-        file.read(&mut buf).await?;
+        file.read(&mut buf)?;
         let mut flag = 1;
         let name_length = buf.iter().position(|&x| x == 0).unwrap_or(0);
         let name_max_length = buf
@@ -73,7 +73,7 @@ impl ImportFunction {
 }
 
 impl ImportDll {
-    pub async fn new<T>(
+    pub fn new<T>(
         file: &mut File,
         image_dos_header: &ImageDosHeader,
         import_descriptor: ImportDescriptor,
@@ -91,19 +91,16 @@ impl ImportDll {
             None => return Err(anyhow::anyhow!("End")),
             Some(ret) => function_info_address = ret,
         }
-        file.seek(SeekFrom::Start(function_info_address as u64))
-            .await?;
+        file.seek(SeekFrom::Start(function_info_address as u64))?;
         let mut i = 0;
         loop {
-            if is_64(file, image_dos_header).await? {
-                file.seek(SeekFrom::Start(function_info_address as u64 + i * 8u64))
-                    .await?;
+            if is_64(file, image_dos_header)? {
+                file.seek(SeekFrom::Start(function_info_address as u64 + i * 8u64))?;
 
-                addr = file.read_u64_le().await?;
+                addr = file.read_u64::<LittleEndian>()?;
             } else {
-                file.seek(SeekFrom::Start(function_info_address as u64 + i * 4u64))
-                    .await?;
-                addr = file.read_u32_le().await? as u64;
+                file.seek(SeekFrom::Start(function_info_address as u64 + i * 4u64))?;
+                addr = file.read_u32::<LittleEndian>()? as u64;
             }
             if addr == 0 {
                 break;
@@ -123,7 +120,7 @@ impl ImportDll {
                 addr as u32
             };
             if let Some(addr) = rva_2_fo(nt_head, section_headers, addr) {
-                match ImportFunction::new(file, addr).await? {
+                match ImportFunction::new(file, addr)? {
                     None => {
                         break;
                     }
@@ -136,9 +133,8 @@ impl ImportDll {
         let mut name = [0u8; 256];
         file.seek(SeekFrom::Start(
             rva_2_fo(nt_head, section_headers, import_descriptor.name_address).unwrap() as u64,
-        ))
-        .await?;
-        file.read(&mut name).await? as u64;
+        ))?;
+        file.read(&mut name)? as u64;
         let name = String::from_utf8_lossy(name.split(|x| *x == 0).next().unwrap()).parse()?;
         Ok(ImportDll {
             name_address: import_descriptor.name_address,

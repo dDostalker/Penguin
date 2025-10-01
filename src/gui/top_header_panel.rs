@@ -1,4 +1,3 @@
-use crate::GLOBAL_RT;
 use crate::gui::FileManager;
 use crate::i18n;
 use crate::tools_api::read_file::ResourceTree;
@@ -126,7 +125,7 @@ impl FileManager {
                 return Err(anyhow::anyhow!(i18n::SAVE_FAILED));
             }
             if let Some(file_path) = file_path {
-                GLOBAL_RT.block_on(save_to_file(file_info, &file_path, file_type))?;
+                save_to_file(file_info, &file_path, file_type)?;
                 self.sub_window_manager.show_success(i18n::SAVE_SUCCESS);
             }
         }
@@ -150,11 +149,11 @@ impl FileManager {
                     continue;
                 }
                 let mut file = file_info.get_mut_file()?;
-                GLOBAL_RT.block_on(copy_file(&mut file, &file_path))?;
+                copy_file(&mut file, &file_path)?;
                 self.sub_window_manager.show_success(i18n::BACKUP_SUCCESS);
                 break;
             }
-            let import_dll = GLOBAL_RT.block_on(file_info.get_imports())?;
+            let import_dll = file_info.get_imports()?;
             let import_dll_cmp = file_info.import_dll.fclone();
             if import_dll != import_dll_cmp {
                 for (i, j) in import_dll
@@ -167,7 +166,7 @@ impl FileManager {
                         for (k, l) in i.function_info.iter().zip(j.function_info.iter()) {
                             if k != l {
                                 let mut f = file_info.get_mut_file()?;
-                                GLOBAL_RT.block_on(k.write_func_name(&mut f, &l.name))?;
+                                k.write_func_name(&mut f, &l.name)?;
                                 self.sub_window_manager
                                     .show_success(i18n::IMPORT_TABLE_MODIFIED);
                             }
@@ -177,7 +176,7 @@ impl FileManager {
             }
 
             // 检查当前导出表是否被修改
-            let export_table = GLOBAL_RT.block_on(file_info.get_export())?;
+            let export_table = file_info.get_export()?;
             if export_table != file_info.export {
                 let export_table_ref = export_table.0.borrow();
                 for (i, j) in export_table_ref
@@ -186,10 +185,10 @@ impl FileManager {
                 {
                     if i != j {
                         let mut f = file_info.get_mut_file()?;
-                        GLOBAL_RT.block_on(i.write_func_name(&mut f, &j.name))?;
+                        i.write_func_name(&mut f, &j.name)?;
                         self.sub_window_manager
                             .show_success(i18n::EXPORT_TABLE_MODIFIED);
-                        GLOBAL_RT.block_on(i.write_func_address(&mut f, j.function))?;
+                        i.write_func_address(&mut f, j.function)?;
                         self.sub_window_manager
                             .show_success(i18n::EXPORT_TABLE_MODIFIED);
                     }

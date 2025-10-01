@@ -2,7 +2,6 @@ use crate::i18n;
 use eframe::egui::{Ui, Vec2};
 
 use crate::{
-    GLOBAL_RT,
     gui::FileManager,
     tools_api::{read_file::ExportTable, search},
 };
@@ -146,7 +145,7 @@ impl FileManager {
             .is_empty()
         {
             if let Some(file) = self.files.get_mut(self.current_index) {
-                file.export = GLOBAL_RT.block_on(file.get_export())?;
+                file.export = file.get_export()?;
             }
         }
         Ok(self

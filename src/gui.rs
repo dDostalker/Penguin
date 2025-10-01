@@ -181,6 +181,28 @@ pub fn load_global_font(ctx: &Context) {
             "C:\\Windows\\Fonts\\msyh.ttc"
         ))),
     );
+    fonts
+        .families
+        .get_mut(&eframe::egui::FontFamily::Proportional)
+        .unwrap()
+        .insert(0, "msyh".to_owned());
+    fonts
+        .families
+        .get_mut(&eframe::egui::FontFamily::Monospace)
+        .unwrap()
+        .push("msyh".to_owned());
+    ctx.set_fonts(fonts);
+}
+
+#[cfg(target_os = "linux")]
+pub fn load_global_font(ctx: &Context) {
+    let mut fonts = eframe::egui::FontDefinitions::default();
+    fonts.font_data.insert(
+        "msyh".to_owned(),
+        Arc::from(eframe::egui::FontData::from_static(include_bytes!(
+            "/usr/share/fonts/opentype/noto/NotoSansCJK-Black.ttc"
+        ))),
+    );
 
     fonts
         .families
@@ -194,5 +216,3 @@ pub fn load_global_font(ctx: &Context) {
         .push("msyh".to_owned());
     ctx.set_fonts(fonts);
 }
-#[cfg(target_os = "linux")]
-pub fn load_global_font(ctx: &Context) {}

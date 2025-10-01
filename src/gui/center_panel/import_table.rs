@@ -3,7 +3,7 @@ use crate::tools_api::read_file::ImportDll;
 
 use crate::DANGEROUS_FUNCTION_TOML_PATH;
 use crate::tools_api::read_file::ImportTable;
-use crate::{GLOBAL_RT, gui::FileManager, i18n, tools_api::search};
+use crate::{gui::FileManager, i18n, tools_api::search};
 use eframe::egui::{Color32, RichText, ScrollArea, Ui, Vec2};
 use std::path::PathBuf;
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
@@ -97,7 +97,7 @@ impl FileManager {
     pub(crate) fn import_dll(&mut self) -> anyhow::Result<ImportTable> {
         let file = self.files.get_mut(self.current_index).unwrap();
         if file.import_dll.0.borrow().is_empty() {
-            file.import_dll = GLOBAL_RT.block_on(file.get_imports())?;
+            file.import_dll = file.get_imports()?;
         }
         Ok(file.import_dll.fclone())
     }
@@ -191,7 +191,7 @@ impl FileManager {
                                 .unwrap()
                                 .b,
                         );
-                        
+
                         let (wr, wg, wb) = (
                             DANGEROUS_FUNCTION_TOML_PATH
                                 .warning_color

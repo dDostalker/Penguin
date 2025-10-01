@@ -6,10 +6,10 @@ use crate::tools_api::read_file::{
     ImageNtHeaders64,
 };
 
+use std::fs::File;
 use std::io::SeekFrom;
+use std::io::{Read, Seek};
 use std::mem::transmute;
-use tokio::fs::File;
-use tokio::io::{AsyncReadExt, AsyncSeekExt};
 
 const DIRECTORY_EXPORT: usize = 0;
 const DIRECTORY_IMPORT: usize = 1;
@@ -295,16 +295,16 @@ pub mod traits {
 }
 
 impl ImageFileHeader {
-    pub(crate) async fn new(
+    pub(crate) fn new(
         file: &mut File,
         image_dos_header: &ImageDosHeader,
     ) -> anyhow::Result<ImageFileHeader> {
-        let file_image_addr = image_dos_header.get_nt_addr().await + 4u16;
-        file.seek(SeekFrom::Start(file_image_addr as u64)).await?;
+        let file_image_addr = image_dos_header.get_nt_addr() + 4u16;
+        file.seek(SeekFrom::Start(file_image_addr as u64))?;
         let mut image_file_header: ImageFileHeader = Default::default();
         unsafe {
             let reads: &mut [u8; 64] = transmute(&mut image_file_header);
-            file.read(reads).await?;
+            file.read(reads)?;
         }
         Ok(image_file_header)
     }
@@ -316,14 +316,14 @@ impl DataDirectory {
     pub(crate) fn add(&mut self, data: ImageDataDirectory) {
         self.0.push(data);
     }
-    pub(crate) async fn get_export_directory_address(&self) -> anyhow::Result<u32> {
+    pub(crate) fn get_export_directory_address(&self) -> anyhow::Result<u32> {
         Ok(self
             .0
             .get(crate::tools_api::read_file::nt_header::DIRECTORY_EXPORT)
             .unwrap()
             .virtual_address)
     }
-    pub(crate) async fn get_import_directory_address(&self) -> anyhow::Result<u32> {
+    pub(crate) fn get_import_directory_address(&self) -> anyhow::Result<u32> {
         Ok(self
             .0
             .get(crate::tools_api::read_file::nt_header::DIRECTORY_IMPORT)
@@ -341,7 +341,7 @@ impl DataDirectory {
         Ok(self.0.get(DIRECTORY_IMPORT).unwrap().size)
     }
     /// 获取导入dll数量
-    pub async fn get_import_directory_num(&self) -> anyhow::Result<usize> {
+    pub fn get_import_directory_num(&self) -> anyhow::Result<usize> {
         Ok((self.get_import_directory_size()? / 0x14) as usize)
     }
     pub fn get_data_directory_size(&self, index: u32) -> anyhow::Result<u32> {
@@ -716,7 +716,7 @@ impl NtHeaders for ImageNtHeaders64 {
     }
 }
 
-pub(crate) async fn read_nt_head<T>(
+pub(crate) fn read_nt_head<T>(
     file: &mut File,
     start_addr: u16,
 ) -> anyhow::Result<(T, DataDirectory)>
@@ -726,16 +726,16 @@ where
 {
     let mut nt_head: T = Default::default();
     let mut data_dictionary = DataDirectory(Vec::new());
-    file.seek(SeekFrom::Start(start_addr as u64)).await?;
+    file.seek(SeekFrom::Start(start_addr as u64))?;
     unsafe {
         let reads: &mut [u8; size_of::<T>()] = transmute(&mut nt_head);
-        file.read(reads).await?;
+        file.read(reads)?;
     }
     for _ in 0..nt_head.num_of_rva() {
         let mut image_data: ImageDataDirectory = Default::default();
         unsafe {
             let reads: &mut [u8; 8] = transmute(&mut image_data);
-            file.read(reads).await?;
+            file.read(reads)?;
         }
         data_dictionary.add(image_data);
     }

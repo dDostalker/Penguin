@@ -3,11 +3,15 @@ use crate::{
     i18n,
     tools_api::{
         parse_address_string,
-        read_file::{nt_header::traits::NtHeaders, rva_2_fo, ImageSectionHeaders}, serde_pe::DangerousFunction,
+        read_file::{ImageSectionHeaders, nt_header::traits::NtHeaders, rva_2_fo},
+        serde_pe::DangerousFunction,
     },
 };
 use eframe::egui::Context;
-use std::{fs, time::{Duration, Instant}};
+use std::{
+    fs,
+    time::{Duration, Instant},
+};
 const TOAST_WINDOW_WIDTH: f32 = 400.0;
 const TOAST_WINDOW_HEIGHT: f32 = 300.0;
 const TOAST_WINDOW_SPACING: f32 = 20.0;
@@ -62,14 +66,15 @@ impl SubWindowManager {
                             self.demo_toasts();
                         }
                         ui.horizontal(|ui| {
-                        ui.label(i18n::CREATE_DANGEROUS_FUNCTION);
-                        if ui.button(i18n::CREATE).clicked(){
-                            if !fs::exists("DangerFunc.toml").unwrap(){                            
-                            let content = toml::to_string(&DangerousFunction::default()).unwrap();
-                            fs::write("DangerFunc.toml", content).unwrap();
+                            ui.label(i18n::CREATE_DANGEROUS_FUNCTION);
+                            if ui.button(i18n::CREATE).clicked() {
+                                if !fs::exists("DangerFunc.toml").unwrap() {
+                                    let content =
+                                        toml::to_string(&DangerousFunction::default()).unwrap();
+                                    fs::write("DangerFunc.toml", content).unwrap();
+                                }
+                                self.show_success(i18n::CREATE_DANGEROUS_FUNCTION_SUCCESS);
                             }
-                            self.show_success(i18n::CREATE_DANGEROUS_FUNCTION_SUCCESS);
-                        }
                         });
                         if ui.button(i18n::CANCEL_BUTTON).clicked() {
                             self.window_message.show_settings_window = false;
