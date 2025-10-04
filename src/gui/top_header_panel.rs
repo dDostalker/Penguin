@@ -82,9 +82,17 @@ impl FileManager {
                                 return;
                             }
                         };
+                        let output_path = FileDialog::new().pick_folder();
+                        let output_path = match output_path {
+                            Some(path) => path,
+                            None => {
+                                self.sub_window_manager.show_error(i18n::FILE_NOT_FOUND);
+                                return;
+                            }
+                        };
                         match resource_tree.extract_resources(
                             &mut file,
-                            Path::new("./resource-export"),
+                            &output_path,
                             &*self.files[self.current_index].nt_head,
                             &self.files[self.current_index].section_headers,
                             &self.files[self.current_index].data_directory,

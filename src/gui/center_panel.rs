@@ -5,6 +5,7 @@ mod import_table;
 mod nt_header;
 mod section;
 use crate::gui::FileManager;
+use crate::i18n;
 use crate::tools_api::calc::{calc_md5, calc_sha1};
 use crate::tools_api::file_system::open_file_location;
 use crate::tools_api::load_file_info;
@@ -45,7 +46,7 @@ impl FileManager {
                 ui.label(format!("File Name: {:?}", file.file_name));
                 ui.horizontal(|ui| -> anyhow::Result<()> {
                     ui.label(format!("File Path: {:?}", file.file_path));
-                    if ui.button("jump").clicked() {
+                    if ui.button(i18n::JUMP).clicked() {
                         open_file_location(&file.file_path)?;
                     }
                     Ok(())

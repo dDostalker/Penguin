@@ -392,7 +392,7 @@ impl NtHeaders for ImageNtHeaders {
     }
 
     fn get_characteristics(&self) -> String {
-        format!("{}", self.file_header.characteristics)
+        format!("0x{:X}", self.file_header.characteristics)
     }
 
     fn get_characteristics_hover(&self) -> String {
@@ -500,7 +500,7 @@ impl NtHeaders for ImageNtHeaders {
     }
 
     fn get_dll_characteristics(&self) -> String {
-        format!("{}", self.optional_header.dll_characteristics)
+        format!("0x{:X}", self.optional_header.dll_characteristics)
     }
 
     fn get_dll_characteristics_hover(&self) -> String {
@@ -574,7 +574,7 @@ impl NtHeaders for ImageNtHeaders64 {
     }
 
     fn get_characteristics(&self) -> String {
-        format!("{}", self.file_header.characteristics)
+        format!("0x{:X}", self.file_header.characteristics)
     }
     fn get_characteristics_hover(&self) -> String {
         get_characteristics_descriptions(self.file_header.characteristics)
@@ -681,7 +681,7 @@ impl NtHeaders for ImageNtHeaders64 {
     }
 
     fn get_dll_characteristics(&self) -> String {
-        format!("{}", self.optional_header.dll_characteristics)
+        format!("0x{:X}", self.optional_header.dll_characteristics)
     }
 
     fn get_dll_characteristics_hover(&self) -> String {

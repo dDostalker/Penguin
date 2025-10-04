@@ -12,6 +12,10 @@ pub fn open_explorer(path: &str) -> anyhow::Result<()> {
     {
         Command::new("explorer").arg(path).spawn()?;
     }
+    #[cfg(target_os = "linux")]
+    {
+        Command::new("xdg-open").arg(path).spawn()?;
+    }
     Ok(())
 }
 

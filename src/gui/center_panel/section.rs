@@ -134,7 +134,7 @@ impl FileManager {
     }
     pub(crate) fn get_section_characteristics(&self, index: usize) -> String {
         format!(
-            "{}",
+            "0x{:X}",
             self.files
                 .get(self.current_index)
                 .unwrap_or(&self.files[0])
@@ -151,7 +151,7 @@ impl FileManager {
     }
     pub(crate) fn _get_section_misc(&self, index: usize) -> anyhow::Result<String> {
         Ok(format!(
-            "{}",
+            "0x{:X}",
             self.files
                 .get(self.current_index)
                 .unwrap_or(&self.files[0])

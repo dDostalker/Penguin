@@ -11,6 +11,6 @@ fn main() {
             "Penguin",
             native_options,
             Box::new(|cc| Ok(Box::new(FileManager::new(cc)))),
-        );
+        ).expect("Failed to run application");
     }
 }

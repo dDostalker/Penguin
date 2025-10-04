@@ -5,7 +5,6 @@ use crate::tools_api::read_file::{
 };
 use crate::tools_api::{FileInfo, HashInfo};
 use anyhow::anyhow;
-use eframe::egui::Color32;
 use serde_derive::{Deserialize, Serialize};
 use serde_json;
 use std::fs::File;
