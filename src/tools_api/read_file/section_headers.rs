@@ -8,17 +8,17 @@ use std::mem::transmute;
 #[repr(u32)]
 pub enum SectionCharacteristics {
     // 保留的标志
-    RESERVED_0 = 0x00000000,
-    RESERVED_1 = 0x00000001,
-    RESERVED_2 = 0x00000002,
-    RESERVED_4 = 0x00000004,
-    RESERVED_10 = 0x00000010,
-    RESERVED_400 = 0x00000400,
-    RESERVED_2000 = 0x00002000,
-    RESERVED_10000 = 0x00010000,
-    RESERVED_20000 = 0x00020000,
-    RESERVED_40000 = 0x00040000,
-    RESERVED_80000 = 0x00080000,
+    RESERVED0 = 0x00000000,
+    RESERVED1 = 0x00000001,
+    RESERVED2 = 0x00000002,
+    RESERVED4 = 0x00000004,
+    RESERVED10 = 0x00000010,
+    RESERVED400 = 0x00000400,
+    RESERVED2000 = 0x00002000,
+    RESERVED10000 = 0x00010000,
+    RESERVED20000 = 0x00020000,
+    RESERVED40000 = 0x00040000,
+    RESERVED80000 = 0x00080000,
 
     // 节类型标志
     IMAGE_SCN_TYPE_NO_PAD = 0x00000008,
@@ -65,47 +65,47 @@ pub enum SectionCharacteristics {
 pub fn section_description(section_characteristics: u32) -> String {
     const SECTION_ENUM_DESCRIPTIONS: &[(u32, &str)] = &[
         (
-            SectionCharacteristics::RESERVED_0 as u32,
+            SectionCharacteristics::RESERVED0 as u32,
             i18n::SECTION_RESERVED,
         ),
         (
-            SectionCharacteristics::RESERVED_1 as u32,
+            SectionCharacteristics::RESERVED1 as u32,
             i18n::SECTION_RESERVED,
         ),
         (
-            SectionCharacteristics::RESERVED_2 as u32,
+            SectionCharacteristics::RESERVED2 as u32,
             i18n::SECTION_RESERVED,
         ),
         (
-            SectionCharacteristics::RESERVED_4 as u32,
+            SectionCharacteristics::RESERVED4 as u32,
             i18n::SECTION_RESERVED,
         ),
         (
-            SectionCharacteristics::RESERVED_10 as u32,
+            SectionCharacteristics::RESERVED10 as u32,
             i18n::SECTION_RESERVED,
         ),
         (
-            SectionCharacteristics::RESERVED_400 as u32,
+            SectionCharacteristics::RESERVED400 as u32,
             i18n::SECTION_RESERVED,
         ),
         (
-            SectionCharacteristics::RESERVED_2000 as u32,
+            SectionCharacteristics::RESERVED2000 as u32,
             i18n::SECTION_RESERVED,
         ),
         (
-            SectionCharacteristics::RESERVED_10000 as u32,
+            SectionCharacteristics::RESERVED10000 as u32,
             i18n::SECTION_RESERVED,
         ),
         (
-            SectionCharacteristics::RESERVED_20000 as u32,
+            SectionCharacteristics::RESERVED20000 as u32,
             i18n::SECTION_RESERVED,
         ),
         (
-            SectionCharacteristics::RESERVED_40000 as u32,
+            SectionCharacteristics::RESERVED40000 as u32,
             i18n::SECTION_RESERVED,
         ),
         (
-            SectionCharacteristics::RESERVED_80000 as u32,
+            SectionCharacteristics::RESERVED80000 as u32,
             i18n::SECTION_RESERVED,
         ),
         (

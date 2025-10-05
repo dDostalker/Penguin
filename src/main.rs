@@ -1,5 +1,3 @@
-#![windows_subsystem = "windows"]
-
 use Penguin::gui::create_native_options;
 use Penguin::tools_api::FileManager;
 use std::env;

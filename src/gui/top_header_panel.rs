@@ -5,7 +5,6 @@ use crate::tools_api::write_file::copy_file;
 use crate::tools_api::{load_file_info, serde_pe::save_to_file};
 use eframe::egui::Ui;
 use rfd::FileDialog;
-use std::path::Path;
 use std::path::PathBuf;
 
 impl FileManager {
