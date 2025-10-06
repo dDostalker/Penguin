@@ -8,7 +8,7 @@ use std::fs::File;
 use std::io::SeekFrom;
 use std::io::{Read, Seek};
 use std::mem::transmute;
-use std::sync::Arc;
+use std::rc::Rc;
 
 impl ExportDir {
     /// 读取导出表信息
@@ -53,9 +53,9 @@ impl ExportInfo {
     where
         T: NtHeaders + ?Sized,
     {
-        let name_string_rva;
+
         file.seek(SeekFrom::Start(name_file_offset as _))?;
-        name_string_rva =
+        let name_string_rva =
             rva_2_fo(nt_head, section_headers, file.read_u32::<LittleEndian>()?).unwrap();
         file.seek(SeekFrom::Start(name_string_rva as u64))?;
         let mut buf = [0; 512];
@@ -133,11 +133,11 @@ impl ExportTable {
                 ordinals_array_address += 2;
             }
         }
-        Ok(ExportTable(Arc::new(RefCell::new(export_infos))))
+        Ok(ExportTable(Rc::new(RefCell::new(export_infos))))
     }
 
     pub fn fclone(&self) -> Self {
-        ExportTable(Arc::clone(&self.0))
+        ExportTable(Rc::clone(&self.0))
     }
     // pub(crate) fn _get_index(&self, index: usize) -> Option<&ExportInfo> {
     //     self.0.borrow().get(index)

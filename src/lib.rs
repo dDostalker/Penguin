@@ -2,6 +2,7 @@
 pub mod gui;
 pub mod i18n;
 pub mod tools_api;
+pub mod cli;
 use crate::tools_api::serde_pe::DangerousFunction;
 use std::path::PathBuf;
 use std::sync::LazyLock;
@@ -10,8 +11,5 @@ use std::sync::LazyLock;
 pub static DANGEROUS_FUNCTION_TOML_PATH: LazyLock<DangerousFunction> = LazyLock::new(|| {
     let mut path = PathBuf::from("./");
     path.push("DangerFunc.toml");
-    match DangerousFunction::from_file_info(&path) {
-        Ok(dangerous_function) => dangerous_function,
-        Err(_) => DangerousFunction::default(),
-    }
+    DangerousFunction::from_file_info(&path).unwrap_or_default()
 });

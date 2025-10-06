@@ -31,7 +31,6 @@ impl FileManager {
                         self.sub_window_manager.show_error(&e.to_string());
                     }
                     if ui.button(i18n::EXIT_BUTTON).clicked() {
-                        // 后续添加释放其他行为的功能
                         std::process::exit(0);
                     }
                 });
@@ -145,8 +144,6 @@ impl FileManager {
                 .files
                 .get_mut(self.current_index)
                 .ok_or(anyhow::anyhow!(i18n::FILE_NOT_FOUND))?;
-            // 文件 -> 保存 的逻辑
-            // 创建恢复文件
             let mut file_path = PathBuf::from(&file_info.file_path);
             let mut times = 0;
             loop {

@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::SeekFrom;
 use std::io::{Read, Seek};
 use std::mem::transmute;
-use std::sync::Arc;
+use std::rc::Rc;
 
 use crate::tools_api::is_64;
 use crate::tools_api::read_file::nt_header::traits::NtHeaders;
@@ -85,12 +85,10 @@ impl ImportDll {
     {
         let mut function_info = Vec::new();
         let mut addr;
-        let function_info_address;
-
-        match rva_2_fo(nt_head, section_headers, import_descriptor.dummy_union_name) {
+        let function_info_address=  match rva_2_fo(nt_head, section_headers, import_descriptor.dummy_union_name) {
             None => return Err(anyhow::anyhow!("End")),
-            Some(ret) => function_info_address = ret,
-        }
+            Some(ret) => ret,
+        };
         file.seek(SeekFrom::Start(function_info_address as u64))?;
         let mut i = 0;
         loop {
@@ -151,6 +149,6 @@ impl ImportDll {
 
 impl ImportTable {
     pub fn fclone(&self) -> Self {
-        ImportTable(Arc::clone(&self.0))
+        ImportTable(Rc::clone(&self.0))
     }
 }

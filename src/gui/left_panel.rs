@@ -72,11 +72,10 @@ impl FileManager {
         });
 
         for &index in files_to_drop.iter().rev() {
-            if index < self.files.len() {
-                if let Err(e) = self.files[index].lock_file() {
+            if index < self.files.len()  && let Err(e) = self.files[index].lock_file() {
                     self.sub_window_manager.show_error(&e.to_string());
                 }
-            }
+            
         }
     }
 }

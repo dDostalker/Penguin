@@ -693,7 +693,7 @@ impl NtHeaders for ImageNtHeaders64 {
     }
 
     fn get_size_of_stack_commit(&self) -> u64 {
-        self.optional_header.size_of_stack_commit as u64
+        self.optional_header.size_of_stack_commit
     }
 
     fn get_size_of_heap_reserve(&self) -> u64 {

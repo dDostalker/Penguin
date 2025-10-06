@@ -25,8 +25,7 @@ impl FileManager {
         // 预先获取数据，避免在渲染循环中重复调用
         let imports = match self.import_dll() {
             Ok(imports) => imports,
-            Err(e) => {
-                //self.sub_window_manager.show_error(&e.to_string());
+            Err(_e) => {
                 return Ok(());
             }
         };

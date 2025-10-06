@@ -21,9 +21,9 @@ The following are Penguin's features:
 - View common information in PE files
 - Modify import and export tables
 - Quickly export PE information as JSON and TOML
-- 🚧 One-click resource extraction
+- One-click resource extraction
 - 🚧 Dynamic linking with custom parameter debugging functionality
-- 🚧 Provide CLI interaction for convenient scripting tools
+- Provide CLI interaction for convenient scripting tools
 - 🚧 Malicious PE analysis related features (entropy calculation, malicious import table highlighting)
 - ……
 
@@ -37,7 +37,6 @@ The following are Penguin's features:
 ## ⚠ Limitations
 - Features are not complete, core parts like debugging are still under development
 - UI interface has some performance issues
-- PE integrity verification is not perfect, there may be parsing errors for maliciously constructed PE files targeting Penguin
 - Currently only supports PE files with the same endianness as the host
 
 ## Custom Language Support

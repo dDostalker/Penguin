@@ -565,6 +565,7 @@ impl FileManager {
                 .get_major_subsystem_version()
         )
     }
+
     pub(crate) fn get_minor_subsystem_version(&self) -> String {
         format!(
             "{}",

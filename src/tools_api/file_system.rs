@@ -20,7 +20,7 @@ pub fn open_explorer(path: &str) -> anyhow::Result<()> {
 }
 
 /// 打开文件所在的文件夹
-pub fn open_file_location(file_path: &PathBuf) -> anyhow::Result<()> {
+pub fn open_file_location(file_path: &Path) -> anyhow::Result<()> {
     let path_obj = file_path;
 
     if let Some(parent) = path_obj.parent()

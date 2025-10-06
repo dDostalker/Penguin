@@ -116,13 +116,13 @@ impl SubWindowManager {
                             Ok(addr) => {
                                 self.window_message.virtual_address = addr;
                             }
-                            Err(e) => {}
+                            Err(_e) => {}
                         }
                     }
                     ui.label(i18n::FILE_OFFSET_LABEL);
                     let fo = rva_2_fo(
                         nt_header,
-                        &section_headers,
+                        section_headers,
                         self.window_message.virtual_address as u32,
                     );
                     if let Some(fo) = fo {
@@ -139,7 +139,6 @@ impl SubWindowManager {
         }
     }
 
-    /// 显示帮助窗口
     pub fn show_help_window(&mut self, ctx: &Context) {
         if self.window_message.show_help_window {
             eframe::egui::Window::new(i18n::HELP_TITLE)
@@ -149,6 +148,8 @@ impl SubWindowManager {
                 .show(ctx, |ui| {
                     ui.vertical(|ui| {
                         ui.heading(i18n::USAGE_HELP);
+                        ui.add_space(TOAST_WINDOW_SPACING);
+                        ui.label("https://github.com/dDostalker/Penguin.wiki.git");
                         ui.add_space(TOAST_WINDOW_SPACING);
                         ui.add_space(TOAST_WINDOW_BUTTON_SPACING);
                         ui.horizontal(|ui| {

@@ -1,7 +1,7 @@
 use crate::tools_api::read_file::nt_header::traits::NtHeaders;
 use serde_derive::{Deserialize, Serialize};
 use std::cell::RefCell;
-use std::sync::Arc;
+use std::rc::Rc;
 mod dos_header;
 mod dos_stub;
 mod export;
@@ -293,7 +293,7 @@ pub struct ExportInfo {
 }
 /// ExportInfos 用于传递egui
 #[derive(Debug, Clone, Default, Eq, PartialEq)]
-pub struct ExportTable(pub(crate) Arc<RefCell<Vec<ExportInfo>>>);
+pub struct ExportTable(pub(crate) Rc<RefCell<Vec<ExportInfo>>>);
 
 // 为序列化创建包装结构体
 #[derive(Serialize, Deserialize)]
@@ -367,7 +367,7 @@ pub struct ImportDll {
 }
 
 #[derive(Default, Eq, PartialEq)]
-pub struct ImportTable(pub(crate) Arc<RefCell<Vec<ImportDll>>>);
+pub struct ImportTable(pub(crate) Rc<RefCell<Vec<ImportDll>>>);
 
 // 为序列化创建包装结构体
 #[derive(Serialize, Deserialize)]

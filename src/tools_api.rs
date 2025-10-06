@@ -14,8 +14,8 @@ use crate::tools_api::read_file::{
 use serde_derive::{Deserialize, Serialize};
 use std::cell::{Ref, RefCell, RefMut};
 use std::fs::File;
-use std::path::PathBuf;
-use std::sync::Arc;
+use std::path::{Path, PathBuf};
+use std::rc::Rc;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct HashInfo {
@@ -117,8 +117,9 @@ impl FileInfo {
         let mut file = File::options().read(true).write(true).open(&file_path)?;
 
         let file_name = Self::extract_file_name(&file_path)?;
+        let file_name = file_name.to_string();
         let file_size = file.metadata()?.len();
-        let is_little_endian = true; //todo 需要根据文件头判断
+        let _is_little_endian = true; //todo 需要根据文件头判断
         // 2. 解析DOS头
         let dos_head = Box::new(ImageDosHeader::new(&mut file)?);
         let nt_addr = dos_head.get_nt_addr();
@@ -156,7 +157,7 @@ impl FileInfo {
     }
 
     /// 提取文件名
-    fn extract_file_name(file_path: &PathBuf) -> anyhow::Result<String> {
+    fn extract_file_name(file_path: &Path) -> anyhow::Result<String> {
         file_path
             .file_name()
             .and_then(|name| name.to_str())
@@ -221,7 +222,7 @@ impl FileInfo {
             }
             index += 1;
         }
-        Ok(ImportTable(Arc::new(RefCell::new(import_infos))))
+        Ok(ImportTable(Rc::new(RefCell::new(import_infos))))
     }
 }
 

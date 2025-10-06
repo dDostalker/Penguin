@@ -158,7 +158,7 @@ impl eframe::App for FileManager {
         self.sub_window_manager.show_help_window(ctx);
         self.sub_window_manager.render_toasts(ctx); // 渲染 toast
 
-        if self.files.len() != 0 {
+        if !self.files.is_empty() {
             let file = &self.files[self.current_index];
             self.sub_window_manager
                 .show_virtual_address_to_file_offset_window(

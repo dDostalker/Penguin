@@ -95,12 +95,12 @@ impl FileManager {
     }
     // unwrap or 修改
     pub(crate) fn get_section_num(&self) -> anyhow::Result<usize> {
-        Ok(self
+        self
             .files
             .get(self.current_index)
             .unwrap_or(&self.files[0])
             .section_headers
-            .get_num()?)
+            .get_num()
     }
     pub(crate) fn get_section_size_of_raw_data(&self, index: usize) -> anyhow::Result<String> {
         Ok(format!(
