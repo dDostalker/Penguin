@@ -1,3 +1,4 @@
+use crate::i18n;
 use crate::tools_api::read_file::DataDirectory;
 use crate::tools_api::read_file::ImageResourceDataEntry;
 use crate::tools_api::read_file::ImageSectionHeaders;
@@ -94,7 +95,7 @@ impl ResourceTree {
         E: NtHeaders + ?Sized,
     {
         let address = rva_2_fo(nt_head, image_section_headers, address)
-            .ok_or(anyhow::anyhow!("无法转换RVA到文件偏移"))?;
+            .ok_or(anyhow::anyhow!(i18n::ERROR_GET_RVA_OFFSET))?;
         let resource_directory = ImageResourceDirectory::new(file, address)?;
         let mut resource_root = Self::new("Directory".to_string(), true, address, 0);
         let resource_num =

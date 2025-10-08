@@ -69,6 +69,7 @@ not_normal_machine_image = "不是正常的机器映像文件"
 hex_parse_error = "16进制解析错误: {}"
 decimal_parse_error = "10进制解析错误: {}"
 cannot_get_file_directory = "无法获取文件所在目录: {}"
+error_get_rva_offset = "无法转换RVA到文件偏移"
 
 # 序列化相关错误消息
 serialize_toml_failed = "序列化TOML失败: {}"
@@ -389,6 +390,7 @@ not_normal_machine_image = "Not a normal machine image file"
 hex_parse_error = "Hex parse error: {}"
 decimal_parse_error = "Decimal parse error: {}"
 cannot_get_file_directory = "Cannot get file directory: {}"
+error_get_rva_offset = "Cannot get rva offset"
 
 # 序列化相关错误消息
 serialize_toml_failed = "Serialize TOML failed: {}"

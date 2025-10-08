@@ -113,21 +113,17 @@ impl FileInfo {
     }
 
     pub fn new(file_path: PathBuf) -> anyhow::Result<Box<Self>> {
-        // 1. 打开文件并提取基本信息
-        let mut file = File::options().read(true).write(true).open(&file_path)?;
+
+        let mut file = File::options().read(true).open(&file_path)?;
 
         let file_name = Self::extract_file_name(&file_path)?;
         let file_name = file_name.to_string();
         let file_size = file.metadata()?.len();
         let _is_little_endian = true; //todo 需要根据文件头判断
-        // 2. 解析DOS头
         let dos_head = Box::new(ImageDosHeader::new(&mut file)?);
         let nt_addr = dos_head.get_nt_addr();
-        // 3. 判断架构并解析NT头
         let is_64_bit = is_64(&mut file, &dos_head)?;
         let (nt_head, data_directory) = Self::parse_nt_headers(&mut file, nt_addr, is_64_bit)?;
-
-        // 4. 解析其他结构
         let section_headers = ImageSectionHeaders::new(
             &mut file,
             nt_head.section_start(nt_addr),
@@ -135,10 +131,12 @@ impl FileInfo {
         )?;
 
         let dos_stub = ImageDosStub::new(&mut file, nt_addr)?;
-
-        // 5. 构建FileInfo结构
+        let file = match File::options().read(true).write(true).open(&file_path) {
+            Ok(file) => Some(RefCell::new(file)),
+            Err(_e) => None,
+        };
         Ok(Box::new(FileInfo {
-            file: Some(RefCell::new(file)),
+            file,
             file_name,
             file_path,
             file_hash: None,

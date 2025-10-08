@@ -38,7 +38,7 @@ impl SubWindowManager {
                         ui.label(i18n::VERSION);
                         ui.label(i18n::AUTHOR);
                         ui.label(i18n::PEDESCRIPTION);
-                        ui.label("github: https://github.com/dDostalker/Penguin");
+                        ui.hyperlink("https://github.com/dDostalker/Penguin");
                         ui.add_space(TOAST_WINDOW_SPACING);
 
                         ui.horizontal(|ui| {
@@ -149,7 +149,7 @@ impl SubWindowManager {
                     ui.vertical(|ui| {
                         ui.heading(i18n::USAGE_HELP);
                         ui.add_space(TOAST_WINDOW_SPACING);
-                        ui.label("https://github.com/dDostalker/Penguin.wiki.git");
+                        ui.hyperlink("https://github.com/dDostalker/Penguin/wiki");
                         ui.add_space(TOAST_WINDOW_SPACING);
                         ui.add_space(TOAST_WINDOW_BUTTON_SPACING);
                         ui.horizontal(|ui| {

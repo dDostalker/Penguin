@@ -3,27 +3,19 @@ use std::fs;
 use std::path::Path;
 
 fn main() {
-    // 告诉 Cargo 如果配置文件改变就重新运行
     println!("cargo:rerun-if-changed=config/language.toml");
-
-    // 读取配置文件
     let config_path = "config/language.toml";
-
-    // 安全的配置文件处理
     let config = match load_or_create_config(config_path) {
         Ok(config) => config,
         Err(e) => {
             eprintln!("Error loading config: {}", e);
             eprintln!("Using default Chinese configuration");
-            // 使用硬编码的默认配置
             create_default_config()
         }
     };
 
-    // 获取当前选择的语言
     let language = config["language"].as_str().unwrap_or("chinese");
 
-    // 获取对应语言的配置
     let lang_config = if let Some(lang_cfg) = config.get(language) {
         lang_cfg
     } else {
@@ -39,10 +31,8 @@ fn main() {
         }
     };
 
-    // 生成语言常量代码
     let constants = generate_constants(language, lang_config);
 
-    // 安全地写入生成的文件
     let out_dir = env::var("OUT_DIR").expect("OUT_DIR not set");
     let output_path = format!("{}/language_constants.rs", out_dir);
 
@@ -51,13 +41,11 @@ fn main() {
         std::process::exit(1);
     }
 
-    // 设置环境变量，让主程序知道当前语言
     println!("cargo:rustc-env=CURRENT_LANGUAGE={}", language);
 }
 
 fn load_or_create_config(config_path: &str) -> Result<toml::Value, Box<dyn std::error::Error>> {
     if !Path::new(config_path).exists() {
-        // 如果配置文件不存在，创建默认配置
         if let Err(e) = fs::create_dir_all("config") {
             return Err(format!("Failed to create config directory: {}", e).into());
         }
@@ -68,7 +56,6 @@ fn load_or_create_config(config_path: &str) -> Result<toml::Value, Box<dyn std::
         }
     }
 
-    // 读取配置文件内容
     let config_content = fs::read_to_string(config_path)?;
     let config: toml::Value = toml::from_str(&config_content)?;
 

@@ -10,23 +10,19 @@ impl FileManager {
     pub(crate) fn dos_header_panel(&self, ui: &mut Ui) -> anyhow::Result<()> {
         eframe::egui::CentralPanel::default().show(ui.ctx(), |ui| {
             Self::show_main_title(ui, i18n::DOS_HEADER_TITLE);
-
             eframe::egui::ScrollArea::vertical()
                 .min_scrolled_height(MIN_SCROLLED_HEIGHT)
                 .show(ui, |ui| {
-                    // 使用表格样式
                     eframe::egui::Grid::new("dos_header_grid")
                         .striped(true)
                         .spacing(SPACING)
                         .num_columns(COLUMNS)
                         .show(ui, |ui| {
-                            // 表头
                             ui.strong(i18n::DOS_HEADER_FIELD_NAME);
                             ui.strong(i18n::DOS_HEADER_VALUE);
                             ui.strong(i18n::DOS_HEADER_DESCRIPTION);
                             ui.end_row();
 
-                            // DOS Header 字段
                             ui.label("e_cblp");
                             ui.label(&self.get_cblp());
                             ui.label(i18n::DOS_HEADER_E_CBLP);
