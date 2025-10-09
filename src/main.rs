@@ -3,6 +3,7 @@ use Penguin::gui::create_native_options;
 use Penguin::tools_api::FileManager;
 use Penguin::cli::Cli;
 use std::env;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() == 1 {

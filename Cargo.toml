@@ -22,3 +22,12 @@ toml = "0.9.5"
 
 [profile.release]
 debug = true
+
+
+[[bin]]
+name = "Penguin"
+path = "src/main.rs"
+
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["wincon", "processthreadsapi"] }
