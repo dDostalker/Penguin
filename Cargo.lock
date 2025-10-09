@@ -19,7 +19,7 @@ dependencies = [
  "serde_json",
  "sha-1",
  "toml",
- "winapi",
+ "windows",
 ]
 
 [[package]]

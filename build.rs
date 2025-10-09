@@ -3,13 +3,6 @@ use std::fs;
 use std::path::Path;
 
 fn main() {
-    // 在 Windows 上设置链接器标志以使用 Windows 子系统
-    #[cfg(windows)]
-    {
-        println!("cargo:rustc-link-arg=/SUBSYSTEM:WINDOWS");
-        println!("cargo:rustc-link-arg=/ENTRY:mainCRTStartup");
-    }
-    
     println!("cargo:rerun-if-changed=config/language.toml");
     let config_path = "config/language.toml";
     let config = match load_or_create_config(config_path) {

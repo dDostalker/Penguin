@@ -30,4 +30,4 @@ path = "src/main.rs"
 
 
 [target.'cfg(windows)'.dependencies]
-winapi = { version = "0.3", features = ["wincon", "processthreadsapi"] }
+windows = {version = "0.61.3",features=["Win32_System_Console","Win32_UI_WindowsAndMessaging"]}
