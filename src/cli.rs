@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand, ValueEnum};
-use rfd::FileDialog;
 use crate::{i18n, tools_api::{calc::{calc_md5, calc_sha1}, read_file::ResourceTree, serde_pe::save_to_file, FileInfo, HashInfo}};
 
 const ABOUT: &str = r"
@@ -28,15 +27,18 @@ pub enum CliCommand {
     /// Serde PE to toml or json
     Serde{
         #[arg(short, long)]
+        #[arg(default_value = "./")]
         output: String,
         #[arg(short, long)]
-        ftype: Option<FileType>,
+        #[arg(default_value = "json")]
+        ftype: FileType,
     },
     /// Print PE info to console
     Info{},
     /// Extract resource from PE
     Resource{
         #[arg(short, long)]
+        #[arg(default_value = "./")]
         output: String,
     }
 }
@@ -53,8 +55,8 @@ impl Cli {
         match &self.command {
             CliCommand::Serde { output, ftype } => {
                 let file_type = match ftype {
-                    Some(FileType::Json) => "json",
-                    _ => {
+                    FileType::Json => "json",
+                    FileType::Toml => {
                         "toml"
                     }
                 };

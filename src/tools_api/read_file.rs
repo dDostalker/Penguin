@@ -121,7 +121,6 @@ pub struct ImageOptionalHeader64 {
 #[repr(C)]
 #[derive(Serialize, Deserialize, Debug, Clone, Default, Eq, PartialEq)]
 pub struct ImageOptionalHeader {
-    // 标准字段
     pub magic: u16,                      // 标识PE文件魔数（0x10B=32位, 0x20B=64位）
     pub major_linker_version: u8,        // 链接器主要版本号
     pub minor_linker_version: u8,        // 链接器次要版本号

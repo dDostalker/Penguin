@@ -6,10 +6,10 @@ mod nt_header;
 mod section;
 use crate::gui::FileManager;
 use crate::i18n;
-use crate::tools_api::calc::{calc_md5, calc_sha1, get_hash_info};
+use crate::tools_api::calc::get_hash_info;
 use crate::tools_api::file_system::open_file_location;
 use crate::tools_api::load_file_info;
-use crate::tools_api::{FileInfo, HashInfo, Page};
+use crate::tools_api::{FileInfo, Page};
 use eframe::egui::{Area, CentralPanel, Color32, Context, Frame, Id, RichText, Ui};
 
 const CENTER_PANEL_FILL_COLOR: Color32 = Color32::from_rgb(30, 31, 34);

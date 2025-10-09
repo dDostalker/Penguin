@@ -36,7 +36,6 @@ The following are Penguin's features:
 
 ## ⚠ Limitations
 - Features are not complete, core parts like debugging are still under development
-- UI interface has some performance issues
 - Currently only supports PE files with the same endianness as the host
 
 ## Custom Language Support
@@ -69,12 +68,6 @@ Edit the `config/language.toml` file and modify the `language` field:
 ```toml
 # Switch to English
 language = "english"
-
-# Switch to Japanese
-language = "japanese"
-
-# Switch to Korean
-language = "korean"
 
 # Switch to Chinese
 language = "chinese"
