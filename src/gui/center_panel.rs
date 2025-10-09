@@ -6,7 +6,7 @@ mod nt_header;
 mod section;
 use crate::gui::FileManager;
 use crate::i18n;
-use crate::tools_api::calc::{calc_md5, calc_sha1};
+use crate::tools_api::calc::{calc_md5, calc_sha1, get_hash_info};
 use crate::tools_api::file_system::open_file_location;
 use crate::tools_api::load_file_info;
 use crate::tools_api::{FileInfo, HashInfo, Page};
@@ -53,15 +53,18 @@ impl FileManager {
                 });
                 ui.label(format!("File Size: {}B", file.file_size));
                 if file.file_hash.is_none() {
-                    file.file_hash = Some(HashInfo {
-                        md5: calc_md5(&file.file_path),
-                        sha1: calc_sha1(&file.file_path),
-                    });
+                    file.file_hash = get_hash_info(file.file_path.clone());
                 }
                 if let Some(file_hash) = &file.file_hash {
                     ui.horizontal(|ui| {
                         ui.label(format!("File MD5: {}", file_hash.md5));
                         ui.label(format!("File SHA1: {}", file_hash.sha1));
+                    });
+                }
+                else {
+                    ui.horizontal(|ui| {
+                        ui.label(format!("File MD5: {}", "-"));
+                        ui.label(format!("File SHA1: {}", "-"));
                     });
                 }
             });

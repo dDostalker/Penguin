@@ -72,6 +72,7 @@ impl Cli {
                     file_manager.file_hash = Some(HashInfo {
                         md5: calc_md5(&file_manager.file_path),
                         sha1: calc_sha1(&file_manager.file_path),
+                        path: file_manager.file_path.clone(),
                     });
                 }
                 println!("File Hash: {}", file_manager.file_hash.as_ref().expect("File hash is not found").md5);

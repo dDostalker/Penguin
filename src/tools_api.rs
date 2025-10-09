@@ -5,6 +5,7 @@ pub(crate) mod serde_pe;
 pub(crate) mod write_file;
 use crate::gui::SubWindowManager;
 use crate::i18n;
+use crate::tools_api::calc::start_calc_hash;
 use crate::tools_api::read_file::nt_header::traits::NtHeaders;
 use crate::tools_api::read_file::{
     DataDirectory, ExportDir, ExportTable, ImageDosHeader, ImageDosStub, ImageFileHeader,
@@ -21,6 +22,12 @@ use std::rc::Rc;
 pub struct HashInfo {
     pub md5: String,
     pub sha1: String,
+    pub path: PathBuf,
+}
+impl HashInfo {
+    pub fn is_same(&self, other: &PathBuf) -> bool {
+        self.path == *other
+    }
 }
 
 pub struct FileInfo {
@@ -115,7 +122,6 @@ impl FileInfo {
     pub fn new(file_path: PathBuf) -> anyhow::Result<Box<Self>> {
 
         let mut file = File::options().read(true).open(&file_path)?;
-
         let file_name = Self::extract_file_name(&file_path)?;
         let file_name = file_name.to_string();
         let file_size = file.metadata()?.len();
@@ -135,6 +141,7 @@ impl FileInfo {
             Ok(file) => Some(RefCell::new(file)),
             Err(_e) => None,
         };
+        start_calc_hash(file_path.clone())?;
         Ok(Box::new(FileInfo {
             file,
             file_name,
