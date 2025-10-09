@@ -53,7 +53,6 @@ impl ExportInfo {
     where
         T: NtHeaders + ?Sized,
     {
-
         file.seek(SeekFrom::Start(name_file_offset as _))?;
         let name_string_rva =
             rva_2_fo(nt_head, section_headers, file.read_u32::<LittleEndian>()?).unwrap();

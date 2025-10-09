@@ -1,7 +1,15 @@
 use std::path::PathBuf;
 
+use crate::{
+    i18n,
+    tools_api::{
+        FileInfo, HashInfo,
+        calc::{calc_md5, calc_sha1},
+        read_file::ResourceTree,
+        serde_pe::save_to_file,
+    },
+};
 use clap::{Parser, Subcommand, ValueEnum};
-use crate::{i18n, tools_api::{calc::{calc_md5, calc_sha1}, read_file::ResourceTree, serde_pe::save_to_file, FileInfo, HashInfo}};
 
 const ABOUT: &str = r"
   _____                       _       
@@ -25,7 +33,7 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum CliCommand {
     /// Serde PE to toml or json
-    Serde{
+    Serde {
         #[arg(short, long)]
         #[arg(default_value = "./")]
         output: String,
@@ -34,13 +42,13 @@ pub enum CliCommand {
         ftype: FileType,
     },
     /// Print PE info to console
-    Info{},
+    Info {},
     /// Extract resource from PE
-    Resource{
+    Resource {
         #[arg(short, long)]
         #[arg(default_value = "./")]
         output: String,
-    }
+    },
 }
 #[derive(ValueEnum, Clone)]
 enum FileType {
@@ -49,23 +57,21 @@ enum FileType {
 }
 
 impl Cli {
-    pub fn execute(&self){
+    pub fn execute(&self) {
         let file_path = PathBuf::from(self.file_path.clone());
         let mut file_manager = FileInfo::new(file_path).expect("Failed to create file manager");
         match &self.command {
             CliCommand::Serde { output, ftype } => {
                 let file_type = match ftype {
                     FileType::Json => "json",
-                    FileType::Toml => {
-                        "toml"
-                    }
+                    FileType::Toml => "toml",
                 };
                 let mut file_path = PathBuf::from(output);
                 file_path.push(format!("{}.{}", file_manager.file_name, file_type));
                 save_to_file(&mut file_manager, &file_path, file_type).expect(i18n::SAVE_FAILED);
                 println!("Success: {}", i18n::SAVE_SUCCESS);
             }
-            CliCommand::Info {  } => {
+            CliCommand::Info {} => {
                 println!("Info: ");
                 println!("File Name: {}", file_manager.file_name);
                 println!("File Path: {}", file_manager.file_path.display());
@@ -77,42 +83,57 @@ impl Cli {
                         path: file_manager.file_path.clone(),
                     });
                 }
-                println!("File Hash: {}", file_manager.file_hash.as_ref().expect("File hash is not found").md5);
-                println!("File Hash: {}", file_manager.file_hash.as_ref().expect("File hash is not found").sha1);
+                println!(
+                    "File Hash: {}",
+                    file_manager
+                        .file_hash
+                        .as_ref()
+                        .expect("File hash is not found")
+                        .md5
+                );
+                println!(
+                    "File Hash: {}",
+                    file_manager
+                        .file_hash
+                        .as_ref()
+                        .expect("File hash is not found")
+                        .sha1
+                );
                 println!("File Is 64 Bit: {}", file_manager.is_64_bit);
                 println!("File DOS Header Magic: {}", file_manager.dos_head.e_magic);
-                
             }
             CliCommand::Resource { output } => {
-                let mut file = std::fs::File::open(file_manager.file_path.clone()).expect("Failed to open file");
+                let mut file = std::fs::File::open(file_manager.file_path.clone())
+                    .expect("Failed to open file");
                 let resource_tree = match ResourceTree::get_resource_tree(
-                            &mut file,
-                            file_manager.data_directory
-                                .get_resource_directory_address()
-                                .unwrap(),
-                            &*file_manager.nt_head,
-                            &file_manager.section_headers,
-                            &file_manager.data_directory,
-                        ) {
-                            Ok(resource_tree) => resource_tree,
-                            Err(e) => {
-                                println!("Error: {}", e.to_string());
-                                return;
-                            }
-                        };
-                        let output_path = PathBuf::from(output);
-                        match resource_tree.extract_resources(
-                            &mut file,
-                            &output_path,
-                            &*file_manager.nt_head,
-                            &file_manager.section_headers,
-                            &file_manager.data_directory,
-                        ) {
-                            Ok(extracted_files) => extracted_files,
-                            Err(e) => {
-                                println!("Error: {}", e.to_string());
-                                return;
-                            }
+                    &mut file,
+                    file_manager
+                        .data_directory
+                        .get_resource_directory_address()
+                        .unwrap(),
+                    &*file_manager.nt_head,
+                    &file_manager.section_headers,
+                    &file_manager.data_directory,
+                ) {
+                    Ok(resource_tree) => resource_tree,
+                    Err(e) => {
+                        println!("Error: {}", e.to_string());
+                        return;
+                    }
+                };
+                let output_path = PathBuf::from(output);
+                match resource_tree.extract_resources(
+                    &mut file,
+                    &output_path,
+                    &*file_manager.nt_head,
+                    &file_manager.section_headers,
+                    &file_manager.data_directory,
+                ) {
+                    Ok(extracted_files) => extracted_files,
+                    Err(e) => {
+                        println!("Error: {}", e.to_string());
+                        return;
+                    }
                 };
             }
         }

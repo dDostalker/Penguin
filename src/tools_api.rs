@@ -120,7 +120,6 @@ impl FileInfo {
     }
 
     pub fn new(file_path: PathBuf) -> anyhow::Result<Box<Self>> {
-
         let mut file = File::options().read(true).open(&file_path)?;
         let file_name = Self::extract_file_name(&file_path)?;
         let file_name = file_name.to_string();

@@ -85,10 +85,11 @@ impl ImportDll {
     {
         let mut function_info = Vec::new();
         let mut addr;
-        let function_info_address=  match rva_2_fo(nt_head, section_headers, import_descriptor.dummy_union_name) {
-            None => return Err(anyhow::anyhow!("End")),
-            Some(ret) => ret,
-        };
+        let function_info_address =
+            match rva_2_fo(nt_head, section_headers, import_descriptor.dummy_union_name) {
+                None => return Err(anyhow::anyhow!("End")),
+                Some(ret) => ret,
+            };
         file.seek(SeekFrom::Start(function_info_address as u64))?;
         let mut i = 0;
         loop {

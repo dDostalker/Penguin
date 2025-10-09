@@ -1,21 +1,17 @@
-use clap::Parser;
+use Penguin::cli::Cli;
 use Penguin::gui::create_native_options;
 use Penguin::tools_api::FileManager;
-use Penguin::cli::Cli;
+use clap::Parser;
 use std::env;
-use windows::Win32::{
-    System::Console::{GetConsoleWindow},
-
-};
-
+use windows::Win32::System::Console::GetConsoleWindow;
 
 #[cfg(windows)]
-fn hide_console_for_gui() {    
+fn hide_console_for_gui() {
     unsafe {
         let console_window = GetConsoleWindow();
         if !console_window.is_invalid() {
-            use windows::Win32::UI::WindowsAndMessaging::{ShowWindow, SW_HIDE};
-            ShowWindow(console_window, SW_HIDE);
+            use windows::Win32::UI::WindowsAndMessaging::{SW_HIDE, ShowWindow};
+            let _ = ShowWindow(console_window, SW_HIDE);
         }
     }
 }
@@ -28,8 +24,6 @@ fn hide_console_for_gui() {
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() == 1 {
-        // GUI 模式：隐藏控制台窗口
-        
         let native_options: eframe::NativeOptions = create_native_options();
         hide_console_for_gui();
         eframe::run_native(
@@ -38,8 +32,7 @@ fn main() {
             Box::new(|cc| Ok(Box::new(FileManager::new(cc)))),
         )
         .expect("Failed to run application");
-    }
-    else{
+    } else {
         let cli = Cli::parse();
         cli.execute();
     }

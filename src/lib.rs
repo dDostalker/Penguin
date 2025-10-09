@@ -1,11 +1,11 @@
 #![feature(generic_const_exprs)]
+pub mod cli;
 pub mod gui;
 pub mod i18n;
 pub mod tools_api;
-pub mod cli;
-use crate::tools_api::serde_pe::DangerousFunction;
-use crate::tools_api::calc::ThreadPool;
 use crate::tools_api::HashInfo;
+use crate::tools_api::calc::ThreadPool;
+use crate::tools_api::serde_pe::DangerousFunction;
 use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex};
 
@@ -17,10 +17,7 @@ pub static DANGEROUS_FUNCTION_TOML_PATH: LazyLock<DangerousFunction> = LazyLock:
 });
 
 // Global thread pool
-pub static GLOBAL_THREAD_POOL: LazyLock<ThreadPool> = LazyLock::new(|| {
-    ThreadPool::new(3)
-});
+pub static GLOBAL_THREAD_POOL: LazyLock<ThreadPool> = LazyLock::new(|| ThreadPool::new(3));
 
-pub static GLOBAL_HASH_INFO: LazyLock<Mutex<Vec<HashInfo>>> = LazyLock::new(|| {
-    Mutex::new(Vec::new())
-});
+pub static GLOBAL_HASH_INFO: LazyLock<Mutex<Vec<HashInfo>>> =
+    LazyLock::new(|| Mutex::new(Vec::new()));

@@ -95,8 +95,7 @@ impl FileManager {
     }
     // unwrap or 修改
     pub(crate) fn get_section_num(&self) -> anyhow::Result<usize> {
-        self
-            .files
+        self.files
             .get(self.current_index)
             .unwrap_or(&self.files[0])
             .section_headers

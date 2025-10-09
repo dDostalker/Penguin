@@ -60,8 +60,7 @@ impl FileManager {
                         ui.label(format!("File MD5: {}", file_hash.md5));
                         ui.label(format!("File SHA1: {}", file_hash.sha1));
                     });
-                }
-                else {
+                } else {
                     ui.horizontal(|ui| {
                         ui.label(format!("File MD5: {}", "-"));
                         ui.label(format!("File SHA1: {}", "-"));
