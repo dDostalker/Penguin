@@ -29,14 +29,14 @@ struct IconFileHeader {
 #[repr(C, packed)]
 #[derive(Debug, Clone, Copy)]
 struct IconDirEntry {
-    width: u8,          // 宽度（0表示256）
-    height: u8,         // 高度（0表示256）
-    color_count: u8,    // 颜色数（0表示256色以上）
-    reserved: u8,       // 保留，必须为0
-    planes: u16,        // 颜色平面数（ICO）或热点X（CUR）
-    bit_count: u16,     // 每像素位数（ICO）或热点Y（CUR）
-    bytes_in_res: u32,  // 图像数据大小
-    image_offset: u32,  // 图像数据偏移（在ICO文件中）
+    width: u8,         // 宽度（0表示256）
+    height: u8,        // 高度（0表示256）
+    color_count: u8,   // 颜色数（0表示256色以上）
+    reserved: u8,      // 保留，必须为0
+    planes: u16,       // 颜色平面数（ICO）或热点X（CUR）
+    bit_count: u16,    // 每像素位数（ICO）或热点Y（CUR）
+    bytes_in_res: u32, // 图像数据大小
+    image_offset: u32, // 图像数据偏移（在ICO文件中）
 }
 
 /// RT_GROUP_ICON/RT_GROUP_CURSOR 资源中的条目
@@ -129,7 +129,6 @@ impl ResourceTree {
         }
     }
 
-    
     fn get_default_extension(resource_type: &str) -> &'static str {
         match resource_type {
             "RT_ICON" | "RT_GROUP_ICON" => ".ico",
@@ -244,9 +243,11 @@ impl ResourceTree {
         }
 
         // 检测是否是纯ASCII文本
-        if data.iter().take(100).all(|&b| {
-            b == 0x09 || b == 0x0A || b == 0x0D || (b >= 0x20 && b <= 0x7E) || b >= 0x80
-        }) {
+        if data
+            .iter()
+            .take(100)
+            .all(|&b| b == 0x09 || b == 0x0A || b == 0x0D || (b >= 0x20 && b <= 0x7E) || b >= 0x80)
+        {
             return Some(".txt");
         }
 
@@ -443,8 +444,8 @@ impl ResourceTree {
             file,
             base_offset,
             0,
-                    nt_head,
-                    image_section_headers,
+            nt_head,
+            image_section_headers,
             address,
             true,
         )
@@ -489,7 +490,8 @@ impl ResourceTree {
             let reserved = entry_data[3];
             let planes = u16::from_le_bytes([entry_data[4], entry_data[5]]);
             let bit_count = u16::from_le_bytes([entry_data[6], entry_data[7]]);
-            let bytes_in_res = u32::from_le_bytes([entry_data[8], entry_data[9], entry_data[10], entry_data[11]]);
+            let bytes_in_res =
+                u32::from_le_bytes([entry_data[8], entry_data[9], entry_data[10], entry_data[11]]);
             let icon_id = u16::from_le_bytes([entry_data[12], entry_data[13]]);
 
             icon_entries.push((
@@ -630,7 +632,7 @@ impl ResourceTree {
 
         if let Some(children) = &self.children {
             // 这是一个目录节点
-            
+
             // 判断当前节点是否是资源类型节点（第一层）
             let resource_type = if depth == 1 && self.name.starts_with("RT_") {
                 Some(self.name.as_str())
@@ -684,10 +686,8 @@ impl ResourceTree {
                         for i in 0..image_count as usize {
                             let offset = 6 + i * entry_size;
                             if offset + entry_size <= buffer.len() {
-                                let icon_id = u16::from_le_bytes([
-                                    buffer[offset + 12],
-                                    buffer[offset + 13],
-                                ]);
+                                let icon_id =
+                                    u16::from_le_bytes([buffer[offset + 12], buffer[offset + 13]]);
 
                                 // 从icon_resources中获取图标数据
                                 if let Some(&(data_address, data_size)) =

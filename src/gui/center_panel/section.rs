@@ -1,5 +1,6 @@
-use crate::gui::FileManager;
+use crate::gui::{FileManager, SectionFlag};
 use crate::i18n;
+use crate::tools_api::read_file::section_headers::SectionCharacteristics;
 use eframe::egui::{Label, Ui, Vec2};
 
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
@@ -40,7 +41,6 @@ impl FileManager {
                         .spacing(SPACING)
                         .num_columns(COLUMNS)
                         .show(ui, |ui| {
-                            // 表头
                             ui.strong(i18n::SECTION_NAME);
                             ui.strong(i18n::VIRTUAL_ADDRESS);
                             ui.strong(i18n::SIZE);
@@ -69,7 +69,13 @@ impl FileManager {
                                 ui.label(relocations);
                                 if ui.button(characteristics).clicked() {
                                     self.sub_window_manager
-                                        .show_info(&self.get_section_characteristics_hover(index));
+                                        .section_message
+                                        .selected_section_index = Some(index);
+                                    self.sub_window_manager.section_message.section_flag = None;
+                                    if let None = self.sub_window_manager.section_message.section_flag {
+                                        self.sub_window_manager.section_message.section_flag 
+                                        = Some(SectionFlag::match_flag(self._get_section_characteristics(index)));
+                                    }
                                 }
 
                                 ui.horizontal(|ui| {
@@ -91,6 +97,94 @@ impl FileManager {
                         });
                 });
         });
+
+        if self
+            .sub_window_manager
+            .section_message
+            .selected_section_index
+            .is_some()
+        {
+            eframe::egui::TopBottomPanel::bottom("section_detail_window").show(ui.ctx(), |ui| {
+                ui.label("Section Details");
+                ui.horizontal(|ui| {
+                    if ui.checkbox(
+                        &mut self
+                            .sub_window_manager
+                            .section_message
+                            .get_image_scn_cnt_code(),
+                        "Code",
+                    ).clicked() {
+                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
+                        ^= SectionCharacteristics::ImageScnCntCode as u32;
+                    }
+                    if ui.checkbox(
+                        &mut self
+                            .sub_window_manager
+                            .section_message
+                            .get_image_scn_cnt_initialized_data(),
+                        "Initialized Data",
+                    ).clicked() {
+                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
+                        ^= SectionCharacteristics::ImageScnCntInitializedData as u32;
+                    }
+                    if ui.checkbox(
+                        &mut self
+                            .sub_window_manager
+                            .section_message
+                            .get_image_scn_cnt_uninitialized_data(),
+                        "Uninitialized Data",
+                    ).clicked() {
+                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
+                        ^= SectionCharacteristics::ImageScnCntUninitializedData as u32;
+                    }
+                    if ui.checkbox(
+                        &mut self
+                            .sub_window_manager
+                            .section_message
+                            .get_image_scn_lnk_other(),
+                        "Other",
+                    ).clicked() {
+                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
+                        ^= SectionCharacteristics::ImageScnLnkOther as u32;
+                    }
+                    if ui.checkbox(
+                        &mut self
+                            .sub_window_manager
+                            .section_message
+                            .get_image_scn_lnk_info(),
+                        "Info",
+                    ).clicked() {
+                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
+                        ^= SectionCharacteristics::ImageScnLnkInfo as u32;
+                    }
+                    if ui.checkbox(
+                        &mut self
+                            .sub_window_manager
+                            .section_message
+                            .get_image_scn_lnk_remove(),
+                        "Remove",
+                    ).clicked() {
+                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
+                        ^= SectionCharacteristics::ImageScnLnkRemove as u32;
+                    }
+                    if ui.checkbox(
+                        &mut self
+                            .sub_window_manager
+                            .section_message
+                            .get_image_scn_lnk_comdat(),
+                        "Comdat",
+                    ).clicked() {
+                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
+                        ^= SectionCharacteristics::ImageScnLnkComdat as u32;
+                    }
+                });
+                if ui.button("X").clicked() {
+                    self.sub_window_manager
+                        .section_message
+                        .selected_section_index = None;
+                }
+            });
+        }
         Ok(())
     }
     // unwrap or 修改
@@ -141,13 +235,13 @@ impl FileManager {
                 .get_section_characteristics(index)
         )
     }
-    pub(crate) fn get_section_characteristics_hover(&self, index: usize) -> String {
-        self.files
-            .get(self.current_index)
-            .unwrap_or(&self.files[0])
-            .section_headers
-            .get_section_characteristics_hover(index)
-    }
+    // pub(crate) fn get_section_characteristics_hover(&self, index: usize) -> String {
+    //     self.files
+    //         .get(self.current_index)
+    //         .unwrap_or(&self.files[0])
+    //         .section_headers
+    //         .get_section_characteristics_hover(index)
+    // }
     pub(crate) fn _get_section_misc(&self, index: usize) -> anyhow::Result<String> {
         Ok(format!(
             "0x{:X}",
@@ -197,5 +291,12 @@ impl FileManager {
                 .section_headers
                 .get_section_pointer_to_relocations(index)
         )
+    }
+    fn _get_section_characteristics(&self, index: usize) -> u32 {
+        self.files
+            .get(self.current_index)
+            .unwrap_or(&self.files[0])
+            .section_headers
+            .get_section_characteristics(index)
     }
 }

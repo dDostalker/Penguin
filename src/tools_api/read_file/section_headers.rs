@@ -1,4 +1,3 @@
-use crate::i18n;
 use crate::tools_api::read_file::{ImageSectionHeader, ImageSectionHeaders, SectionData};
 use std::fs::File;
 use std::io::SeekFrom;
@@ -61,194 +60,194 @@ pub enum SectionCharacteristics {
     ImageScnMemWrite = 0x80000000,
 }
 
-/// 获取标志的描述信息
-pub fn section_description(section_characteristics: u32) -> String {
-    const SECTION_ENUM_DESCRIPTIONS: &[(u32, &str)] = &[
-        (
-            SectionCharacteristics::RESERVED0 as u32,
-            i18n::SECTION_RESERVED,
-        ),
-        (
-            SectionCharacteristics::RESERVED1 as u32,
-            i18n::SECTION_RESERVED,
-        ),
-        (
-            SectionCharacteristics::RESERVED2 as u32,
-            i18n::SECTION_RESERVED,
-        ),
-        (
-            SectionCharacteristics::RESERVED4 as u32,
-            i18n::SECTION_RESERVED,
-        ),
-        (
-            SectionCharacteristics::RESERVED10 as u32,
-            i18n::SECTION_RESERVED,
-        ),
-        (
-            SectionCharacteristics::RESERVED400 as u32,
-            i18n::SECTION_RESERVED,
-        ),
-        (
-            SectionCharacteristics::RESERVED2000 as u32,
-            i18n::SECTION_RESERVED,
-        ),
-        (
-            SectionCharacteristics::RESERVED10000 as u32,
-            i18n::SECTION_RESERVED,
-        ),
-        (
-            SectionCharacteristics::RESERVED20000 as u32,
-            i18n::SECTION_RESERVED,
-        ),
-        (
-            SectionCharacteristics::RESERVED40000 as u32,
-            i18n::SECTION_RESERVED,
-        ),
-        (
-            SectionCharacteristics::RESERVED80000 as u32,
-            i18n::SECTION_RESERVED,
-        ),
-        (
-            SectionCharacteristics::ImageScnTypeNoPad as u32,
-            i18n::SECTION_NO_PAD,
-        ),
-        (
-            SectionCharacteristics::ImageScnCntCode as u32,
-            i18n::SECTION_CONTAINS_CODE,
-        ),
-        (
-            SectionCharacteristics::ImageScnCntInitializedData as u32,
-            i18n::SECTION_CONTAINS_INITIALIZED_DATA,
-        ),
-        (
-            SectionCharacteristics::ImageScnCntUninitializedData as u32,
-            i18n::SECTION_CONTAINS_UNINITIALIZED_DATA,
-        ),
-        (
-            SectionCharacteristics::ImageScnLnkOther as u32,
-            i18n::SECTION_OTHER,
-        ),
-        (
-            SectionCharacteristics::ImageScnLnkInfo as u32,
-            i18n::SECTION_INFO,
-        ),
-        (
-            SectionCharacteristics::ImageScnLnkRemove as u32,
-            i18n::SECTION_REMOVE,
-        ),
-        (
-            SectionCharacteristics::ImageScnLnkComdat as u32,
-            i18n::SECTION_COMDAT,
-        ),
-        (
-            SectionCharacteristics::ImageScnNoDeferSpecExc as u32,
-            i18n::SECTION_NO_DEFER_SPEC_EXC,
-        ),
-        (
-            SectionCharacteristics::ImageScnGprel as u32,
-            i18n::SECTION_GPREL,
-        ),
-        (
-            SectionCharacteristics::ImageScnAlign1Bytes as u32,
-            i18n::SECTION_ALIGN_1BYTES,
-        ),
-        (
-            SectionCharacteristics::ImageScnAlign2Bytes as u32,
-            i18n::SECTION_ALIGN_2BYTES,
-        ),
-        (
-            SectionCharacteristics::ImageScnAlign4Bytes as u32,
-            i18n::SECTION_ALIGN_4BYTES,
-        ),
-        (
-            SectionCharacteristics::ImageScnAlign8Bytes as u32,
-            i18n::SECTION_ALIGN_8BYTES,
-        ),
-        (
-            SectionCharacteristics::ImageScnAlign16Bytes as u32,
-            i18n::SECTION_ALIGN_16BYTES,
-        ),
-        (
-            SectionCharacteristics::ImageScnAlign32Bytes as u32,
-            i18n::SECTION_ALIGN_32BYTES,
-        ),
-        (
-            SectionCharacteristics::ImageScnAlign64Bytes as u32,
-            i18n::SECTION_ALIGN_64BYTES,
-        ),
-        (
-            SectionCharacteristics::ImageScnAlign128Bytes as u32,
-            i18n::SECTION_ALIGN_128BYTES,
-        ),
-        (
-            SectionCharacteristics::ImageScnAlign256Bytes as u32,
-            i18n::SECTION_ALIGN_256BYTES,
-        ),
-        (
-            SectionCharacteristics::ImageScnAlign512Bytes as u32,
-            i18n::SECTION_ALIGN_512BYTES,
-        ),
-        (
-            SectionCharacteristics::ImageScnAlign1024Bytes as u32,
-            i18n::SECTION_ALIGN_1024BYTES,
-        ),
-        (
-            SectionCharacteristics::ImageScnAlign2048Bytes as u32,
-            i18n::SECTION_ALIGN_2048BYTES,
-        ),
-        (
-            SectionCharacteristics::ImageScnAlign4096Bytes as u32,
-            i18n::SECTION_ALIGN_4096BYTES,
-        ),
-        (
-            SectionCharacteristics::ImageScnAlign8192Bytes as u32,
-            i18n::SECTION_ALIGN_8192BYTES,
-        ),
-        (
-            SectionCharacteristics::ImageScnLnkNrelocOvfl as u32,
-            i18n::SECTION_RELOC_OVFL,
-        ),
-        (
-            SectionCharacteristics::ImageScnMemDiscardable as u32,
-            i18n::SECTION_MEM_DISCARDABLE,
-        ),
-        (
-            SectionCharacteristics::ImageScnMemNotCached as u32,
-            i18n::SECTION_MEM_NOT_CACHED,
-        ),
-        (
-            SectionCharacteristics::ImageScnMemNotPaged as u32,
-            i18n::SECTION_MEM_NOT_PAGED,
-        ),
-        (
-            SectionCharacteristics::ImageScnMemShared as u32,
-            i18n::SECTION_MEM_SHARED,
-        ),
-        (
-            SectionCharacteristics::ImageScnMemExecute as u32,
-            i18n::SECTION_MEM_EXECUTE,
-        ),
-        (
-            SectionCharacteristics::ImageScnMemRead as u32,
-            i18n::SECTION_MEM_READ,
-        ),
-        (
-            SectionCharacteristics::ImageScnMemWrite as u32,
-            i18n::SECTION_MEM_WRITE,
-        ),
-    ];
-    SECTION_ENUM_DESCRIPTIONS
-        .iter()
-        .filter_map(|(flag, description)| {
-            if section_characteristics & flag != 0 {
-                Some(*description)
-            } else {
-                None
-            }
-        })
-        .collect::<Vec<_>>()
-        .join("\n")
-}
+// /// 获取标志的描述信息
+// pub fn section_description(section_characteristics: u32) -> String {
+//     const SECTION_ENUM_DESCRIPTIONS: &[(u32, &str)] = &[
+//         (
+//             SectionCharacteristics::RESERVED0 as u32,
+//             i18n::SECTION_RESERVED,
+//         ),
+//         (
+//             SectionCharacteristics::RESERVED1 as u32,
+//             i18n::SECTION_RESERVED,
+//         ),
+//         (
+//             SectionCharacteristics::RESERVED2 as u32,
+//             i18n::SECTION_RESERVED,
+//         ),
+//         (
+//             SectionCharacteristics::RESERVED4 as u32,
+//             i18n::SECTION_RESERVED,
+//         ),
+//         (
+//             SectionCharacteristics::RESERVED10 as u32,
+//             i18n::SECTION_RESERVED,
+//         ),
+//         (
+//             SectionCharacteristics::RESERVED400 as u32,
+//             i18n::SECTION_RESERVED,
+//         ),
+//         (
+//             SectionCharacteristics::RESERVED2000 as u32,
+//             i18n::SECTION_RESERVED,
+//         ),
+//         (
+//             SectionCharacteristics::RESERVED10000 as u32,
+//             i18n::SECTION_RESERVED,
+//         ),
+//         (
+//             SectionCharacteristics::RESERVED20000 as u32,
+//             i18n::SECTION_RESERVED,
+//         ),
+//         (
+//             SectionCharacteristics::RESERVED40000 as u32,
+//             i18n::SECTION_RESERVED,
+//         ),
+//         (
+//             SectionCharacteristics::RESERVED80000 as u32,
+//             i18n::SECTION_RESERVED,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnTypeNoPad as u32,
+//             i18n::SECTION_NO_PAD,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnCntCode as u32,
+//             i18n::SECTION_CONTAINS_CODE,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnCntInitializedData as u32,
+//             i18n::SECTION_CONTAINS_INITIALIZED_DATA,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnCntUninitializedData as u32,
+//             i18n::SECTION_CONTAINS_UNINITIALIZED_DATA,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnLnkOther as u32,
+//             i18n::SECTION_OTHER,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnLnkInfo as u32,
+//             i18n::SECTION_INFO,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnLnkRemove as u32,
+//             i18n::SECTION_REMOVE,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnLnkComdat as u32,
+//             i18n::SECTION_COMDAT,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnNoDeferSpecExc as u32,
+//             i18n::SECTION_NO_DEFER_SPEC_EXC,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnGprel as u32,
+//             i18n::SECTION_GPREL,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnAlign1Bytes as u32,
+//             i18n::SECTION_ALIGN_1BYTES,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnAlign2Bytes as u32,
+//             i18n::SECTION_ALIGN_2BYTES,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnAlign4Bytes as u32,
+//             i18n::SECTION_ALIGN_4BYTES,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnAlign8Bytes as u32,
+//             i18n::SECTION_ALIGN_8BYTES,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnAlign16Bytes as u32,
+//             i18n::SECTION_ALIGN_16BYTES,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnAlign32Bytes as u32,
+//             i18n::SECTION_ALIGN_32BYTES,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnAlign64Bytes as u32,
+//             i18n::SECTION_ALIGN_64BYTES,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnAlign128Bytes as u32,
+//             i18n::SECTION_ALIGN_128BYTES,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnAlign256Bytes as u32,
+//             i18n::SECTION_ALIGN_256BYTES,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnAlign512Bytes as u32,
+//             i18n::SECTION_ALIGN_512BYTES,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnAlign1024Bytes as u32,
+//             i18n::SECTION_ALIGN_1024BYTES,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnAlign2048Bytes as u32,
+//             i18n::SECTION_ALIGN_2048BYTES,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnAlign4096Bytes as u32,
+//             i18n::SECTION_ALIGN_4096BYTES,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnAlign8192Bytes as u32,
+//             i18n::SECTION_ALIGN_8192BYTES,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnLnkNrelocOvfl as u32,
+//             i18n::SECTION_RELOC_OVFL,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnMemDiscardable as u32,
+//             i18n::SECTION_MEM_DISCARDABLE,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnMemNotCached as u32,
+//             i18n::SECTION_MEM_NOT_CACHED,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnMemNotPaged as u32,
+//             i18n::SECTION_MEM_NOT_PAGED,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnMemShared as u32,
+//             i18n::SECTION_MEM_SHARED,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnMemExecute as u32,
+//             i18n::SECTION_MEM_EXECUTE,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnMemRead as u32,
+//             i18n::SECTION_MEM_READ,
+//         ),
+//         (
+//             SectionCharacteristics::ImageScnMemWrite as u32,
+//             i18n::SECTION_MEM_WRITE,
+//         ),
+//     ];
+//     SECTION_ENUM_DESCRIPTIONS
+//         .iter()
+//         .filter_map(|(flag, description)| {
+//             if section_characteristics & flag != 0 {
+//                 Some(*description)
+//             } else {
+//                 None
+//             }
+//         })
+//         .collect::<Vec<_>>()
+//         .join("\n")
+// }
 
 impl ImageSectionHeader {
     pub(crate) fn new(file: &mut File) -> anyhow::Result<ImageSectionHeader> {
@@ -318,9 +317,9 @@ impl ImageSectionHeaders {
     pub(crate) fn get_section_characteristics(&self, index: usize) -> u32 {
         self.0.get(index).unwrap().characteristics
     }
-    pub(crate) fn get_section_characteristics_hover(&self, index: usize) -> String {
-        section_description(self.0.get(index).unwrap().characteristics)
-    }
+    // pub(crate) fn get_section_characteristics_hover(&self, index: usize) -> String {
+    //     section_description(self.0.get(index).unwrap().characteristics)
+    // }
     pub fn get_section_pointer_to_relocations(&self, index: usize) -> u32 {
         self.0.get(index).unwrap().pointer_to_relocations
     }

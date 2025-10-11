@@ -8,7 +8,7 @@ mod export;
 mod import;
 pub mod nt_header;
 mod resource_header;
-mod section_headers;
+pub mod section_headers;
 
 #[repr(C)]
 #[derive(Serialize, Deserialize, Default, Debug, Clone, Eq, PartialEq)]

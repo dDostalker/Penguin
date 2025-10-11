@@ -1,4 +1,4 @@
-use crate::tools_api::read_file::{ExportInfo, ImportFunction};
+use crate::tools_api::read_file::{ExportInfo, ImageSectionHeader, ImportFunction, SectionData};
 use std::fs::File;
 use std::io::SeekFrom;
 use std::io::{Read, Seek, Write};
@@ -43,6 +43,10 @@ impl ImportFunction {
         file.write_all(&vec![0; self.name_max_length as usize - func_name.len()])?;
         Ok(())
     }
+}
+
+impl ImageSectionHeader{
+    
 }
 
 pub fn copy_file(file: &mut File, file_path: &PathBuf) -> anyhow::Result<()> {
