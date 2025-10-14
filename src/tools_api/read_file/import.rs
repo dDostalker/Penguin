@@ -3,7 +3,7 @@ use std::any::Any;
 use std::fs::File;
 use std::io::SeekFrom;
 use std::io::{Read, Seek};
-use std::mem::transmute;
+use std::mem::{size_of, MaybeUninit};
 use std::rc::Rc;
 
 use crate::tools_api::is_64;
@@ -31,11 +31,15 @@ impl ImportDescriptor {
             data_dir.get_import_directory_address()?,
         ) {
             file.seek(SeekFrom::Start((fo + index * 0x14) as u64))?;
-            unsafe {
-                let read: &mut [u8; size_of::<ImportFunction>()] =
-                    transmute(&mut import_descriptor);
-                file.read(read)?;
-            }
+            import_descriptor = unsafe {
+                let mut import_descriptor = MaybeUninit::<ImportDescriptor>::uninit();
+                let bytes = std::slice::from_raw_parts_mut(
+                    import_descriptor.as_mut_ptr() as *mut u8,
+                    size_of::<ImportDescriptor>()
+                );
+                file.read_exact(bytes)?;
+                import_descriptor.assume_init()
+            };
             // 特殊的情况，有时pe的data dic的大小并不完全代表着他import dll的个数，而是类似列表最后为0来结束
             if import_descriptor.name_address == 0 {
                 return Ok(None);

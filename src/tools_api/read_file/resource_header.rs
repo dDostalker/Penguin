@@ -10,8 +10,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
-use std::mem::size_of;
-use std::mem::transmute;
+use std::mem::{size_of, MaybeUninit};
 use std::path::{Path, PathBuf};
 
 /// ICO/CUR 文件头（6字节）
@@ -55,28 +54,31 @@ struct GroupIconDirEntry {
 
 impl ImageResourceDirectory {
     pub fn new(file: &mut File, address: u32) -> anyhow::Result<Self> {
-        let mut resource_directory: ImageResourceDirectory = Default::default();
-
         file.seek(SeekFrom::Start(address as u64))?;
         unsafe {
-            let read: &mut [u8; size_of::<ImageResourceDirectory>()] =
-                transmute(&mut resource_directory);
-            file.read(read)?;
+            let mut resource_directory = MaybeUninit::<ImageResourceDirectory>::uninit();
+            let bytes = std::slice::from_raw_parts_mut(
+                resource_directory.as_mut_ptr() as *mut u8,
+                size_of::<ImageResourceDirectory>()
+            );
+            file.read_exact(bytes)?;
+            Ok(resource_directory.assume_init())
         }
-        Ok(resource_directory)
     }
 }
 
 impl ImageResourceDirectoryEntry {
     pub fn new(file: &mut File, address: u32) -> anyhow::Result<Self> {
-        let mut resource_directory_entry: ImageResourceDirectoryEntry = Default::default();
         file.seek(SeekFrom::Start(address as u64))?;
         unsafe {
-            let read: &mut [u8; size_of::<ImageResourceDirectoryEntry>()] =
-                transmute(&mut resource_directory_entry);
-            file.read(read)?;
+            let mut resource_directory_entry = MaybeUninit::<ImageResourceDirectoryEntry>::uninit();
+            let bytes = std::slice::from_raw_parts_mut(
+                resource_directory_entry.as_mut_ptr() as *mut u8,
+                size_of::<ImageResourceDirectoryEntry>()
+            );
+            file.read_exact(bytes)?;
+            Ok(resource_directory_entry.assume_init())
         }
-        Ok(resource_directory_entry)
     }
 }
 
@@ -91,16 +93,19 @@ impl ImageResourceDataEntry {
     where
         T: NtHeaders + ?Sized,
     {
-        let mut resource_data_entry: ImageResourceDataEntry = Default::default();
         if let Some(fo) = rva_2_fo(nt_head, image_section_headers, address) {
             file.seek(SeekFrom::Start(fo as u64))?;
             unsafe {
-                let read: &mut [u8; size_of::<ImageResourceDataEntry>()] =
-                    transmute(&mut resource_data_entry);
-                file.read(read)?;
+                let mut resource_data_entry = MaybeUninit::<ImageResourceDataEntry>::uninit();
+                let bytes = std::slice::from_raw_parts_mut(
+                    resource_data_entry.as_mut_ptr() as *mut u8,
+                    size_of::<ImageResourceDataEntry>()
+                );
+                file.read_exact(bytes)?;
+                return Ok(resource_data_entry.assume_init());
             }
         }
-        Ok(resource_data_entry)
+        Ok(Default::default())
     }
 }
 
@@ -409,12 +414,15 @@ impl ResourceTree {
                 let data_entry_file_offset = base_offset + data_entry_offset;
 
                 file.seek(SeekFrom::Start(data_entry_file_offset as u64))?;
-                let mut data_entry: ImageResourceDataEntry = Default::default();
-                unsafe {
-                    let read: &mut [u8; size_of::<ImageResourceDataEntry>()] =
-                        transmute(&mut data_entry);
-                    file.read(read)?;
-                }
+                let data_entry = unsafe {
+                    let mut data_entry = MaybeUninit::<ImageResourceDataEntry>::uninit();
+                    let bytes = std::slice::from_raw_parts_mut(
+                        data_entry.as_mut_ptr() as *mut u8,
+                        size_of::<ImageResourceDataEntry>()
+                    );
+                    file.read_exact(bytes)?;
+                    data_entry.assume_init()
+                };
                 let data_file_offset =
                     rva_2_fo(nt_head, image_section_headers, data_entry.data_offset).unwrap_or(0);
 

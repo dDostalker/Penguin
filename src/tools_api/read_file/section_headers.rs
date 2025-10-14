@@ -2,7 +2,7 @@ use crate::tools_api::read_file::{ImageSectionHeader, ImageSectionHeaders, Secti
 use std::fs::File;
 use std::io::SeekFrom;
 use std::io::{Read, Seek};
-use std::mem::transmute;
+use std::mem::{size_of, MaybeUninit};
 
 #[repr(u32)]
 pub enum SectionCharacteristics {
@@ -251,12 +251,15 @@ pub enum SectionCharacteristics {
 
 impl ImageSectionHeader {
     pub(crate) fn new(file: &mut File) -> anyhow::Result<ImageSectionHeader> {
-        let mut section_header: ImageSectionHeader = Default::default();
         unsafe {
-            let f: &mut [u8; size_of::<ImageSectionHeader>()] = transmute(&mut section_header);
-            file.read(f)?;
+            let mut section_header = MaybeUninit::<ImageSectionHeader>::uninit();
+            let bytes = std::slice::from_raw_parts_mut(
+                section_header.as_mut_ptr() as *mut u8,
+                size_of::<ImageSectionHeader>()
+            );
+            file.read_exact(bytes)?;
+            Ok(section_header.assume_init())
         }
-        Ok(section_header)
     }
 }
 

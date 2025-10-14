@@ -9,7 +9,7 @@ use crate::tools_api::read_file::{
 use std::fs::File;
 use std::io::SeekFrom;
 use std::io::{Read, Seek};
-use std::mem::transmute;
+use std::mem::{size_of, MaybeUninit};
 
 const DIRECTORY_EXPORT: usize = 0;
 const DIRECTORY_IMPORT: usize = 1;
@@ -301,12 +301,15 @@ impl ImageFileHeader {
     ) -> anyhow::Result<ImageFileHeader> {
         let file_image_addr = image_dos_header.get_nt_addr() + 4u16;
         file.seek(SeekFrom::Start(file_image_addr as u64))?;
-        let mut image_file_header: ImageFileHeader = Default::default();
         unsafe {
-            let reads: &mut [u8; 64] = transmute(&mut image_file_header);
-            file.read(reads)?;
+            let mut image_file_header = MaybeUninit::<ImageFileHeader>::uninit();
+            let bytes = std::slice::from_raw_parts_mut(
+                image_file_header.as_mut_ptr() as *mut u8,
+                size_of::<ImageFileHeader>()
+            );
+            file.read_exact(bytes)?;
+            Ok(image_file_header.assume_init())
         }
-        Ok(image_file_header)
     }
 }
 
@@ -724,19 +727,29 @@ where
     T: NtHeaders + Default,
     [(); size_of::<T>()]:,
 {
-    let mut nt_head: T = Default::default();
-    let mut data_dictionary = DataDirectory(Vec::new());
     file.seek(SeekFrom::Start(start_addr as u64))?;
-    unsafe {
-        let reads: &mut [u8; size_of::<T>()] = transmute(&mut nt_head);
-        file.read(reads)?;
-    }
+    
+    let nt_head = unsafe {
+        let mut nt_head = MaybeUninit::<T>::uninit();
+        let bytes = std::slice::from_raw_parts_mut(
+            nt_head.as_mut_ptr() as *mut u8,
+            size_of::<T>()
+        );
+        file.read_exact(bytes)?;
+        nt_head.assume_init()
+    };
+    
+    let mut data_dictionary = DataDirectory(Vec::new());
     for _ in 0..nt_head.num_of_rva() {
-        let mut image_data: ImageDataDirectory = Default::default();
-        unsafe {
-            let reads: &mut [u8; 8] = transmute(&mut image_data);
-            file.read(reads)?;
-        }
+        let image_data = unsafe {
+            let mut image_data = MaybeUninit::<ImageDataDirectory>::uninit();
+            let bytes = std::slice::from_raw_parts_mut(
+                image_data.as_mut_ptr() as *mut u8,
+                size_of::<ImageDataDirectory>()
+            );
+            file.read_exact(bytes)?;
+            image_data.assume_init()
+        };
         data_dictionary.add(image_data);
     }
 

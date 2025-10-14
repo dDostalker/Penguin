@@ -32,12 +32,13 @@ impl ThreadPool {
             sender: sender,
         }
     }
-    pub fn execute<T>(&self, func: T)
+    pub fn execute<T>(&self, func: T) -> Result<(), &'static str>
     where
         T: FnOnce() + Send + 'static,
     {
         let job = Box::new(func);
-        self.sender.send(job).unwrap();
+        self.sender.send(job).map_err(|_| "线程池发送任务失败")?;
+        Ok(())
     }
 }
 
@@ -52,7 +53,14 @@ impl Work {
             id,
             thread: thread::spawn(move || {
                 loop {
-                    let job = receiver.lock().unwrap().recv().unwrap();
+                    // 改进错误处理，避免 panic
+                    let job = match receiver.lock() {
+                        Ok(guard) => match guard.recv() {
+                            Ok(job) => job,
+                            Err(_) => break, // channel 关闭，退出线程
+                        },
+                        Err(_) => break, // mutex 中毒，退出线程
+                    };
                     job();
                 }
             }),
@@ -82,29 +90,30 @@ fn calc_hash(file_path: &PathBuf) {
         sha1: calc_sha1(file_path),
         path: file_path.clone(),
     };
-    GLOBAL_HASH_INFO.lock().unwrap().push(hash_info);
+    // 改进错误处理，避免在 mutex 中毒时 panic
+    if let Ok(mut guard) = GLOBAL_HASH_INFO.lock() {
+        guard.push(hash_info);
+    }
 }
 
 pub fn start_calc_hash(file_path: PathBuf) -> anyhow::Result<()> {
-    GLOBAL_THREAD_POOL.execute(move || {
-        calc_hash(&file_path);
-    });
+    GLOBAL_THREAD_POOL
+        .execute(move || {
+            calc_hash(&file_path);
+        })
+        .map_err(|e| anyhow::anyhow!(e))?;
     Ok(())
 }
 
 pub fn get_hash_info(path: PathBuf) -> Option<HashInfo> {
-    let hash_info = GLOBAL_HASH_INFO
-        .lock()
-        .unwrap()
+    // 改进错误处理，避免在 mutex 中毒时 panic
+    let mut hash_info_vec = GLOBAL_HASH_INFO.lock().ok()?;
+    
+    // 查找匹配的哈希信息的索引
+    let index = hash_info_vec
         .iter()
-        .find(|hash_info| hash_info.is_same(&path))
-        .cloned();
-    if hash_info.is_none() {
-        return None;
-    }
-    GLOBAL_HASH_INFO
-        .lock()
-        .unwrap()
-        .pop_if(|hash_info| hash_info.is_same(&path));
-    hash_info
+        .position(|hash_info| hash_info.is_same(&path))?;
+    
+    // 原子性地删除并返回
+    Some(hash_info_vec.swap_remove(index))
 }

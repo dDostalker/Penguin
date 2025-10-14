@@ -7,7 +7,7 @@ use std::cell::RefCell;
 use std::fs::File;
 use std::io::SeekFrom;
 use std::io::{Read, Seek};
-use std::mem::transmute;
+use std::mem::{size_of, MaybeUninit};
 use std::rc::Rc;
 
 impl ExportDir {
@@ -28,10 +28,15 @@ impl ExportDir {
             data_dir.get_export_directory_address()?,
         ) {
             file.seek(SeekFrom::Start(fo as u64))?;
-            unsafe {
-                let read: &mut [u8; size_of::<ExportDir>()] = transmute(&mut export_dir);
-                file.read(read)?;
-            }
+            export_dir = unsafe {
+                let mut export_dir = MaybeUninit::<ExportDir>::uninit();
+                let bytes = std::slice::from_raw_parts_mut(
+                    export_dir.as_mut_ptr() as *mut u8,
+                    size_of::<ExportDir>()
+                );
+                file.read_exact(bytes)?;
+                export_dir.assume_init()
+            };
         }
         if export_dir.name == 0 {
             return Ok(None);
