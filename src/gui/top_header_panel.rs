@@ -176,7 +176,6 @@ impl FileManager {
                         }
                     }
                 }
-                
             }
 
             // 检查当前导出表是否被修改
@@ -198,6 +197,9 @@ impl FileManager {
                     }
                 }
             }
+            // todo！将内容写入文件中
+
+            // 直接写section
             self.sub_window_manager.show_success(i18n::SAVE_SUCCESS);
         }
         Ok(())

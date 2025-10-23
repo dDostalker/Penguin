@@ -10,7 +10,7 @@ use crate::tools_api::read_file::nt_header::traits::NtHeaders;
 use crate::tools_api::read_file::{
     DataDirectory, ExportDir, ExportTable, ImageDosHeader, ImageDosStub, ImageFileHeader,
     ImageNtHeaders, ImageNtHeaders64, ImageSectionHeaders, ImportDescriptor, ImportDll,
-    ImportTable, ResourceTree, nt_header,
+    ImportTable, nt_header,
 };
 use serde_derive::{Deserialize, Serialize};
 use std::cell::{Ref, RefCell, RefMut};
@@ -45,7 +45,6 @@ pub struct FileInfo {
     pub(crate) section_headers: ImageSectionHeaders,
     pub(crate) import_dll: ImportTable,
     pub(crate) export: ExportTable,
-    pub(crate) resource_tree: Option<ResourceTree>,
 }
 
 /// 窗口数组及其信息
@@ -156,7 +155,6 @@ impl FileInfo {
             section_headers,
             import_dll: ImportTable::default(),
             export: ExportTable::default(),
-            resource_tree: None,
         }))
     }
 

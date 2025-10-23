@@ -1,4 +1,4 @@
-use crate::tools_api::{FileManager};
+use crate::tools_api::FileManager;
 use crate::tools_api::read_file::section_headers::SectionCharacteristics;
 use eframe::egui::{Context, Vec2, vec2};
 use eframe::{HardwareAcceleration, Renderer};
@@ -72,20 +72,7 @@ pub struct SectionMessage {
 
 #[derive(Default)]
 struct SectionFlag {
-    reserved0: bool,
-    reserved1: bool,
-    reserved2: bool,
-    reserved4: bool,
-    reserved10: bool,
-    reserved400: bool,
-    reserved2000: bool,
-    reserved10000: bool,
-    reserved20000: bool,
-    reserved40000: bool,
-    reserved80000: bool,
-
     // 节类型标志
-    image_scn_type_no_pad: bool,
     image_scn_cnt_code: bool,
     image_scn_cnt_initialized_data: bool,
     image_scn_cnt_uninitialized_data: bool,
@@ -117,7 +104,6 @@ struct SectionFlag {
     // 其他标志
     image_scn_lnk_nreloc_ovfl: bool,
     image_scn_mem_discardable: bool,
-    image_scn_mem_not_cachedched: bool,
     image_scn_mem_not_paged: bool,
     image_scn_mem_shared: bool,
     image_scn_mem_execute: bool,
@@ -126,46 +112,51 @@ struct SectionFlag {
 }
 
 impl SectionFlag {
-    pub fn match_flag(flag:u32) -> Self {
+    pub fn match_flag(flag: u32) -> Self {
         Self {
-            reserved0: flag & SectionCharacteristics::RESERVED0 as u32 != 0,
-            reserved1: flag & SectionCharacteristics::RESERVED1 as u32 != 0,
-            reserved2: flag & SectionCharacteristics::RESERVED2 as u32 != 0,
-            reserved4: flag & SectionCharacteristics::RESERVED4 as u32 != 0,
-            reserved10: flag & SectionCharacteristics::RESERVED10 as u32 != 0,
-            reserved400: flag & SectionCharacteristics::RESERVED400 as u32 != 0,
-            reserved2000: flag & SectionCharacteristics::RESERVED2000 as u32 != 0,
-            reserved10000: flag & SectionCharacteristics::RESERVED10000 as u32 != 0,
-            reserved20000: flag & SectionCharacteristics::RESERVED20000 as u32 != 0,
-            reserved40000: flag & SectionCharacteristics::RESERVED40000 as u32 != 0,
-            reserved80000: flag & SectionCharacteristics::RESERVED80000 as u32 != 0,
-            image_scn_type_no_pad: flag & SectionCharacteristics::ImageScnTypeNoPad as u32 != 0,
             image_scn_cnt_code: flag & SectionCharacteristics::ImageScnCntCode as u32 != 0,
-            image_scn_cnt_initialized_data: flag & SectionCharacteristics::ImageScnCntInitializedData as u32 != 0,
-            image_scn_cnt_uninitialized_data: flag & SectionCharacteristics::ImageScnCntUninitializedData as u32 != 0,
+            image_scn_cnt_initialized_data: flag
+                & SectionCharacteristics::ImageScnCntInitializedData as u32
+                != 0,
+            image_scn_cnt_uninitialized_data: flag
+                & SectionCharacteristics::ImageScnCntUninitializedData as u32
+                != 0,
             image_scn_lnk_other: flag & SectionCharacteristics::ImageScnLnkOther as u32 != 0,
             image_scn_lnk_info: flag & SectionCharacteristics::ImageScnLnkInfo as u32 != 0,
             image_scn_lnk_remove: flag & SectionCharacteristics::ImageScnLnkRemove as u32 != 0,
             image_scn_lnk_comdat: flag & SectionCharacteristics::ImageScnLnkComdat as u32 != 0,
-            image_scn_no_defer_spec_exc: flag & SectionCharacteristics::ImageScnNoDeferSpecExc as u32 != 0,
+            image_scn_no_defer_spec_exc: flag
+                & SectionCharacteristics::ImageScnNoDeferSpecExc as u32
+                != 0,
             image_scn_gprel: flag & SectionCharacteristics::ImageScnGprel as u32 != 0,
             image_scn_align1_bytes: flag & SectionCharacteristics::ImageScnAlign1Bytes as u32 != 0,
             image_scn_align2_bytes: flag & SectionCharacteristics::ImageScnAlign2Bytes as u32 != 0,
             image_scn_align4_bytes: flag & SectionCharacteristics::ImageScnAlign4Bytes as u32 != 0,
             image_scn_align8_bytes: flag & SectionCharacteristics::ImageScnAlign8Bytes as u32 != 0,
-            image_scn_align16_bytes: flag & SectionCharacteristics::ImageScnAlign16Bytes as u32 != 0,
-            image_scn_align32_bytes: flag & SectionCharacteristics::ImageScnAlign32Bytes as u32 != 0,
-            image_scn_align64_bytes: flag & SectionCharacteristics::ImageScnAlign64Bytes as u32 != 0,
-            image_scn_align128_bytes: flag & SectionCharacteristics::ImageScnAlign128Bytes as u32 != 0,
-            image_scn_align256_bytes: flag & SectionCharacteristics::ImageScnAlign256Bytes as u32 != 0,
-            image_scn_align512_bytes: flag & SectionCharacteristics::ImageScnAlign512Bytes as u32 != 0,
-            image_scn_align1024_bytes: flag & SectionCharacteristics::ImageScnAlign1024Bytes as u32 != 0,
-            image_scn_align2048_bytes: flag & SectionCharacteristics::ImageScnAlign2048Bytes as u32 != 0,
-            image_scn_align4096_bytes: flag & SectionCharacteristics::ImageScnAlign4096Bytes as u32 != 0,
-            image_scn_align8192_bytes: flag & SectionCharacteristics::ImageScnAlign8192Bytes as u32 != 0,
-            image_scn_lnk_nreloc_ovfl: flag & SectionCharacteristics::ImageScnLnkNrelocOvfl as u32 != 0,
-            image_scn_mem_discardable: flag & SectionCharacteristics::ImageScnMemDiscardable as u32 != 0,
-            image_scn_mem_not_cachedched: flag & SectionCharacteristics::ImageScnMemNotCached as u32 != 0,
+            image_scn_align16_bytes: flag & SectionCharacteristics::ImageScnAlign16Bytes as u32
+                != 0,
+            image_scn_align32_bytes: flag & SectionCharacteristics::ImageScnAlign32Bytes as u32
+                != 0,
+            image_scn_align64_bytes: flag & SectionCharacteristics::ImageScnAlign64Bytes as u32
+                != 0,
+            image_scn_align128_bytes: flag & SectionCharacteristics::ImageScnAlign128Bytes as u32
+                != 0,
+            image_scn_align256_bytes: flag & SectionCharacteristics::ImageScnAlign256Bytes as u32
+                != 0,
+            image_scn_align512_bytes: flag & SectionCharacteristics::ImageScnAlign512Bytes as u32
+                != 0,
+            image_scn_align1024_bytes: flag & SectionCharacteristics::ImageScnAlign1024Bytes as u32
+                != 0,
+            image_scn_align2048_bytes: flag & SectionCharacteristics::ImageScnAlign2048Bytes as u32
+                != 0,
+            image_scn_align4096_bytes: flag & SectionCharacteristics::ImageScnAlign4096Bytes as u32
+                != 0,
+            image_scn_align8192_bytes: flag & SectionCharacteristics::ImageScnAlign8192Bytes as u32
+                != 0,
+            image_scn_lnk_nreloc_ovfl: flag & SectionCharacteristics::ImageScnLnkNrelocOvfl as u32
+                != 0,
+            image_scn_mem_discardable: flag & SectionCharacteristics::ImageScnMemDiscardable as u32
+                != 0,
             image_scn_mem_not_paged: flag & SectionCharacteristics::ImageScnMemNotPaged as u32 != 0,
             image_scn_mem_shared: flag & SectionCharacteristics::ImageScnMemShared as u32 != 0,
             image_scn_mem_execute: flag & SectionCharacteristics::ImageScnMemExecute as u32 != 0,
@@ -249,13 +240,15 @@ impl SectionMessage {
         &mut self.section_flag.as_mut().unwrap().image_scn_cnt_code
     }
     pub fn get_image_scn_cnt_initialized_data(&mut self) -> &mut bool {
-        &mut self.section_flag
+        &mut self
+            .section_flag
             .as_mut()
             .unwrap()
             .image_scn_cnt_initialized_data
     }
     pub fn get_image_scn_cnt_uninitialized_data(&mut self) -> &mut bool {
-        &mut  self.section_flag
+        &mut self
+            .section_flag
             .as_mut()
             .unwrap()
             .image_scn_cnt_uninitialized_data
@@ -273,7 +266,8 @@ impl SectionMessage {
         &mut self.section_flag.as_mut().unwrap().image_scn_lnk_comdat
     }
     pub fn get_image_scn_no_defer_spec_exc(&mut self) -> &mut bool {
-        &mut self.section_flag
+        &mut self
+            .section_flag
             .as_mut()
             .unwrap()
             .image_scn_no_defer_spec_exc
@@ -312,37 +306,43 @@ impl SectionMessage {
         &mut self.section_flag.as_mut().unwrap().image_scn_align512_bytes
     }
     pub fn get_image_scn_align1024_bytes(&mut self) -> &mut bool {
-        &mut self.section_flag
-            .as_mut()   
+        &mut self
+            .section_flag
+            .as_mut()
             .unwrap()
             .image_scn_align1024_bytes
     }
     pub fn get_image_scn_align2048_bytes(&mut self) -> &mut bool {
-        &mut self.section_flag
+        &mut self
+            .section_flag
             .as_mut()
             .unwrap()
             .image_scn_align2048_bytes
     }
     pub fn get_image_scn_align4096_bytes(&mut self) -> &mut bool {
-        &mut self.section_flag
+        &mut self
+            .section_flag
             .as_mut()
             .unwrap()
             .image_scn_align4096_bytes
     }
     pub fn get_image_scn_align8192_bytes(&mut self) -> &mut bool {
-        &mut self.section_flag
+        &mut self
+            .section_flag
             .as_mut()
             .unwrap()
             .image_scn_align8192_bytes
     }
     pub fn get_image_scn_lnk_nreloc_ovfl(&mut self) -> &mut bool {
-        &mut self.section_flag
+        &mut self
+            .section_flag
             .as_mut()
             .unwrap()
             .image_scn_lnk_nreloc_ovfl
     }
-    pub fn get_image_scn_mem_discardable(&mut self) -> &mut  bool {
-        &mut self.section_flag
+    pub fn get_image_scn_mem_discardable(&mut self) -> &mut bool {
+        &mut self
+            .section_flag
             .as_mut()
             .unwrap()
             .image_scn_mem_discardable
@@ -359,7 +359,7 @@ impl SectionMessage {
     pub fn get_image_scn_mem_read(&mut self) -> &mut bool {
         &mut self.section_flag.as_mut().unwrap().image_scn_mem_read
     }
-    pub fn get_image_scn_mem_write(&mut self) -> &mut  bool {
+    pub fn get_image_scn_mem_write(&mut self) -> &mut bool {
         &mut self.section_flag.as_mut().unwrap().image_scn_mem_write
     }
 }

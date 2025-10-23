@@ -189,8 +189,10 @@ pub struct ImageNtHeaders {
     pub(crate) file_header: ImageFileHeader,
     pub(crate) optional_header: ImageOptionalHeader,
 }
+
+type SectionCharAddr = u64;
 #[derive(Default, Debug, Clone, Eq, PartialEq)]
-pub struct ImageSectionHeaders(pub(crate) Vec<ImageSectionHeader>);
+pub struct ImageSectionHeaders(pub(crate) Vec<ImageSectionHeader>, Vec<SectionCharAddr>);
 
 // 为序列化创建包装结构体
 #[derive(Serialize, Deserialize)]
