@@ -3,8 +3,10 @@ use crate::i18n;
 use crate::tools_api::read_file::ResourceTree;
 use crate::tools_api::write_file::copy_file;
 use crate::tools_api::{load_file_info, serde_pe::save_to_file};
+use byteorder::{LittleEndian, WriteBytesExt};
 use eframe::egui::Ui;
 use rfd::FileDialog;
+use std::io::{Seek, SeekFrom, Write};
 use std::path::PathBuf;
 
 impl FileManager {
@@ -198,7 +200,15 @@ impl FileManager {
                 }
             }
             // todo！将内容写入文件中
-
+            for index in 0..file_info.section_headers.get_num()? {
+                let addr = file_info
+                    .section_headers
+                    .get_section_characteristics_addr(index);
+                let mut file = file_info.get_mut_file()?;
+                let section_char = file_info.section_headers.0[index].characteristics.clone();
+                file.seek(SeekFrom::Start(addr))?;
+                file.write_u32::<LittleEndian>(section_char)?;
+            }
             // 直接写section
             self.sub_window_manager.show_success(i18n::SAVE_SUCCESS);
         }

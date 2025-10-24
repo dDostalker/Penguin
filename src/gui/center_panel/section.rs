@@ -72,9 +72,13 @@ impl FileManager {
                                         .section_message
                                         .selected_section_index = Some(index);
                                     self.sub_window_manager.section_message.section_flag = None;
-                                    if let None = self.sub_window_manager.section_message.section_flag {
-                                        self.sub_window_manager.section_message.section_flag 
-                                        = Some(SectionFlag::match_flag(self._get_section_characteristics(index)));
+                                    if let None =
+                                        self.sub_window_manager.section_message.section_flag
+                                    {
+                                        self.sub_window_manager.section_message.section_flag =
+                                            Some(SectionFlag::match_flag(
+                                                self._get_section_characteristics(index),
+                                            ));
                                     }
                                 }
 
@@ -107,168 +111,283 @@ impl FileManager {
             eframe::egui::TopBottomPanel::bottom("section_detail_window").show(ui.ctx(), |ui| {
                 ui.label("Section Details");
                 ui.horizontal(|ui| {
-                    if ui.checkbox(
-                        &mut self
+                    if ui
+                        .checkbox(
+                            &mut self
+                                .sub_window_manager
+                                .section_message
+                                .get_image_scn_cnt_code(),
+                            "Code",
+                        )
+                        .clicked()
+                    {
+                        // need fix
+                        self.files[self.current_index].section_headers.0[self
                             .sub_window_manager
                             .section_message
-                            .get_image_scn_cnt_code(),
-                        "Code",
-                    ).clicked() {
-                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
-                        ^= SectionCharacteristics::ImageScnCntCode as u32;
+                            .selected_section_index
+                            .unwrap()]
+                        .characteristics ^= SectionCharacteristics::ImageScnCntCode as u32;
                     }
-                    if ui.checkbox(
-                        &mut self
+                    if ui
+                        .checkbox(
+                            &mut self
+                                .sub_window_manager
+                                .section_message
+                                .get_image_scn_cnt_initialized_data(),
+                            "Initialized Data",
+                        )
+                        .clicked()
+                    {
+                        self.files[self.current_index].section_headers.0[self
                             .sub_window_manager
                             .section_message
-                            .get_image_scn_cnt_initialized_data(),
-                        "Initialized Data",
-                    ).clicked() {
-                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
-                        ^= SectionCharacteristics::ImageScnCntInitializedData as u32;
+                            .selected_section_index
+                            .unwrap()]
+                        .characteristics ^=
+                            SectionCharacteristics::ImageScnCntInitializedData as u32;
                     }
-                    if ui.checkbox(
-                        &mut self
+                    if ui
+                        .checkbox(
+                            &mut self
+                                .sub_window_manager
+                                .section_message
+                                .get_image_scn_cnt_uninitialized_data(),
+                            "Uninitialized Data",
+                        )
+                        .clicked()
+                    {
+                        self.files[self.current_index].section_headers.0[self
                             .sub_window_manager
                             .section_message
-                            .get_image_scn_cnt_uninitialized_data(),
-                        "Uninitialized Data",
-                    ).clicked() {
-                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
-                        ^= SectionCharacteristics::ImageScnCntUninitializedData as u32;
+                            .selected_section_index
+                            .unwrap()]
+                        .characteristics ^=
+                            SectionCharacteristics::ImageScnCntUninitializedData as u32;
                     }
-                    if ui.checkbox(
-                        &mut self
+                    if ui
+                        .checkbox(
+                            &mut self
+                                .sub_window_manager
+                                .section_message
+                                .get_image_scn_lnk_other(),
+                            "Other",
+                        )
+                        .clicked()
+                    {
+                        self.files[self.current_index].section_headers.0[self
                             .sub_window_manager
                             .section_message
-                            .get_image_scn_lnk_other(),
-                        "Other",
-                    ).clicked() {
-                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
-                        ^= SectionCharacteristics::ImageScnLnkOther as u32;
+                            .selected_section_index
+                            .unwrap()]
+                        .characteristics ^= SectionCharacteristics::ImageScnLnkOther as u32;
                     }
-                    if ui.checkbox(
-                        &mut self
+                    if ui
+                        .checkbox(
+                            &mut self
+                                .sub_window_manager
+                                .section_message
+                                .get_image_scn_lnk_info(),
+                            "Info",
+                        )
+                        .clicked()
+                    {
+                        self.files[self.current_index].section_headers.0[self
                             .sub_window_manager
                             .section_message
-                            .get_image_scn_lnk_info(),
-                        "Info",
-                    ).clicked() {
-                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
-                        ^= SectionCharacteristics::ImageScnLnkInfo as u32;
+                            .selected_section_index
+                            .unwrap()]
+                        .characteristics ^= SectionCharacteristics::ImageScnLnkInfo as u32;
                     }
-                    if ui.checkbox(
-                        &mut self
+                    if ui
+                        .checkbox(
+                            &mut self
+                                .sub_window_manager
+                                .section_message
+                                .get_image_scn_lnk_remove(),
+                            "Remove",
+                        )
+                        .clicked()
+                    {
+                        self.files[self.current_index].section_headers.0[self
                             .sub_window_manager
                             .section_message
-                            .get_image_scn_lnk_remove(),
-                        "Remove",
-                    ).clicked() {
-                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
-                        ^= SectionCharacteristics::ImageScnLnkRemove as u32;
+                            .selected_section_index
+                            .unwrap()]
+                        .characteristics ^= SectionCharacteristics::ImageScnLnkRemove as u32;
                     }
-                    if ui.checkbox(
-                        &mut self
+                    if ui
+                        .checkbox(
+                            &mut self
+                                .sub_window_manager
+                                .section_message
+                                .get_image_scn_lnk_comdat(),
+                            "Comdat",
+                        )
+                        .clicked()
+                    {
+                        self.files[self.current_index].section_headers.0[self
                             .sub_window_manager
                             .section_message
-                            .get_image_scn_lnk_comdat(),
-                        "Comdat",
-                    ).clicked() {
-                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
-                        ^= SectionCharacteristics::ImageScnLnkComdat as u32;
+                            .selected_section_index
+                            .unwrap()]
+                        .characteristics ^= SectionCharacteristics::ImageScnLnkComdat as u32;
                     }
-                    if ui.checkbox(
-                        &mut self
+                    if ui
+                        .checkbox(
+                            &mut self
+                                .sub_window_manager
+                                .section_message
+                                .get_image_scn_no_defer_spec_exc(),
+                            "No Defer Spec Exc",
+                        )
+                        .clicked()
+                    {
+                        self.files[self.current_index].section_headers.0[self
                             .sub_window_manager
                             .section_message
-                            .get_image_scn_no_defer_spec_exc(),
-                        "No Defer Spec Exc",
-                    ).clicked() {
-                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
-                        ^= SectionCharacteristics::ImageScnNoDeferSpecExc as u32;
+                            .selected_section_index
+                            .unwrap()]
+                        .characteristics ^= SectionCharacteristics::ImageScnNoDeferSpecExc as u32;
                     }
-                    if ui.checkbox(
-                        &mut self
+                    if ui
+                        .checkbox(
+                            &mut self
+                                .sub_window_manager
+                                .section_message
+                                .get_image_scn_gprel(),
+                            "GPREL",
+                        )
+                        .clicked()
+                    {
+                        self.files[self.current_index].section_headers.0[self
                             .sub_window_manager
                             .section_message
-                            .get_image_scn_gprel(),
-                        "GPREL",
-                    ).clicked() {
-                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
-                        ^= SectionCharacteristics::ImageScnGprel as u32;
+                            .selected_section_index
+                            .unwrap()]
+                        .characteristics ^= SectionCharacteristics::ImageScnGprel as u32;
                     }
                 });
-               
+
                 ui.horizontal(|ui| {
-                    if ui.checkbox(
-                        &mut self
+                    if ui
+                        .checkbox(
+                            &mut self
+                                .sub_window_manager
+                                .section_message
+                                .get_image_scn_lnk_nreloc_ovfl(),
+                            "Link Nreloc Ovfl",
+                        )
+                        .clicked()
+                    {
+                        self.files[self.current_index].section_headers.0[self
                             .sub_window_manager
                             .section_message
-                            .get_image_scn_lnk_nreloc_ovfl(),
-                        "Link Nreloc Ovfl",
-                    ).clicked() {
-                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
-                        ^= SectionCharacteristics::ImageScnLnkNrelocOvfl as u32;
+                            .selected_section_index
+                            .unwrap()]
+                        .characteristics ^= SectionCharacteristics::ImageScnLnkNrelocOvfl as u32;
                     }
-                    if ui.checkbox(
-                        &mut self
+                    if ui
+                        .checkbox(
+                            &mut self
+                                .sub_window_manager
+                                .section_message
+                                .get_image_scn_mem_discardable(),
+                            "Mem Discardable",
+                        )
+                        .clicked()
+                    {
+                        self.files[self.current_index].section_headers.0[self
                             .sub_window_manager
                             .section_message
-                            .get_image_scn_mem_discardable(),
-                        "Mem Discardable",
-                    ).clicked() {
-                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
-                        ^= SectionCharacteristics::ImageScnMemDiscardable as u32;
+                            .selected_section_index
+                            .unwrap()]
+                        .characteristics ^= SectionCharacteristics::ImageScnMemDiscardable as u32;
                     }
-                    if ui.checkbox(
-                        &mut self
+                    if ui
+                        .checkbox(
+                            &mut self
+                                .sub_window_manager
+                                .section_message
+                                .get_image_scn_mem_not_paged(),
+                            "Mem Not Paged",
+                        )
+                        .clicked()
+                    {
+                        self.files[self.current_index].section_headers.0[self
                             .sub_window_manager
                             .section_message
-                            .get_image_scn_mem_not_paged(),
-                        "Mem Not Paged",
-                    ).clicked() {
-                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
-                        ^= SectionCharacteristics::ImageScnMemNotPaged as u32;
+                            .selected_section_index
+                            .unwrap()]
+                        .characteristics ^= SectionCharacteristics::ImageScnMemNotPaged as u32;
                     }
-                    if ui.checkbox(
-                        &mut self
+                    if ui
+                        .checkbox(
+                            &mut self
+                                .sub_window_manager
+                                .section_message
+                                .get_image_scn_mem_shared(),
+                            "Mem Shared",
+                        )
+                        .clicked()
+                    {
+                        self.files[self.current_index].section_headers.0[self
                             .sub_window_manager
                             .section_message
-                            .get_image_scn_mem_shared(),
-                        "Mem Shared",
-                    ).clicked() {
-                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
-                        ^= SectionCharacteristics::ImageScnMemShared as u32;
+                            .selected_section_index
+                            .unwrap()]
+                        .characteristics ^= SectionCharacteristics::ImageScnMemShared as u32;
                     }
-                    if ui.checkbox(
-                        &mut self
+                    if ui
+                        .checkbox(
+                            &mut self
+                                .sub_window_manager
+                                .section_message
+                                .get_image_scn_mem_execute(),
+                            "Mem Execute",
+                        )
+                        .clicked()
+                    {
+                        self.files[self.current_index].section_headers.0[self
                             .sub_window_manager
                             .section_message
-                            .get_image_scn_mem_execute(),
-                        "Mem Execute",
-                    ).clicked() {
-                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
-                        ^= SectionCharacteristics::ImageScnMemExecute as u32;
+                            .selected_section_index
+                            .unwrap()]
+                        .characteristics ^= SectionCharacteristics::ImageScnMemExecute as u32;
                     }
-                    if ui.checkbox(
-                        &mut self
+                    if ui
+                        .checkbox(
+                            &mut self
+                                .sub_window_manager
+                                .section_message
+                                .get_image_scn_mem_read(),
+                            "Mem Read",
+                        )
+                        .clicked()
+                    {
+                        self.files[self.current_index].section_headers.0[self
                             .sub_window_manager
                             .section_message
-                            .get_image_scn_mem_read(),
-                        "Mem Read",
-                    ).clicked() {
-                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
-                        ^= SectionCharacteristics::ImageScnMemRead as u32;
+                            .selected_section_index
+                            .unwrap()]
+                        .characteristics ^= SectionCharacteristics::ImageScnMemRead as u32;
                     }
-                    if ui.checkbox(
-                        &mut self
+                    if ui
+                        .checkbox(
+                            &mut self
+                                .sub_window_manager
+                                .section_message
+                                .get_image_scn_mem_write(),
+                            "Mem Write",
+                        )
+                        .clicked()
+                    {
+                        self.files[self.current_index].section_headers.0[self
                             .sub_window_manager
                             .section_message
-                            .get_image_scn_mem_write(),
-                        "Mem Write",
-                    ).clicked() {
-                        self.files[self.current_index].section_headers.0[self.sub_window_manager.section_message.selected_section_index.unwrap()].characteristics
-                        ^= SectionCharacteristics::ImageScnMemWrite as u32;
+                            .selected_section_index
+                            .unwrap()]
+                        .characteristics ^= SectionCharacteristics::ImageScnMemWrite as u32;
                     }
                 });
 
@@ -329,13 +448,7 @@ impl FileManager {
                 .get_section_characteristics(index)
         )
     }
-    // pub(crate) fn get_section_characteristics_hover(&self, index: usize) -> String {
-    //     self.files
-    //         .get(self.current_index)
-    //         .unwrap_or(&self.files[0])
-    //         .section_headers
-    //         .get_section_characteristics_hover(index)
-    // }
+
     pub(crate) fn _get_section_misc(&self, index: usize) -> anyhow::Result<String> {
         Ok(format!(
             "0x{:X}",
