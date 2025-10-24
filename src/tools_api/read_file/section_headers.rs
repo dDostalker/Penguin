@@ -86,9 +86,11 @@ impl ImageSectionHeaders {
     ) -> anyhow::Result<ImageSectionHeaders> {
         file.seek(SeekFrom::Start(section_addr as u64))?;
         let mut section_headers: ImageSectionHeaders = Default::default();
+        let mut section_chara_addr = section_addr + OFFSET_CHAR;
         for _ in 0..section_num {
             section_headers.add(ImageSectionHeader::new(file)?);
-            section_headers.add_addr((section_addr + OFFSET_CHAR) as u64);
+            section_headers.add_addr(section_chara_addr as u64);
+            section_chara_addr += size_of::<ImageSectionHeader>() as u32;
         }
         Ok(section_headers)
     }
