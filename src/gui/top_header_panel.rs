@@ -6,7 +6,7 @@ use crate::tools_api::{load_file_info, serde_pe::save_to_file};
 use byteorder::{LittleEndian, WriteBytesExt};
 use eframe::egui::Ui;
 use rfd::FileDialog;
-use std::io::{Seek, SeekFrom, Write};
+use std::io::{Seek, SeekFrom};
 use std::path::PathBuf;
 
 impl FileManager {

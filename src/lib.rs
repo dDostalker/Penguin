@@ -8,7 +8,6 @@ use crate::tools_api::calc::ThreadPool;
 use crate::tools_api::serde_pe::DangerousFunction;
 use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex};
-use windows::Win32::System::Console::GetConsoleWindow;
 /// 全局配置文件
 pub static DANGEROUS_FUNCTION_TOML_PATH: LazyLock<DangerousFunction> = LazyLock::new(|| {
     let mut path = PathBuf::from("./");

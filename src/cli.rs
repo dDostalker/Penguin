@@ -12,14 +12,14 @@ use crate::{
 use clap::{Parser, Subcommand, ValueEnum};
 
 const ABOUT: &str = r"
-  _____                       _       
- |  __ \                     (_)      
- | |__) |__ _ __   __ _ _   _ _ _ __  
- |  ___/ _ \ '_ \ / _` | | | | | '_ \ 
+  _____                       _
+ |  __ \                     (_)
+ | |__) |__ _ __   __ _ _   _ _ _ __
+ |  ___/ _ \ '_ \ / _` | | | | | '_ \
  | |  |  __/ | | | (_| | |_| | | | | |
  |_|   \___|_| |_|\__, |\__,_|_|_| |_|
-                   __/ |              
-                  |___/               
+                   __/ |
+                  |___/
 ";
 
 #[derive(Parser)]
@@ -31,7 +31,7 @@ pub struct Cli {
 }
 
 #[derive(Subcommand)]
-pub enum CliCommand {
+enum CliCommand {
     /// Serde PE to toml or json
     Serde {
         #[arg(short, long)]

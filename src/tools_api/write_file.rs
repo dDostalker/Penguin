@@ -1,4 +1,4 @@
-use crate::tools_api::read_file::{ExportInfo, ImageSectionHeader, ImportFunction, SectionData};
+use crate::tools_api::read_file::{ExportInfo, ImageSectionHeader, ImportFunction};
 use std::fs::File;
 use std::io::SeekFrom;
 use std::io::{Read, Seek, Write};
@@ -45,9 +45,7 @@ impl ImportFunction {
     }
 }
 
-impl ImageSectionHeader{
-    
-}
+impl ImageSectionHeader {}
 
 pub fn copy_file(file: &mut File, file_path: &PathBuf) -> anyhow::Result<()> {
     let mut file_bak = File::create(file_path)?;
