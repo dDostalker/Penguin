@@ -5,7 +5,7 @@ use eframe::egui::{Label, Ui, Vec2};
 
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 const SPACING: Vec2 = Vec2::new(20.0, 8.0);
-const COLUMNS: usize = 5;
+const COLUMNS: usize = 7;
 impl FileManager {
     pub(crate) fn section_header_panel(&mut self, ui: &mut Ui) -> anyhow::Result<()> {
         // 获取节数量
@@ -40,6 +40,7 @@ impl FileManager {
                         .striped(true)
                         .spacing(SPACING)
                         .num_columns(COLUMNS)
+                        .min_col_width(ui.ctx().used_size().x / COLUMNS as f32)
                         .show(ui, |ui| {
                             ui.strong(i18n::SECTION_NAME);
                             ui.strong(i18n::VIRTUAL_ADDRESS);

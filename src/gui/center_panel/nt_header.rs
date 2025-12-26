@@ -145,7 +145,7 @@ impl FileManager {
                             ui.end_row();
 
                             ui.label("SizeOfInitializedData");
-                            ui.label(&self.get_size_of_initialized_data());
+                            ui.label(self.get_size_of_initialized_data());
                             ui.label(i18n::NT_HEADER_SIZE_OF_INITIALIZED_DATA);
                             ui.end_row();
 

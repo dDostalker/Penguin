@@ -330,10 +330,10 @@ impl ResourceTree {
 
         // 读取Unicode字符串
         let mut name_buf = vec![0u16; len];
-        for i in 0..len {
+        for item in name_buf.iter_mut().take(len) {
             let mut char_buf = [0u8; 2];
             file.read_exact(&mut char_buf)?;
-            name_buf[i] = u16::from_le_bytes(char_buf);
+            *item = u16::from_le_bytes(char_buf);
         }
 
         Ok(String::from_utf16_lossy(&name_buf))
