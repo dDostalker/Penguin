@@ -11,12 +11,14 @@ use std::sync::mpsc::{self, Receiver, Sender};
 use std::thread::{self, JoinHandle};
 
 type Job = Box<dyn FnOnce() + Send + 'static>;
+
 pub struct ThreadPool {
-    max_threads: usize,
-    current_threads: usize,
-    work: Vec<Work>,
+    _max_threads: usize,
+    _current_threads: usize,
+    _work: Vec<Work>,
     sender: Sender<Job>,
 }
+
 impl ThreadPool {
     pub fn new(max_threads: usize) -> Self {
         let mut works = Vec::with_capacity(max_threads);
@@ -26,9 +28,9 @@ impl ThreadPool {
             works.push(Work::new(i, Arc::clone(&receiver)));
         }
         Self {
-            max_threads,
-            current_threads: 0,
-            work: works,
+            _max_threads: max_threads,
+            _current_threads: 0,
+            _work: works,
             sender: sender,
         }
     }
@@ -42,6 +44,7 @@ impl ThreadPool {
     }
 }
 
+#[allow(unused)]
 struct Work {
     id: usize,
     thread: JoinHandle<()>,
@@ -57,9 +60,9 @@ impl Work {
                     let job = match receiver.lock() {
                         Ok(guard) => match guard.recv() {
                             Ok(job) => job,
-                            Err(_) => break, // channel 关闭，退出线程
+                            Err(_) => break,
                         },
-                        Err(_) => break, // mutex 中毒，退出线程
+                        Err(_) => break,
                     };
                     job();
                 }
@@ -108,12 +111,12 @@ pub fn start_calc_hash(file_path: PathBuf) -> anyhow::Result<()> {
 pub fn get_hash_info(path: PathBuf) -> Option<HashInfo> {
     // 改进错误处理，避免在 mutex 中毒时 panic
     let mut hash_info_vec = GLOBAL_HASH_INFO.lock().ok()?;
-    
+
     // 查找匹配的哈希信息的索引
     let index = hash_info_vec
         .iter()
         .position(|hash_info| hash_info.is_same(&path))?;
-    
+
     // 原子性地删除并返回
     Some(hash_info_vec.swap_remove(index))
 }

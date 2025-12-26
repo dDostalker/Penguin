@@ -1,5 +1,5 @@
 use crate::tools_api::read_file::{
-    ImageSectionHeader, ImageSectionHeaders, SectionCharAddr, SectionData,
+    _SectionData, ImageSectionHeader, ImageSectionHeaders, SectionCharAddr,
 };
 use std::fs::File;
 use std::io::SeekFrom;
@@ -9,6 +9,7 @@ use std::mem::{MaybeUninit, size_of};
 const OFFSET_CHAR: u32 = 36;
 
 #[repr(u32)]
+#[allow(unused)]
 pub enum SectionCharacteristics {
     // 保留的标志
     RESERVED0 = 0x00000000,
@@ -154,14 +155,14 @@ impl ImageSectionHeaders {
     }
 }
 
-impl SectionData {
-    pub fn new(
+impl _SectionData {
+    pub fn _new(
         file: &mut File,
         point_to_raw_data: u32,
         size_of_raw_data: u32,
-    ) -> anyhow::Result<Box<SectionData>> {
+    ) -> anyhow::Result<Box<_SectionData>> {
         file.seek(SeekFrom::Start(point_to_raw_data as u64))?;
-        let mut section_data: Box<SectionData> = Box::new(SectionData {
+        let mut section_data: Box<_SectionData> = Box::new(_SectionData {
             f_address: point_to_raw_data,
             f_size: size_of_raw_data,
             data: vec![0u8; size_of_raw_data as usize],

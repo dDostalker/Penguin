@@ -9,7 +9,7 @@ use crate::tools_api::read_file::{
 use std::fs::File;
 use std::io::SeekFrom;
 use std::io::{Read, Seek};
-use std::mem::{size_of, MaybeUninit};
+use std::mem::{MaybeUninit, size_of};
 
 const DIRECTORY_EXPORT: usize = 0;
 const DIRECTORY_IMPORT: usize = 1;
@@ -305,7 +305,7 @@ impl ImageFileHeader {
             let mut image_file_header = MaybeUninit::<ImageFileHeader>::uninit();
             let bytes = std::slice::from_raw_parts_mut(
                 image_file_header.as_mut_ptr() as *mut u8,
-                size_of::<ImageFileHeader>()
+                size_of::<ImageFileHeader>(),
             );
             file.read_exact(bytes)?;
             Ok(image_file_header.assume_init())
@@ -728,24 +728,21 @@ where
     [(); size_of::<T>()]:,
 {
     file.seek(SeekFrom::Start(start_addr as u64))?;
-    
+
     let nt_head = unsafe {
         let mut nt_head = MaybeUninit::<T>::uninit();
-        let bytes = std::slice::from_raw_parts_mut(
-            nt_head.as_mut_ptr() as *mut u8,
-            size_of::<T>()
-        );
+        let bytes = std::slice::from_raw_parts_mut(nt_head.as_mut_ptr() as *mut u8, size_of::<T>());
         file.read_exact(bytes)?;
         nt_head.assume_init()
     };
-    
+
     let mut data_dictionary = DataDirectory(Vec::new());
     for _ in 0..nt_head.num_of_rva() {
         let image_data = unsafe {
             let mut image_data = MaybeUninit::<ImageDataDirectory>::uninit();
             let bytes = std::slice::from_raw_parts_mut(
                 image_data.as_mut_ptr() as *mut u8,
-                size_of::<ImageDataDirectory>()
+                size_of::<ImageDataDirectory>(),
             );
             file.read_exact(bytes)?;
             image_data.assume_init()

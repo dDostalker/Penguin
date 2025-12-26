@@ -27,7 +27,7 @@ const ABOUT: &str = r"
 pub struct Cli {
     pub file_path: String,
     #[command(subcommand)]
-    pub command: CliCommand,
+    command: CliCommand,
 }
 
 #[derive(Subcommand)]

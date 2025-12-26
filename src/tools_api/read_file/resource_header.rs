@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
-use std::mem::{size_of, MaybeUninit};
+use std::mem::{MaybeUninit, size_of};
 use std::path::{Path, PathBuf};
 
 /// ICO/CUR 文件头（6字节）
@@ -59,7 +59,7 @@ impl ImageResourceDirectory {
             let mut resource_directory = MaybeUninit::<ImageResourceDirectory>::uninit();
             let bytes = std::slice::from_raw_parts_mut(
                 resource_directory.as_mut_ptr() as *mut u8,
-                size_of::<ImageResourceDirectory>()
+                size_of::<ImageResourceDirectory>(),
             );
             file.read_exact(bytes)?;
             Ok(resource_directory.assume_init())
@@ -74,7 +74,7 @@ impl ImageResourceDirectoryEntry {
             let mut resource_directory_entry = MaybeUninit::<ImageResourceDirectoryEntry>::uninit();
             let bytes = std::slice::from_raw_parts_mut(
                 resource_directory_entry.as_mut_ptr() as *mut u8,
-                size_of::<ImageResourceDirectoryEntry>()
+                size_of::<ImageResourceDirectoryEntry>(),
             );
             file.read_exact(bytes)?;
             Ok(resource_directory_entry.assume_init())
@@ -99,7 +99,7 @@ impl ImageResourceDataEntry {
                 let mut resource_data_entry = MaybeUninit::<ImageResourceDataEntry>::uninit();
                 let bytes = std::slice::from_raw_parts_mut(
                     resource_data_entry.as_mut_ptr() as *mut u8,
-                    size_of::<ImageResourceDataEntry>()
+                    size_of::<ImageResourceDataEntry>(),
                 );
                 file.read_exact(bytes)?;
                 return Ok(resource_data_entry.assume_init());
@@ -418,7 +418,7 @@ impl ResourceTree {
                     let mut data_entry = MaybeUninit::<ImageResourceDataEntry>::uninit();
                     let bytes = std::slice::from_raw_parts_mut(
                         data_entry.as_mut_ptr() as *mut u8,
-                        size_of::<ImageResourceDataEntry>()
+                        size_of::<ImageResourceDataEntry>(),
                     );
                     file.read_exact(bytes)?;
                     data_entry.assume_init()
@@ -741,11 +741,11 @@ impl ResourceTree {
     }
 }
 
-/// 资源信息
-#[derive(Debug, Clone)]
-pub struct ResourceInfo {
-    pub path: String,
-    pub size: u32,
-    pub data_address: u32,
-    pub resource_type: String,
-}
+// /// 资源信息
+// #[derive(Debug, Clone)]
+// pub struct ResourceInfo {
+//     pub path: String,
+//     pub size: u32,
+//     pub data_address: u32,
+//     pub resource_type: String,
+// }

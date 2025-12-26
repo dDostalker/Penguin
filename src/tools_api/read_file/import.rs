@@ -3,7 +3,7 @@ use std::any::Any;
 use std::fs::File;
 use std::io::SeekFrom;
 use std::io::{Read, Seek};
-use std::mem::{size_of, MaybeUninit};
+use std::mem::{MaybeUninit, size_of};
 use std::rc::Rc;
 
 use crate::tools_api::is_64;
@@ -35,7 +35,7 @@ impl ImportDescriptor {
                 let mut import_descriptor = MaybeUninit::<ImportDescriptor>::uninit();
                 let bytes = std::slice::from_raw_parts_mut(
                     import_descriptor.as_mut_ptr() as *mut u8,
-                    size_of::<ImportDescriptor>()
+                    size_of::<ImportDescriptor>(),
                 );
                 file.read_exact(bytes)?;
                 import_descriptor.assume_init()

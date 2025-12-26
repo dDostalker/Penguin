@@ -1,6 +1,6 @@
 use crate::tools_api::FileManager;
 use crate::tools_api::read_file::section_headers::SectionCharacteristics;
-use eframe::egui::{Context, Ui, Vec2, vec2};
+use eframe::egui::{Context, Vec2, vec2};
 use eframe::{HardwareAcceleration, Renderer};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -67,7 +67,7 @@ pub struct ImportMessage {
 #[derive(Default)]
 pub struct SectionMessage {
     pub selected_section_index: Option<usize>,
-    pub section_flag: Option<SectionFlag>,
+    section_flag: Option<SectionFlag>,
 }
 
 #[derive(Default)]

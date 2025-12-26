@@ -52,12 +52,12 @@ pub(crate) struct ImageFileHeader {
     pub(crate) size_of_optional_header: u16, //记录MAGE_OPTIONAL_HEADER的大小
     pub(crate) characteristics: u16,
 }
-#[repr(C)]
-#[derive(Default, Clone, Debug)]
-struct MageDataDirectory {
-    virtual_address: u32,
-    size: u32,
-}
+// #[repr(C)]
+// #[derive(Default, Clone, Debug)]
+// struct MageDataDirectory {
+//     virtual_address: u32,
+//     size: u32,
+// }
 #[repr(C)]
 #[derive(Serialize, Deserialize, Default, Clone, Debug, Eq, PartialEq)]
 pub struct ImageOptionalHeader64 {
@@ -242,7 +242,7 @@ pub struct SectionHeaderMisc {
     pub virtual_size: u32,
 }
 #[derive(Debug)]
-pub(crate) struct SectionData {
+pub(crate) struct _SectionData {
     f_address: u32,
     f_size: u32,
     data: Vec<u8>,

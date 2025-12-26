@@ -7,7 +7,7 @@ use std::cell::RefCell;
 use std::fs::File;
 use std::io::SeekFrom;
 use std::io::{Read, Seek};
-use std::mem::{size_of, MaybeUninit};
+use std::mem::{MaybeUninit, size_of};
 use std::rc::Rc;
 
 impl ExportDir {
@@ -32,7 +32,7 @@ impl ExportDir {
                 let mut export_dir = MaybeUninit::<ExportDir>::uninit();
                 let bytes = std::slice::from_raw_parts_mut(
                     export_dir.as_mut_ptr() as *mut u8,
-                    size_of::<ExportDir>()
+                    size_of::<ExportDir>(),
                 );
                 file.read_exact(bytes)?;
                 export_dir.assume_init()
