@@ -7,7 +7,7 @@ const CHUNK_SIZE: usize = 16;
 const SPACING: Vec2 = Vec2::new(20.0, 8.0);
 const COLUMNS: usize = 3;
 impl FileManager {
-    /// dos_stub 窗口
+    /// dos_stub windows
     pub(crate) fn dos_stub_panel(&self, ui: &mut eframe::egui::Ui) {
         eframe::egui::CentralPanel::default().show(ui.ctx(), |ui| {
             let stub = &self.files.get(self.current_index).unwrap().dos_stub.buffer;
@@ -24,6 +24,7 @@ impl FileManager {
                 .show(ui, |ui| {
                     // 使用表格样式显示十六进制数据
                     eframe::egui::Grid::new("dos_stub_grid")
+                        .min_col_width(ui.ctx().used_size().x / COLUMNS as f32)
                         .striped(true)
                         .spacing(SPACING)
                         .num_columns(COLUMNS)

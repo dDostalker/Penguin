@@ -6,13 +6,13 @@ use crate::tools_api::read_file::ImportTable;
 use crate::{gui::FileManager, i18n, tools_api::search};
 use eframe::egui::{Color32, RichText, ScrollArea, Ui, Vec2};
 use std::path::PathBuf;
+
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 const SPACING: Vec2 = Vec2::new(20.0, 8.0);
 const COLUMNS: usize = 3;
 const MAX_DLL_NAME_LENGTH: usize = 20;
 
 impl FileManager {
-    /// 截断文本到指定长度，超出部分用省略号表示
     fn truncate_text(text: &str, max_length: usize) -> String {
         if text.len() <= max_length {
             text.to_string()
@@ -20,9 +20,7 @@ impl FileManager {
             format!("{}...", &text[..max_length.saturating_sub(3)])
         }
     }
-    /// 导入表主面板
     pub(crate) fn import_table_panel(&mut self, ui: &mut Ui) -> anyhow::Result<()> {
-        // 预先获取数据，避免在渲染循环中重复调用
         let imports = match self.import_dll() {
             Ok(imports) => imports,
             Err(_e) => {
@@ -30,7 +28,6 @@ impl FileManager {
             }
         };
 
-        // 克隆数据以避免借用冲突
         let imports_clone = imports.fclone();
         let selected_index = self.sub_window_manager.import_message.selected_dll_index;
         let selected_function_index = self
@@ -38,19 +35,14 @@ impl FileManager {
             .import_message
             .selected_function_index;
 
-        // 显示主标题
-
         eframe::egui::CentralPanel::default().show(ui.ctx(), |ui| {
             Self::show_main_title(ui, "Import");
-            // 创建左右并排的布局
             ui.horizontal(|ui| {
-                // 左侧表格：DLL列表
                 ui.vertical(|ui| {
                     ui.label(i18n::DLL_LIST);
                     self.show_dll_table(ui, &imports_clone.0.borrow());
                 });
 
-                // 添加分隔线
                 ui.separator();
                 ui.vertical(|ui| {
                     ui.label(i18n::FUNCTION_LIST);
@@ -66,7 +58,6 @@ impl FileManager {
                 });
             });
         });
-        // 下方功能栏
         if let Some(selected_index) = selected_index
             && let Some(selected_function_index) = selected_function_index
         {
@@ -110,6 +101,7 @@ impl FileManager {
                     .striped(true)
                     .spacing(SPACING)
                     .num_columns(COLUMNS)
+                    .min_col_width(ui.ctx().used_size().x / (COLUMNS * 3) as f32)
                     .show(ui, |ui| {
                         // 表头
                         ui.strong(i18n::DLL_NAME);
@@ -118,7 +110,6 @@ impl FileManager {
                         ui.end_row();
 
                         for (index, dll) in imports.iter().enumerate() {
-                            // DLL名称显示（限制最大30个字符）
                             let truncated_dll_name =
                                 Self::truncate_text(&dll.name, MAX_DLL_NAME_LENGTH);
                             ui.label(&truncated_dll_name);
@@ -162,6 +153,7 @@ impl FileManager {
                     .striped(true)
                     .spacing(SPACING)
                     .num_columns(COLUMNS)
+                    .min_col_width(ui.ctx().used_size().x / (COLUMNS * 3) as f32)
                     .show(ui, |ui| {
                         ui.label("🔍");
                         ui.text_edit_singleline(

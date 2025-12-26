@@ -1,6 +1,6 @@
 use crate::tools_api::FileManager;
 use crate::tools_api::read_file::section_headers::SectionCharacteristics;
-use eframe::egui::{Context, Vec2, vec2};
+use eframe::egui::{Context, Ui, Vec2, vec2};
 use eframe::{HardwareAcceleration, Renderer};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -36,7 +36,7 @@ pub struct SubWindowManager {
     pub import_message: ImportMessage,
     pub section_message: SectionMessage,
     pub window_message: WindowMessage,
-    pub toasts: Vec<Toast>, // 新增：toast 通知列表
+    pub toasts: Vec<Toast>,
 }
 /// 窗口信息
 #[derive(Default)]
@@ -165,7 +165,7 @@ impl SectionFlag {
         }
     }
 }
-/// 窗口默认设置
+/// Windows default settings
 pub fn create_native_options() -> eframe::NativeOptions {
     eframe::NativeOptions {
         viewport: eframe::egui::ViewportBuilder {
@@ -390,7 +390,7 @@ impl eframe::App for FileManager {
         self.sub_window_manager.show_about_window(ctx);
         self.sub_window_manager.show_settings_window(ctx);
         self.sub_window_manager.show_help_window(ctx);
-        self.sub_window_manager.render_toasts(ctx); // 渲染 toast
+        self.sub_window_manager.render_toasts(ctx);
 
         if !self.files.is_empty() {
             let file = &self.files[self.current_index];
@@ -404,8 +404,12 @@ impl eframe::App for FileManager {
     }
 }
 
-/// 中文设置
-///全局加载支持中文的字体
+// /// 表格结构，所有的信息显示尽可能的通过这个表格结构进行创建
+// fn graph_pannel(ui: &mut Ui,size:usize) {}
+
+// Fonts
+
+/// Windows: Set Font to support Chinese
 #[cfg(target_os = "windows")]
 pub fn load_global_font(ctx: &Context) {
     let mut fonts = eframe::egui::FontDefinitions::default();

@@ -5,8 +5,9 @@ use eframe::egui::{Ui, Vec2};
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 const SPACING: Vec2 = Vec2::new(20.0, 8.0);
 const COLUMNS: usize = 3;
+
 impl FileManager {
-    /// dos_header 窗口
+    /// dos_header windows
     pub(crate) fn dos_header_panel(&self, ui: &mut Ui) -> anyhow::Result<()> {
         eframe::egui::CentralPanel::default().show(ui.ctx(), |ui| {
             Self::show_main_title(ui, i18n::DOS_HEADER_TITLE);
@@ -14,6 +15,7 @@ impl FileManager {
                 .min_scrolled_height(MIN_SCROLLED_HEIGHT)
                 .show(ui, |ui| {
                     eframe::egui::Grid::new("dos_header_grid")
+                        .min_col_width(ui.ctx().used_size().x / COLUMNS as f32)
                         .striped(true)
                         .spacing(SPACING)
                         .num_columns(COLUMNS)
@@ -117,6 +119,7 @@ impl FileManager {
         });
         Ok(())
     }
+
     pub(crate) fn get_cblp(&self) -> String {
         format!(
             "{}",

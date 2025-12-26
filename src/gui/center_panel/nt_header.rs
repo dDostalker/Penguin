@@ -27,12 +27,12 @@ const DATA_DIRECTORY_NAME: [&str; 16] = [
 
 impl FileManager {
     pub(crate) fn nt_header_panel(&mut self, ui: &mut Ui) {
-        let ctx = ui.ctx();
-        eframe::egui::CentralPanel::default().show(ctx, |ui| {
+        // let ctx = ui.ctx();
+        eframe::egui::CentralPanel::default().show(ui.ctx(), |ui| {
             Self::show_main_title(ui, "NT Headers");
             eframe::egui::ScrollArea::vertical()
                 .min_scrolled_height(MIN_SCROLLED_HEIGHT)
-                .auto_shrink([true, false])
+                // .auto_shrink([true, false])
                 .show(ui, |ui| {
                     // 签名部分
                     Self::show_sub_title(ui, "Signature");
@@ -40,6 +40,7 @@ impl FileManager {
                         .striped(true)
                         .spacing(SPACING)
                         .num_columns(COLUMNS)
+                        .min_col_width(ui.ctx().used_size().x / COLUMNS as f32)
                         .show(ui, |ui| {
                             ui.strong(i18n::FIELD_NAME);
                             ui.strong(i18n::VALUE);
@@ -57,6 +58,7 @@ impl FileManager {
                     // File Header 部分
                     Self::show_sub_title(ui, "File Header");
                     eframe::egui::Grid::new("file_header_grid")
+                        .min_col_width(ui.ctx().used_size().x / COLUMNS as f32)
                         .striped(true)
                         .spacing(SPACING)
                         .num_columns(COLUMNS)
@@ -111,6 +113,7 @@ impl FileManager {
                     Self::show_sub_title(ui, "Optional Header");
                     eframe::egui::Grid::new("optional_header_grid")
                         .striped(true)
+                        .min_col_width(ui.ctx().used_size().x / COLUMNS as f32)
                         .spacing(SPACING)
                         .num_columns(COLUMNS)
                         .show(ui, |ui| {
@@ -282,6 +285,7 @@ impl FileManager {
                     eframe::egui::Grid::new("data_directory_grid")
                         .striped(true)
                         .spacing(SPACING)
+                        .min_col_width(ui.ctx().used_size().x / COLUMNS as f32)
                         .num_columns(COLUMNS)
                         .show(ui, |ui| {
                             ui.strong(i18n::DATA_DIRECTORY_NAME);

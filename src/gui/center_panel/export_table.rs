@@ -23,7 +23,7 @@ impl FileManager {
             }
         };
 
-        // 克隆数据以避免借用冲突
+        // clone to avoid borrow conflict
         let export_data_clone = export_data.fclone();
         let selected_index = self.sub_window_manager.export_message.selected_export_index;
 
@@ -32,11 +32,11 @@ impl FileManager {
                 .min_scrolled_height(MIN_SCROLLED_HEIGHT)
                 .auto_shrink([false, false])
                 .show(ui, |ui| {
-                    // 使用表格样式，填满整个宽度
                     eframe::egui::Grid::new("export_table")
                         .striped(true)
                         .spacing(SPACING)
                         .num_columns(COLUMNS)
+                        .min_col_width(ui.ctx().used_size().x / COLUMNS as f32)
                         .show(ui, |ui| {
                             ui.label("🔍");
                             ui.allocate_ui(
@@ -48,7 +48,6 @@ impl FileManager {
                                 },
                             );
                             ui.end_row();
-                            // 表头 - 使用强化的样式
                             ui.allocate_ui(DESIGN_SIZE_FUNC_NAME, |ui| {
                                 ui.strong(i18n::EXPORT_FUNCTION_NAME);
                             });
@@ -67,7 +66,6 @@ impl FileManager {
                                 ) {
                                     continue;
                                 }
-                                // 函数名列 - 占用50%宽度
                                 ui.allocate_ui(DESIGN_SIZE_FUNC_NAME, |ui| {
                                     let display_name = if item.name.len() > MAX_FUNC_NAME_LENGTH {
                                         format!("{}...", &item.name[..MAX_FUNC_NAME_LENGTH - 3])
@@ -77,13 +75,11 @@ impl FileManager {
                                     ui.label(display_name);
                                 });
 
-                                // 地址列 - 占用25%宽度
                                 ui.allocate_ui(DESIGN_SIZE_FUNC_ADDR, |ui| {
                                     let addr_display = format!("0x{:X}", item.function);
                                     ui.label(addr_display);
                                 });
 
-                                // 操作列 - 占用25%宽度
                                 ui.allocate_ui(DESIGN_SIZE_FUNC_OPERATE, |ui| {
                                     ui.horizontal(|ui| {
                                         if ui.button(i18n::EXPORT_DETAIL_BUTTON).clicked() {
@@ -99,7 +95,6 @@ impl FileManager {
                 });
         });
 
-        // 在渲染循环外处理编辑逻辑
         if let Some(selected_index) = selected_index {
             let mut export_table_ref = self.files[self.current_index].export.0.borrow_mut();
             if selected_index < export_table_ref.len() {
