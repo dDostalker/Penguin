@@ -20,19 +20,3 @@ pub static GLOBAL_THREAD_POOL: LazyLock<ThreadPool> = LazyLock::new(|| ThreadPoo
 
 pub static GLOBAL_HASH_INFO: LazyLock<Mutex<Vec<HashInfo>>> =
     LazyLock::new(|| Mutex::new(Vec::new()));
-
-#[cfg(windows)]
-pub fn hide_console_for_gui() {
-    unsafe {
-        let console_window = GetConsoleWindow();
-        if !console_window.is_invalid() {
-            use windows::Win32::UI::WindowsAndMessaging::{SW_HIDE, ShowWindow};
-            let _ = ShowWindow(console_window, SW_HIDE);
-        }
-    }
-}
-
-#[cfg(not(windows))]
-pub fn hide_console_for_gui() {
-    // 在非 Windows 系统上不需要处理
-}
