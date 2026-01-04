@@ -109,7 +109,6 @@ pub fn start_calc_hash(file_path: PathBuf) -> anyhow::Result<()> {
 }
 
 pub fn get_hash_info(path: PathBuf) -> Option<HashInfo> {
-    // 改进错误处理，避免在 mutex 中毒时 panic
     let mut hash_info_vec = GLOBAL_HASH_INFO.lock().ok()?;
 
     // 查找匹配的哈希信息的索引

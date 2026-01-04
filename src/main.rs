@@ -2,10 +2,8 @@
     target_os = "windows",
     cfg_attr(not(debug_assertions), windows_subsystem = "windows")
 )]
-use Penguin::cli::Cli;
 use Penguin::gui::create_native_options;
 use Penguin::tools_api::FileManager;
-use clap::Parser;
 use std::env;
 
 fn main() {
@@ -18,8 +16,5 @@ fn main() {
             Box::new(|cc| Ok(Box::new(FileManager::new(cc)))),
         )
         .expect("Failed to run application");
-    } else {
-        let cli = Cli::parse();
-        cli.execute();
     }
 }

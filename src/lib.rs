@@ -1,5 +1,4 @@
 #![feature(generic_const_exprs)]
-pub mod cli;
 pub mod gui;
 pub mod i18n;
 pub mod tools_api;
