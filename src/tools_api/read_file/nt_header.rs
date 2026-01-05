@@ -6,6 +6,7 @@ use crate::tools_api::read_file::{
     ImageNtHeaders64,
 };
 
+use std::fmt::Display;
 use std::fs::File;
 use std::io::SeekFrom;
 use std::io::{Read, Seek};
@@ -239,8 +240,10 @@ fn get_machine_descriptions(machine: u16) -> &'static str {
 }
 /// 为 64 位 和 32 位nt头特征
 pub mod traits {
+    use std::fmt::Display;
+
     use crate::tools_api::read_file::SerializableNtHeaders;
-    pub trait NtHeaders {
+    pub trait NtHeaders: Display {
         /// 获取数据目录的数量
         fn num_of_rva(&self) -> u32;
         /// 读取段数量
@@ -288,7 +291,6 @@ pub mod traits {
         fn get_size_of_heap_commit(&self) -> u64;
         fn get_loader_flags(&self) -> u32;
         fn get_number_of_rva_and_sizes(&self) -> u32;
-
         // 序列化
         fn serde_serialize(&self) -> SerializableNtHeaders;
     }
@@ -354,7 +356,60 @@ impl DataDirectory {
         Ok(self.0.get(index as usize).unwrap().virtual_address)
     }
 }
-
+impl Display for ImageNtHeaders {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NtHeaders {{
+            signature: {:?},
+            machine: {:?},
+            number_of_sections: {:?},
+            time_date_stamp: {:?},
+            pointer_to_symbol_table: {:?},
+            number_of_symbols: {:?},
+            size_of_optional_header: {:?},
+            characteristics: {:?},
+            optional_header: {:?}
+        }}",
+            self.signature,
+            self.get_machine(),
+            self.get_number_of_sections(),
+            self.get_time_date_stamp(),
+            self.get_pointer_to_symbol_table(),
+            self.get_number_of_symbols(),
+            self.get_size_of_optional_header(),
+            self.get_characteristics(),
+            self.get_size_of_optional_header()
+        )
+    }
+}
+impl Display for ImageNtHeaders64 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NtHeaders {{
+            signature: {:?},
+            machine: {:?},
+            number_of_sections: {:?},
+            time_date_stamp: {:?},
+            pointer_to_symbol_table: {:?},
+            number_of_symbols: {:?},
+            size_of_optional_header: {:?},
+            characteristics: {:?},
+            optional_header: {:?}
+        }}",
+            self.signature,
+            self.get_machine(),
+            self.get_number_of_sections(),
+            self.get_time_date_stamp(),
+            self.get_pointer_to_symbol_table(),
+            self.get_number_of_symbols(),
+            self.get_size_of_optional_header(),
+            self.get_characteristics(),
+            self.get_size_of_optional_header()
+        )
+    }
+}
 impl NtHeaders for ImageNtHeaders {
     fn num_of_rva(&self) -> u32 {
         self.optional_header.number_of_rva_and_sizes

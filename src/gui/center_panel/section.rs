@@ -8,7 +8,6 @@ const SPACING: Vec2 = Vec2::new(20.0, 8.0);
 const COLUMNS: usize = 7;
 impl FileManager {
     pub(crate) fn section_header_panel(&mut self, ui: &mut Ui) -> anyhow::Result<()> {
-        // 获取节数量
         let section_num = self.get_section_num()?;
 
         if section_num == 0 {

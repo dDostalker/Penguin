@@ -93,7 +93,6 @@ fn calc_hash(file_path: &PathBuf) {
         sha1: calc_sha1(file_path),
         path: file_path.clone(),
     };
-    // 改进错误处理，避免在 mutex 中毒时 panic
     if let Ok(mut guard) = GLOBAL_HASH_INFO.lock() {
         guard.push(hash_info);
     }
@@ -116,6 +115,5 @@ pub fn get_hash_info(path: PathBuf) -> Option<HashInfo> {
         .iter()
         .position(|hash_info| hash_info.is_same(&path))?;
 
-    // 原子性地删除并返回
     Some(hash_info_vec.swap_remove(index))
 }

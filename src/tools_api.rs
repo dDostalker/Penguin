@@ -12,6 +12,8 @@ use crate::tools_api::read_file::{
     ImageNtHeaders, ImageNtHeaders64, ImageSectionHeaders, ImportDescriptor, ImportDll,
     ImportTable, nt_header,
 };
+use eframe::epaint::text::InsertFontFamily;
+use log::debug;
 use serde_derive::{Deserialize, Serialize};
 use std::cell::{Ref, RefCell, RefMut};
 use std::fs::File;
@@ -103,7 +105,6 @@ impl FileInfo {
             Err(anyhow::anyhow!(i18n::FILE_HANDLE_CLOSED))
         }
     }
-    /// 转换状态，为后续dll调试提供准备
     pub fn lock_file(&mut self) -> anyhow::Result<()> {
         if self.file.is_some() {
             self.file = None;
@@ -118,22 +119,28 @@ impl FileInfo {
         }
     }
 
+    /// 每个文件从此处开始的分析内容
     pub fn new(file_path: PathBuf) -> anyhow::Result<Box<Self>> {
+        env_logger::init();
+        debug!("Start analysis: {}", file_path.display());
         let mut file = File::options().read(true).open(&file_path)?;
         let file_name = Self::extract_file_name(&file_path)?;
         let file_name = file_name.to_string();
         let file_size = file.metadata()?.len();
+        debug!("{} size: {}", file_name, file_size);
         let _is_little_endian = true; //todo 需要根据文件头判断
         let dos_head = Box::new(ImageDosHeader::new(&mut file)?);
+        debug!("{:?}", dos_head);
         let nt_addr = dos_head.get_nt_addr();
         let is_64_bit = is_64(&mut file, &dos_head)?;
         let (nt_head, data_directory) = Self::parse_nt_headers(&mut file, nt_addr, is_64_bit)?;
+        debug!("{}\n{:?}", nt_head, data_directory);
         let section_headers = ImageSectionHeaders::new(
             &mut file,
             nt_head.section_start(nt_addr),
             nt_head.section_number(),
         )?;
-
+        debug!("{:?}", section_headers);
         let dos_stub = ImageDosStub::new(&mut file, nt_addr)?;
         let file = match File::options().read(true).write(true).open(&file_path) {
             Ok(file) => Some(RefCell::new(file)),
