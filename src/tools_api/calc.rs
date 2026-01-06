@@ -31,7 +31,7 @@ impl ThreadPool {
             _max_threads: max_threads,
             _current_threads: 0,
             _work: works,
-            sender: sender,
+            sender,
         }
     }
     pub fn execute<T>(&self, func: T) -> Result<(), &'static str>

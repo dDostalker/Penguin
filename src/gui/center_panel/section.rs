@@ -72,8 +72,11 @@ impl FileManager {
                                         .section_message
                                         .selected_section_index = Some(index);
                                     self.sub_window_manager.section_message.section_flag = None;
-                                    if let None =
-                                        self.sub_window_manager.section_message.section_flag
+                                    if self
+                                        .sub_window_manager
+                                        .section_message
+                                        .section_flag
+                                        .is_none()
                                     {
                                         self.sub_window_manager.section_message.section_flag =
                                             Some(SectionFlag::match_flag(

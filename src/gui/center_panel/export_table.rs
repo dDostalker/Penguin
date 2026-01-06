@@ -138,10 +138,9 @@ impl FileManager {
             .0
             .borrow()
             .is_empty()
+            && let Some(file) = self.files.get_mut(self.current_index)
         {
-            if let Some(file) = self.files.get_mut(self.current_index) {
-                file.export = file.get_export()?;
-            }
+            file.export = file.get_export()?;
         }
         Ok(self
             .files

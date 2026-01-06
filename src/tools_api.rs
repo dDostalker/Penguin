@@ -12,7 +12,6 @@ use crate::tools_api::read_file::{
     ImageNtHeaders, ImageNtHeaders64, ImageSectionHeaders, ImportDescriptor, ImportDll,
     ImportTable, nt_header,
 };
-use eframe::epaint::text::InsertFontFamily;
 use log::debug;
 use serde_derive::{Deserialize, Serialize};
 use std::cell::{Ref, RefCell, RefMut};
@@ -121,7 +120,6 @@ impl FileInfo {
 
     /// 每个文件从此处开始的分析内容
     pub fn new(file_path: PathBuf) -> anyhow::Result<Box<Self>> {
-        env_logger::init();
         debug!("Start analysis: {}", file_path.display());
         let mut file = File::options().read(true).open(&file_path)?;
         let file_name = Self::extract_file_name(&file_path)?;

@@ -85,9 +85,7 @@ impl SubWindowManager {
     }
 
     /// 显示虚拟地址->文件偏移窗口
-
     /// 解析16进制或10进制字符串为usize
-
     pub fn show_virtual_address_to_file_offset_window<T>(
         &mut self,
         ctx: &Context,
