@@ -1,4 +1,5 @@
 use crate::{
+    LAST_TOAST_HEIGHT,
     gui::{SubWindowManager, Toast, ToastType},
     i18n,
     tools_api::{
@@ -20,7 +21,6 @@ const TOAST_WINDOW_ICON_SIZE: f32 = 16.0;
 const TOAST_WINDOW_TEXT_SIZE2: f32 = 14.0;
 const TOAST_WINDOW_SIDE_OFFSET: f32 = 200.0;
 const Y_OFFSET: f32 = 50.0;
-const Y_OFFSET_STEP: f32 = 35.0;
 const RGB_COLOR: eframe::egui::Color32 = eframe::egui::Color32::from_rgb(54, 59, 64);
 
 impl SubWindowManager {
@@ -166,7 +166,7 @@ impl SubWindowManager {
             message,
             toast_type,
             created_at: None,
-            duration: Duration::from_secs(1), // 默认显示3秒
+            duration: Duration::from_secs(3),
         };
         self.toasts.push(toast);
     }
@@ -193,7 +193,6 @@ impl SubWindowManager {
 
     /// 渲染所有 toast 通知
     pub fn render_toasts(&mut self, ctx: &Context) {
-        // 清理过期的 toast
         let now = Instant::now();
         self.toasts.retain(|toast| {
             if let Some(created_at) = toast.created_at {
@@ -217,22 +216,19 @@ impl SubWindowManager {
                 let elapsed = now.duration_since(created_at);
                 progress = elapsed.as_secs_f32() / toast.duration.as_secs_f32();
             }
-            // 计算透明度（淡出效果）
             let alpha = if progress > 0.8 {
                 1.0 - (progress - 0.8) * 5.0
             } else {
                 1.0
             };
 
-            // 根据类型设置颜色
             let color = RGB_COLOR;
 
-            // 设置图标
             let icon = match toast.toast_type {
-                ToastType::Success => "✅",
+                ToastType::Success => "✔",
                 ToastType::Error => "❌",
-                ToastType::Warning => "⚠️",
-                ToastType::Info => "ℹ️",
+                ToastType::Warning => "!",
+                ToastType::Info => "i",
             };
 
             eframe::egui::Area::new(eframe::egui::Id::new(format!("toast_{}", index)))
@@ -257,15 +253,19 @@ impl SubWindowManager {
                                         .color(eframe::egui::Color32::WHITE)
                                         .size(TOAST_WINDOW_TEXT_SIZE2),
                                 );
+                                if ui.available_height() > 0.0 {
+                                    *LAST_TOAST_HEIGHT.write().unwrap() =
+                                        ui.available_height() + 10.0;
+                                    println!("{}", *LAST_TOAST_HEIGHT.read().unwrap());
+                                }
                             });
                         });
                 });
 
-            y_offset += Y_OFFSET_STEP;
+            y_offset += *LAST_TOAST_HEIGHT.read().unwrap();
         }
     }
 
-    /// 演示所有类型的 toast 通知
     pub fn demo_toasts(&mut self) {
         self.show_success(i18n::DEMO_OPERATION_SUCCESS);
         self.show_error(i18n::DEMO_ERROR_OCCURRED);

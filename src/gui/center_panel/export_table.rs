@@ -32,11 +32,13 @@ impl FileManager {
                 .min_scrolled_height(MIN_SCROLLED_HEIGHT)
                 .auto_shrink([false, false])
                 .show(ui, |ui| {
+                    let width = ui.available_width();
+                    let col_width = width / COLUMNS as f32;
                     eframe::egui::Grid::new("export_table")
                         .striped(true)
                         .spacing(SPACING)
                         .num_columns(COLUMNS)
-                        .min_col_width(ui.ctx().used_size().x / COLUMNS as f32)
+                        .min_col_width(col_width)
                         .show(ui, |ui| {
                             ui.label("🔍");
                             ui.allocate_ui(

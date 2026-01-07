@@ -1,0 +1,12 @@
+dangerous = ["VirtualAlloc", "VirtualFree", "VirtualProtect", "VirtualQuery", "VirtualProtectEx", "VirtualQueryEx"]
+warning = ["CreateProcessA", "CreateProcessW", "CreateProcess", "CreateProcessAsUserA", "CreateProcessAsUserW", "CreateProcessWithTokenW", "CreateProcessWithLogonW", "CreateProcessWithTokenW"]
+
+[danger_color]
+r = 230
+g = 0
+b = 0
+
+[warning_color]
+r = 255
+g = 165
+b = 0

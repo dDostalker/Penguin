@@ -27,7 +27,8 @@ const DATA_DIRECTORY_NAME: [&str; 16] = [
 
 impl FileManager {
     pub(crate) fn nt_header_panel(&mut self, ui: &mut Ui) {
-        // let ctx = ui.ctx();
+        let width = ui.available_width();
+        let col_width = width / COLUMNS as f32;
         eframe::egui::CentralPanel::default().show(ui.ctx(), |ui| {
             Self::show_main_title(ui, "NT Headers");
             eframe::egui::ScrollArea::vertical()
@@ -40,7 +41,7 @@ impl FileManager {
                         .striped(true)
                         .spacing(SPACING)
                         .num_columns(COLUMNS)
-                        .min_col_width(ui.ctx().used_size().x / COLUMNS as f32)
+                        .min_col_width(col_width)
                         .show(ui, |ui| {
                             ui.strong(i18n::FIELD_NAME);
                             ui.strong(i18n::VALUE);

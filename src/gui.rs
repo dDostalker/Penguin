@@ -401,6 +401,8 @@ impl eframe::App for FileManager {
                     &file.section_headers,
                 );
         }
+
+        ctx.request_repaint();
     }
 }
 

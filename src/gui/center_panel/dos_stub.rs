@@ -11,7 +11,8 @@ impl FileManager {
     pub(crate) fn dos_stub_panel(&self, ui: &mut eframe::egui::Ui) {
         eframe::egui::CentralPanel::default().show(ui.ctx(), |ui| {
             let stub = &self.files.get(self.current_index).unwrap().dos_stub.buffer;
-
+            let width = ui.available_width();
+            let col_width = width / COLUMNS as f32;
             Self::show_main_title(ui, "DOS Stub");
 
             if stub.is_empty() {
@@ -24,7 +25,7 @@ impl FileManager {
                 .show(ui, |ui| {
                     // 使用表格样式显示十六进制数据
                     eframe::egui::Grid::new("dos_stub_grid")
-                        .min_col_width(ui.ctx().used_size().x / COLUMNS as f32)
+                        .min_col_width(col_width)
                         .striped(true)
                         .spacing(SPACING)
                         .num_columns(COLUMNS)

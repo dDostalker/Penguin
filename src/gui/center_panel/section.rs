@@ -9,12 +9,10 @@ const COLUMNS: usize = 7;
 impl FileManager {
     pub(crate) fn section_header_panel(&mut self, ui: &mut Ui) -> anyhow::Result<()> {
         let section_num = self.get_section_num()?;
-
         if section_num == 0 {
             ui.add(Label::new(i18n::NO_SECTIONS));
             return Ok(());
         }
-
         // 创建数据副本以避免借用冲突
         let section_items: Vec<_> = (0..section_num)
             .map(|i| {
@@ -34,12 +32,13 @@ impl FileManager {
             eframe::egui::ScrollArea::vertical()
                 .min_scrolled_height(MIN_SCROLLED_HEIGHT)
                 .show(ui, |ui| {
-                    // 使用表格样式
+                    let width = ui.available_width();
+                    let col_width = width / COLUMNS as f32;
                     eframe::egui::Grid::new("section_table")
                         .striped(true)
                         .spacing(SPACING)
                         .num_columns(COLUMNS)
-                        .min_col_width(ui.ctx().used_size().x / COLUMNS as f32)
+                        .min_col_width(col_width)
                         .show(ui, |ui| {
                             ui.strong(i18n::SECTION_NAME);
                             ui.strong(i18n::VIRTUAL_ADDRESS);

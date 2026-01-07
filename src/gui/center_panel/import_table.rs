@@ -97,13 +97,15 @@ impl FileManager {
             .id_salt("dll_table")
             .min_scrolled_height(MIN_SCROLLED_HEIGHT)
             .show(ui, |ui| {
+                let width = ui.available_width();
+                let col_width = width / (2 * COLUMNS) as f32;
+
                 eframe::egui::Grid::new("dll_table")
                     .striped(true)
                     .spacing(SPACING)
                     .num_columns(COLUMNS)
-                    .min_col_width(ui.ctx().used_size().x / (COLUMNS * 3) as f32)
+                    .min_col_width(col_width)
                     .show(ui, |ui| {
-                        // 表头
                         ui.strong(i18n::DLL_NAME);
                         ui.strong(i18n::FUNCTION_COUNT);
                         ui.strong(i18n::OPERATION);
@@ -114,10 +116,8 @@ impl FileManager {
                                 Self::truncate_text(&dll.name, MAX_DLL_NAME_LENGTH);
                             ui.label(&truncated_dll_name);
 
-                            // 函数数量显示
                             ui.label(&format!("{}", dll.function_info.len()));
 
-                            // 操作按钮
                             ui.horizontal(|ui| {
                                 if ui.button(i18n::SELECT_BUTTON).clicked() {
                                     self.sub_window_manager.import_message.selected_dll_index =
@@ -126,7 +126,6 @@ impl FileManager {
                                         .import_message
                                         .selected_function_index = None;
                                 }
-                                // 添加打开资源管理器按钮
                                 if ui.button(i18n::OPEN_LOCATION).clicked() {
                                     let dll_folder = get_dll_folder(
                                         PathBuf::from(&self.files[self.current_index].file_path),
@@ -149,18 +148,19 @@ impl FileManager {
             .id_salt("function_table")
             .min_scrolled_height(MIN_SCROLLED_HEIGHT)
             .show(ui, |ui| {
+                let width = ui.available_width();
+                let col_width = width / (2 * COLUMNS) as f32;
                 eframe::egui::Grid::new("function_table")
                     .striped(true)
                     .spacing(SPACING)
                     .num_columns(COLUMNS)
-                    .min_col_width(ui.ctx().used_size().x / (COLUMNS * 3) as f32)
+                    .min_col_width(col_width)
                     .show(ui, |ui| {
                         ui.label("🔍");
                         ui.text_edit_singleline(
                             &mut self.sub_window_manager.import_message.search_string,
                         );
                         ui.end_row();
-                        // 表头
                         ui.strong(i18n::SEQUENCE_NUMBER);
                         ui.strong(i18n::FUNCTION_NAME);
                         ui.strong(i18n::OPERATION);
@@ -207,7 +207,6 @@ impl FileManager {
                             ) {
                                 continue;
                             }
-                            // 序号显示
                             ui.label(&format!("{}", index + 1));
                             let name_color = if DANGEROUS_FUNCTION_TOML_PATH
                                 .dangerous
@@ -222,11 +221,9 @@ impl FileManager {
                             } else {
                                 Color32::GRAY
                             };
-                            // 函数名显示（限制最大40个字符）
                             let truncated_function_name = Self::truncate_text(&function.name, 40);
                             ui.label(RichText::new(&truncated_function_name).color(name_color));
 
-                            // 操作按钮
                             ui.horizontal(|ui| {
                                 if ui.button(i18n::DETAIL_BUTTON).clicked() {
                                     self.sub_window_manager
