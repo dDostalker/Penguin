@@ -43,9 +43,9 @@ impl FileManager {
         eframe::egui::TopBottomPanel::bottom("bottom_panel")
             .frame(Frame::new().fill(CENTER_PANEL_BOTTOM_FILL_COLOR))
             .show(ctx, |ui| {
-                ui.label(format!("File Name: {:?}", file.file_name));
+                ui.label(format!("File Name: {}", file.file_name));
                 ui.horizontal(|ui| -> anyhow::Result<()> {
-                    ui.label(format!("File Path: {:?}", file.file_path));
+                    ui.label(format!("File Path: {}", file.file_path.to_string_lossy()));
                     if ui.button(i18n::JUMP).clicked() {
                         open_file_location(&file.file_path)?;
                     }
@@ -71,7 +71,6 @@ impl FileManager {
     }
     /// 主窗口中心
     pub(crate) fn center(&mut self, ctx: &Context) {
-        // 拖拽文件检测和处理
         let dropped_files = ctx.input(|i| i.raw.dropped_files.clone());
         for file in dropped_files {
             if let Some(path) = &file.path {
@@ -145,7 +144,6 @@ impl FileManager {
                                 }
                             });
                         });
-                    // 这里可以添加更多具体的文件信息展示
                 }
             });
     }

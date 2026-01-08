@@ -1,7 +1,7 @@
 use crate::gui::{FileManager, SectionFlag};
 use crate::i18n;
 use crate::tools_api::read_file::section_headers::SectionCharacteristics;
-use eframe::egui::{Context, Label, Ui, Vec2};
+use eframe::egui::{Label, Ui, Vec2};
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 const SPACING: Vec2 = Vec2::new(20.0, 8.0);
 const COLUMNS: usize = 7;
