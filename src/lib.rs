@@ -5,7 +5,6 @@ pub mod tools_api;
 use crate::tools_api::HashInfo;
 use crate::tools_api::calc::ThreadPool;
 use crate::tools_api::serde_pe::DangerousFunction;
-use std::cell::RefCell;
 use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex, RwLock};
 /// 全局配置文件

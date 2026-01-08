@@ -1,8 +1,7 @@
 use crate::gui::{FileManager, SectionFlag};
 use crate::i18n;
 use crate::tools_api::read_file::section_headers::SectionCharacteristics;
-use eframe::egui::{Label, Ui, Vec2};
-
+use eframe::egui::{Context, Label, Ui, Vec2};
 const MIN_SCROLLED_HEIGHT: f32 = 400.0;
 const SPACING: Vec2 = Vec2::new(20.0, 8.0);
 const COLUMNS: usize = 7;
@@ -79,7 +78,7 @@ impl FileManager {
                                     {
                                         self.sub_window_manager.section_message.section_flag =
                                             Some(SectionFlag::match_flag(
-                                                self._get_section_characteristics(index),
+                                                self.get_section_characteristics_u32(index),
                                             ));
                                     }
                                 }
@@ -451,16 +450,16 @@ impl FileManager {
         )
     }
 
-    pub(crate) fn _get_section_misc(&self, index: usize) -> anyhow::Result<String> {
-        Ok(format!(
-            "0x{:X}",
-            self.files
-                .get(self.current_index)
-                .unwrap_or(&self.files[0])
-                .section_headers
-                .get_section_misc(index)?
-        ))
-    }
+    // pub(crate) fn get_section_misc(&self, index: usize) -> anyhow::Result<String> {
+    //     Ok(format!(
+    //         "0x{:X}",
+    //         self.files
+    //             .get(self.current_index)
+    //             .unwrap_or(&self.files[0])
+    //             .section_headers
+    //             .get_section_misc(index)?
+    //     ))
+    // }
     pub(crate) fn get_section_virtual_address(&self, index: usize) -> String {
         format!(
             "0x{:08X}",
@@ -471,16 +470,16 @@ impl FileManager {
                 .get_section_virtual_address(index)
         )
     }
-    pub(crate) fn _get_section_number_of_linenumbers(&self, index: usize) -> String {
-        format!(
-            "{}",
-            self.files
-                .get(self.current_index)
-                .unwrap_or(&self.files[0])
-                .section_headers
-                .get_section_number_of_linenumbers(index)
-        )
-    }
+    // pub(crate) fn get_section_number_of_linenumbers(&self, index: usize) -> String {
+    //     format!(
+    //         "{}",
+    //         self.files
+    //             .get(self.current_index)
+    //             .unwrap_or(&self.files[0])
+    //             .section_headers
+    //             .get_section_number_of_linenumbers(index)
+    //     )
+    // }
     pub(crate) fn get_section_number_of_relocations(&self, index: usize) -> String {
         format!(
             "{}",
@@ -491,17 +490,17 @@ impl FileManager {
                 .get_section_number_of_relocations(index)
         )
     }
-    pub(crate) fn _get_section_pointer_to_relocations(&self, index: usize) -> String {
-        format!(
-            "{}",
-            self.files
-                .get(self.current_index)
-                .unwrap_or(&self.files[0])
-                .section_headers
-                .get_section_pointer_to_relocations(index)
-        )
-    }
-    fn _get_section_characteristics(&self, index: usize) -> u32 {
+    // pub(crate) fn get_section_pointer_to_relocations(&self, index: usize) -> String {
+    //     format!(
+    //         "{}",
+    //         self.files
+    //             .get(self.current_index)
+    //             .unwrap_or(&self.files[0])
+    //             .section_headers
+    //             .get_section_pointer_to_relocations(index)
+    //     )
+    // }
+    fn get_section_characteristics_u32(&self, index: usize) -> u32 {
         self.files
             .get(self.current_index)
             .unwrap_or(&self.files[0])

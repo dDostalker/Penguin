@@ -8,7 +8,7 @@ use crate::{
         serde_pe::DangerousFunction,
     },
 };
-use eframe::egui::Context;
+use eframe::egui::{Color32, Context};
 use std::{
     fs,
     time::{Duration, Instant},
@@ -19,7 +19,7 @@ const TOAST_WINDOW_SPACING: f32 = 20.0;
 const TOAST_WINDOW_BUTTON_SPACING: f32 = 10.0;
 const TOAST_WINDOW_ICON_SIZE: f32 = 16.0;
 const TOAST_WINDOW_TEXT_SIZE2: f32 = 14.0;
-const TOAST_WINDOW_SIDE_OFFSET: f32 = 200.0;
+
 const Y_OFFSET: f32 = 50.0;
 const RGB_COLOR: eframe::egui::Color32 = eframe::egui::Color32::from_rgb(54, 59, 64);
 
@@ -216,11 +216,7 @@ impl SubWindowManager {
                 let elapsed = now.duration_since(created_at);
                 progress = elapsed.as_secs_f32() / toast.duration.as_secs_f32();
             }
-            let alpha = if progress > 0.8 {
-                1.0 - (progress - 0.8) * 5.0
-            } else {
-                1.0
-            };
+            let alpha = 1.0 - progress;
 
             let color = RGB_COLOR;
 
@@ -232,10 +228,7 @@ impl SubWindowManager {
             };
 
             eframe::egui::Area::new(eframe::egui::Id::new(format!("toast_{}", index)))
-                .fixed_pos(eframe::egui::pos2(
-                    ctx.available_rect().right() - TOAST_WINDOW_SIDE_OFFSET,
-                    y_offset,
-                ))
+                .fixed_pos(eframe::egui::pos2(ctx.available_rect().right(), y_offset))
                 .show(ctx, |ui| {
                     eframe::egui::Frame::default()
                         .fill(color.linear_multiply(alpha))
@@ -245,18 +238,27 @@ impl SubWindowManager {
                             ui.horizontal(|ui| {
                                 ui.label(
                                     eframe::egui::RichText::new(icon)
-                                        .color(eframe::egui::Color32::WHITE)
+                                        .color(Color32::from_rgba_premultiplied(
+                                            255,
+                                            155,
+                                            255,
+                                            (128.0 * alpha) as u8,
+                                        ))
                                         .size(TOAST_WINDOW_ICON_SIZE),
                                 );
                                 ui.label(
                                     eframe::egui::RichText::new(&toast.message)
-                                        .color(eframe::egui::Color32::WHITE)
+                                        .color(Color32::from_rgba_premultiplied(
+                                            255,
+                                            255,
+                                            255,
+                                            (128.0 * alpha) as u8,
+                                        ))
                                         .size(TOAST_WINDOW_TEXT_SIZE2),
                                 );
                                 if ui.available_height() > 0.0 {
                                     *LAST_TOAST_HEIGHT.write().unwrap() =
                                         ui.available_height() + 10.0;
-                                    println!("{}", *LAST_TOAST_HEIGHT.read().unwrap());
                                 }
                             });
                         });

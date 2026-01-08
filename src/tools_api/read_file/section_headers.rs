@@ -131,15 +131,15 @@ impl ImageSectionHeaders {
     pub fn get_section_virtual_address(&self, index: usize) -> u32 {
         self.0[index].virtual_address
     }
-    pub(crate) fn get_section_number_of_linenumbers(&self, index: usize) -> u16 {
-        self.0.get(index).unwrap().number_of_linenumbers
-    }
+    // pub(crate) fn get_section_number_of_linenumbers(&self, index: usize) -> u16 {
+    //     self.0.get(index).unwrap().number_of_linenumbers
+    // }
     pub(crate) fn get_section_number_of_relocations(&self, index: usize) -> u16 {
         self.0.get(index).unwrap().number_of_relocations
     }
-    pub(crate) fn get_section_pointer_to_linenumbers(&self, index: usize) -> u32 {
-        self.0.get(index).unwrap().pointer_to_linenumbers
-    }
+    // pub(crate) fn get_section_pointer_to_linenumbers(&self, index: usize) -> u32 {
+    //     self.0.get(index).unwrap().pointer_to_linenumbers
+    // }
     pub(crate) fn get_section_characteristics(&self, index: usize) -> u32 {
         self.0.get(index).unwrap().characteristics
     }

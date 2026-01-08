@@ -402,7 +402,7 @@ impl eframe::App for FileManager {
                 );
         }
 
-        ctx.request_repaint();
+        ctx.request_repaint_after_secs(0.05);
     }
 }
 

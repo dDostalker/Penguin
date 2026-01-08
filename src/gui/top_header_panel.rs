@@ -199,7 +199,6 @@ impl FileManager {
                     }
                 }
             }
-            // todo！将内容写入文件中
             for index in 0..file_info.section_headers.get_num()? {
                 let addr = file_info
                     .section_headers
