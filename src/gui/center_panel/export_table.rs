@@ -42,7 +42,7 @@ impl FileManager {
                         .show(ui, |ui| {
                             ui.label("🔍");
                             ui.allocate_ui(
-                                eframe::egui::vec2(200.0, ui.spacing().interact_size.y),
+                                eframe::egui::vec2(800.0, ui.spacing().interact_size.y),
                                 |ui| {
                                     ui.text_edit_singleline(
                                         &mut self.sub_window_manager.export_message.search_string,

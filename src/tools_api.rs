@@ -272,9 +272,12 @@ pub fn is_64(file: &mut File, image_dos_header: &ImageDosHeader) -> anyhow::Resu
     Err(anyhow::anyhow!(i18n::NOT_NORMAL_MACHINE_IMAGE))
 }
 
+// 搜索需要改进
 pub fn search(export_data: &str, search_string: &str) -> bool {
     if search_string.is_empty() {
         return true;
     }
-    export_data.contains(search_string)
+    export_data
+        .to_ascii_lowercase()
+        .contains(&search_string.to_ascii_lowercase())
 }
