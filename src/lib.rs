@@ -7,9 +7,51 @@ use crate::tools_api::calc::ThreadPool;
 use crate::tools_api::serde_pe::DangerousFunction;
 use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex, RwLock};
+/// 获取linux系统特定的配置文件路径
+#[cfg(target_os = "linux")]
+fn get_config_path() -> PathBuf {
+    use std::env;
+
+    let mut path = match env::var("HOME") {
+        Ok(home_dir) => PathBuf::from(home_dir),
+        Err(_) => {
+            // 如果无法获取HOME目录，回退到当前目录
+            PathBuf::from(".")
+        }
+    };
+
+    path.push(".config");
+    path.push("penguin");
+    path
+}
+
+/// 获取windows系统特定的配置文件路径
+#[cfg(target_os = "windows")]
+fn get_config_path() -> PathBuf {
+    use std::env;
+
+    let mut path = match env::var("APPDATA") {
+        Ok(appdata_dir) => PathBuf::from(appdata_dir),
+        Err(_) => {
+            // 如果无法获取APPDATA目录，回退到当前目录
+            PathBuf::from(".")
+        }
+    };
+
+    path.push("penguin");
+    path
+}
+
+/// 获取操作系统特定的配置文件路径
+/// 对于其他不支持的操作系统，回退到当前目录
+#[cfg(not(any(target_os = "linux", target_os = "windows")))]
+fn get_config_path() -> PathBuf {
+    PathBuf::from(".")
+}
+
 /// 全局配置文件
 pub static DANGEROUS_FUNCTION_TOML_PATH: LazyLock<DangerousFunction> = LazyLock::new(|| {
-    let mut path = PathBuf::from("./");
+    let mut path = get_config_path();
     path.push("DangerFunc.toml");
     DangerousFunction::from_file_info(&path).unwrap_or_default()
 });
