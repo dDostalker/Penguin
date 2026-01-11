@@ -16,7 +16,6 @@ impl ExportInfo {
         if first_char.is_ascii_digit() {
             return Err(anyhow::anyhow!("func_name first can't be digit"));
         }
-        // 添加头过滤/
 
         file.seek(SeekFrom::Start(self.name_string_fo as u64))?;
         file.write_all(func_name.as_bytes())?;

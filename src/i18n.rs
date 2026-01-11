@@ -1,8 +1,6 @@
 // 包含构建时生成的常量
 include!(concat!(env!("OUT_DIR"), "/language_constants.rs"));
 
-/// 宏，用于获取当前语言的文本
-/// 使用方式: i18n!(APP_TITLE)
 #[macro_export]
 macro_rules! i18n {
     ($constant:ident) => {

@@ -127,7 +127,7 @@ impl FileManager {
                 .get_mut(self.current_index)
                 .ok_or(anyhow::anyhow!(i18n::FILE_NOT_FOUND))?;
             let file_path = FileDialog::new()
-                .set_file_name(format!(".{}", file_type))
+                .set_file_name(format!("{}.{}", file_info.file_name, file_type))
                 .save_file();
             if file_path.is_none() {
                 return Err(anyhow::anyhow!(i18n::SAVE_FAILED));
