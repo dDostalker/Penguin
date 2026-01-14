@@ -66,7 +66,7 @@ pub fn get_dll_folder(exe_path: PathBuf, dll_name: &str) -> anyhow::Result<PathB
 
 fn get_system_path() -> Vec<PathBuf> {
     let path = env::var("PATH").unwrap_or_default();
-    path.split(";").map(|p| PathBuf::from(p)).collect()
+    path.split(";").map(PathBuf::from).collect()
 }
 
 #[cfg(test)]

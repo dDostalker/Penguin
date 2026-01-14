@@ -559,8 +559,8 @@ impl ResourceTree {
                     && let Some(icon_items) = &child.children
                 {
                     for item in icon_items {
-                        if let Some(id_str) = item.name.strip_prefix("ID_") {
-                            if let Ok(id) = id_str.parse::<u16>() {
+                        if let Some(id_str) = item.name.strip_prefix("ID_")
+                            && let Ok(id) = id_str.parse::<u16>() {
                                 // 获取实际的数据节点
                                 if let Some(data_children) = &item.children {
                                     for data_node in data_children {
@@ -573,7 +573,6 @@ impl ResourceTree {
                                     }
                                 }
                             }
-                        }
                     }
                 }
             }
@@ -588,7 +587,7 @@ impl ResourceTree {
         file: &mut File,
         output_dir: &Path,
         nt_head: &T,
-        image_section_headers: &ImageSectionHeaders,
+        _image_section_headers: &ImageSectionHeaders,
         _data_dir: &DataDirectory,
     ) -> anyhow::Result<Vec<PathBuf>>
     where

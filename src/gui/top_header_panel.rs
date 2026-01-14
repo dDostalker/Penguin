@@ -90,19 +90,18 @@ impl FileManager {
                                 return;
                             }
                         };
-                        match resource_tree.extract_resources(
-                            &mut file,
-                            &output_path,
-                            &*self.files[self.current_index].nt_head,
-                            &self.files[self.current_index].section_headers,
-                            &self.files[self.current_index].data_directory,
-                        ) {
-                            Ok(extracted_files) => extracted_files,
-                            Err(e) => {
-                                self.sub_window_manager.show_error(&e.to_string());
-                                return;
-                            }
-                        };
+                        resource_tree
+                            .extract_resources(
+                                &mut file,
+                                &output_path,
+                                &*self.files[self.current_index].nt_head,
+                                &self.files[self.current_index].section_headers,
+                                &self.files[self.current_index].data_directory,
+                            )
+                            .unwrap_or_else(|error| {
+                                self.sub_window_manager.show_error(&error.to_string());
+                                vec![]
+                            });
                     }
                 });
 
@@ -119,7 +118,7 @@ impl FileManager {
     }
     fn save_serde(&mut self, ui: &mut Ui, file_type: &str) -> anyhow::Result<()> {
         if ui
-            .button(format!("{}", i18n::SAVE_AS_FORMAT.replace("{}", file_type)))
+            .button(i18n::SAVE_AS_FORMAT.replace("{}", file_type).to_string())
             .clicked()
         {
             let file_info = self

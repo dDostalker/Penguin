@@ -244,18 +244,15 @@ pub fn parse_address_string(input: &str) -> Result<usize, String> {
     // 检查是否为16进制格式 (0x开头或包含字母)
     if input.starts_with("0x") || input.starts_with("0X") {
         usize::from_str_radix(&input[2..], 16)
-            .map_err(|e| format!("{}", i18n::HEX_PARSE_ERROR.replace("{}", &e.to_string())))
+            .map_err(|e| i18n::HEX_PARSE_ERROR.replace("{}", &e.to_string()).to_string())
     } else if input.chars().any(|c| c.is_ascii_alphabetic()) {
         // 包含字母但没有0x前缀，尝试作为16进制解析
         usize::from_str_radix(input, 16)
-            .map_err(|e| format!("{}", i18n::HEX_PARSE_ERROR.replace("{}", &e.to_string())))
+            .map_err(|e| i18n::HEX_PARSE_ERROR.replace("{}", &e.to_string()).to_string())
     } else {
         // 纯数字，作为10进制解析
         input.parse::<usize>().map_err(|e| {
-            format!(
-                "{}",
-                i18n::DECIMAL_PARSE_ERROR.replace("{}", &e.to_string())
-            )
+            i18n::DECIMAL_PARSE_ERROR.replace("{}", &e.to_string()).to_string()
         })
     }
 }

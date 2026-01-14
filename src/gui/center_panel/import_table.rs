@@ -116,7 +116,7 @@ impl FileManager {
                                 Self::truncate_text(&dll.name, MAX_DLL_NAME_LENGTH);
                             ui.label(&truncated_dll_name);
 
-                            ui.label(&format!("{}", dll.function_info.len()));
+                            ui.label(format!("{}", dll.function_info.len()));
 
                             ui.horizontal(|ui| {
                                 if ui.button(i18n::SELECT_BUTTON).clicked() {
@@ -207,7 +207,7 @@ impl FileManager {
                             ) {
                                 continue;
                             }
-                            ui.label(&format!("{}", index + 1));
+                            ui.label(format!("{}", index + 1));
                             let name_color = if DANGEROUS_FUNCTION_TOML_PATH
                                 .dangerous
                                 .contains(&function.name)

@@ -85,15 +85,12 @@ impl FileManager {
 
                                 ui.horizontal(|ui| {
                                     if ui.button(i18n::COPY_BUTTON).clicked() {
-                                        let info = format!(
-                                            "{}",
-                                            i18n::SECTION_INFO_FORMAT
+                                        let info = i18n::SECTION_INFO_FORMAT
                                                 .replace("{}", name)
                                                 .replace("{}", virtual_addr)
                                                 .replace("{}", size)
                                                 .replace("{}", file_offset)
-                                                .replace("{}", characteristics)
-                                        );
+                                                .replace("{}", characteristics).to_string();
                                         ui.output_mut(|o| o.copied_text = info);
                                     }
                                 });
@@ -114,7 +111,7 @@ impl FileManager {
                 ui.horizontal(|ui| {
                     if ui
                         .checkbox(
-                            &mut self
+                            self
                                 .sub_window_manager
                                 .section_message
                                 .get_image_scn_cnt_code(),
@@ -132,7 +129,7 @@ impl FileManager {
                     }
                     if ui
                         .checkbox(
-                            &mut self
+                            self
                                 .sub_window_manager
                                 .section_message
                                 .get_image_scn_cnt_initialized_data(),
@@ -150,7 +147,7 @@ impl FileManager {
                     }
                     if ui
                         .checkbox(
-                            &mut self
+                            self
                                 .sub_window_manager
                                 .section_message
                                 .get_image_scn_cnt_uninitialized_data(),
@@ -168,7 +165,7 @@ impl FileManager {
                     }
                     if ui
                         .checkbox(
-                            &mut self
+                            self
                                 .sub_window_manager
                                 .section_message
                                 .get_image_scn_lnk_other(),
@@ -185,7 +182,7 @@ impl FileManager {
                     }
                     if ui
                         .checkbox(
-                            &mut self
+                            self
                                 .sub_window_manager
                                 .section_message
                                 .get_image_scn_lnk_info(),
@@ -202,7 +199,7 @@ impl FileManager {
                     }
                     if ui
                         .checkbox(
-                            &mut self
+                            self
                                 .sub_window_manager
                                 .section_message
                                 .get_image_scn_lnk_remove(),
@@ -219,7 +216,7 @@ impl FileManager {
                     }
                     if ui
                         .checkbox(
-                            &mut self
+                            self
                                 .sub_window_manager
                                 .section_message
                                 .get_image_scn_lnk_comdat(),
@@ -236,7 +233,7 @@ impl FileManager {
                     }
                     if ui
                         .checkbox(
-                            &mut self
+                            self
                                 .sub_window_manager
                                 .section_message
                                 .get_image_scn_no_defer_spec_exc(),
@@ -253,7 +250,7 @@ impl FileManager {
                     }
                     if ui
                         .checkbox(
-                            &mut self
+                            self
                                 .sub_window_manager
                                 .section_message
                                 .get_image_scn_gprel(),
@@ -273,7 +270,7 @@ impl FileManager {
                 ui.horizontal(|ui| {
                     if ui
                         .checkbox(
-                            &mut self
+                            self
                                 .sub_window_manager
                                 .section_message
                                 .get_image_scn_lnk_nreloc_ovfl(),
@@ -290,7 +287,7 @@ impl FileManager {
                     }
                     if ui
                         .checkbox(
-                            &mut self
+                            self
                                 .sub_window_manager
                                 .section_message
                                 .get_image_scn_mem_discardable(),
@@ -307,7 +304,7 @@ impl FileManager {
                     }
                     if ui
                         .checkbox(
-                            &mut self
+                            self
                                 .sub_window_manager
                                 .section_message
                                 .get_image_scn_mem_not_paged(),
@@ -324,7 +321,7 @@ impl FileManager {
                     }
                     if ui
                         .checkbox(
-                            &mut self
+                            self
                                 .sub_window_manager
                                 .section_message
                                 .get_image_scn_mem_shared(),
@@ -341,7 +338,7 @@ impl FileManager {
                     }
                     if ui
                         .checkbox(
-                            &mut self
+                            self
                                 .sub_window_manager
                                 .section_message
                                 .get_image_scn_mem_execute(),
@@ -418,14 +415,11 @@ impl FileManager {
         ))
     }
     pub(crate) fn get_section_name(&self, index: usize) -> anyhow::Result<String> {
-        Ok(format!(
-            "{}",
-            self.files
+        Ok(self.files
                 .get(self.current_index)
                 .unwrap_or(&self.files[0])
                 .section_headers
-                .get_section_name(index)?
-        ))
+                .get_section_name(index)?.to_string())
     }
     pub(crate) fn get_section_pointer_to_raw_data(&self, index: usize) -> String {
         format!(

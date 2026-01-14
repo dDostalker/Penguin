@@ -75,32 +75,32 @@ impl FileManager {
                             ui.end_row();
 
                             ui.label("NumberOfSections");
-                            ui.label(&self.get_number_of_sections());
+                            ui.label(self.get_number_of_sections());
                             ui.label(i18n::NUMBER_OF_SECTIONS);
                             ui.end_row();
 
                             ui.label("TimeDateStamp");
-                            ui.label(&self.get_time_date_stamp());
+                            ui.label(self.get_time_date_stamp());
                             ui.label(i18n::TIMESTAMP);
                             ui.end_row();
 
                             ui.label("PointerToSymbolTable");
-                            ui.label(&self.get_file_pointer_to_symbol_table());
+                            ui.label(self.get_file_pointer_to_symbol_table());
                             ui.label(i18n::POINTER_TO_SYMBOL_TABLE);
                             ui.end_row();
 
                             ui.label("NumberOfSymbols");
-                            ui.label(&self.get_number_of_symbols());
+                            ui.label(self.get_number_of_symbols());
                             ui.label(i18n::NUMBER_OF_SYMBOLS);
                             ui.end_row();
 
                             ui.label("SizeOfOptionalHeader");
-                            ui.label(&self.get_size_of_optional_header());
+                            ui.label(self.get_size_of_optional_header());
                             ui.label(i18n::SIZE_OF_OPTIONAL_HEADER);
                             ui.end_row();
 
                             ui.label("Characteristics");
-                            if ui.button(&self.get_characteristics()).clicked() {
+                            if ui.button(self.get_characteristics()).clicked() {
                                 self.sub_window_manager
                                     .show_info(&self.get_characteristics_hover());
                             }
@@ -124,24 +124,24 @@ impl FileManager {
                             ui.end_row();
 
                             ui.label("Magic");
-                            if ui.button(&self.get_magic()).clicked() {
+                            if ui.button(self.get_magic()).clicked() {
                                 self.sub_window_manager.show_info(&self.get_magic_hover());
                             }
                             ui.label(i18n::NT_HEADER_MAGIC);
                             ui.end_row();
 
                             ui.label("MajorLinkerVersion");
-                            ui.label(&self.get_major_linker_version());
+                            ui.label(self.get_major_linker_version());
                             ui.label(i18n::NT_HEADER_MAJOR_LINKER_VERSION);
                             ui.end_row();
 
                             ui.label("MinorLinkerVersion");
-                            ui.label(&self.get_minor_linker_version());
+                            ui.label(self.get_minor_linker_version());
                             ui.label(i18n::NT_HEADER_MINOR_LINKER_VERSION);
                             ui.end_row();
 
                             ui.label("SizeOfCode");
-                            ui.label(&self.get_size_of_code());
+                            ui.label(self.get_size_of_code());
                             ui.label(i18n::NT_HEADER_SIZE_OF_CODE);
                             ui.end_row();
 
@@ -151,97 +151,97 @@ impl FileManager {
                             ui.end_row();
 
                             ui.label("SizeOfUninitializedData");
-                            ui.label(&self.get_size_of_uninitialized_data());
+                            ui.label(self.get_size_of_uninitialized_data());
                             ui.label(i18n::NT_HEADER_SIZE_OF_UNINITIALIZED_DATA);
                             ui.end_row();
 
                             ui.label("AddressOfEntryPoint");
-                            ui.label(&self.get_address_of_entry_point());
+                            ui.label(self.get_address_of_entry_point());
                             ui.label(i18n::NT_HEADER_ADDRESS_OF_ENTRY_POINT);
                             ui.end_row();
 
                             ui.label("BaseOfCode");
-                            ui.label(&self.get_base_of_code());
+                            ui.label(self.get_base_of_code());
                             ui.label(i18n::NT_HEADER_BASE_OF_CODE);
                             ui.end_row();
 
                             ui.label("BaseOfData");
-                            ui.label(&self.get_base_of_data());
+                            ui.label(self.get_base_of_data());
                             ui.label(i18n::NT_HEADER_BASE_OF_DATA);
                             ui.end_row();
 
                             ui.label("ImageBase");
-                            ui.label(&self.get_image_base());
+                            ui.label(self.get_image_base());
                             ui.label(i18n::NT_HEADER_IMAGE_BASE);
                             ui.end_row();
 
                             ui.label("SectionAlignment");
-                            ui.label(&self.get_section_alignment());
+                            ui.label(self.get_section_alignment());
                             ui.label(i18n::NT_HEADER_SECTION_ALIGNMENT);
                             ui.end_row();
 
                             ui.label("FileAlignment");
-                            ui.label(&self.get_file_alignment());
+                            ui.label(self.get_file_alignment());
                             ui.label(i18n::NT_HEADER_FILE_ALIGNMENT);
                             ui.end_row();
 
                             ui.label("MajorOperatingSystemVersion");
-                            ui.label(&self.get_major_operating_system_version());
+                            ui.label(self.get_major_operating_system_version());
                             ui.label(i18n::NT_HEADER_MAJOR_OPERATING_SYSTEM_VERSION);
                             ui.end_row();
 
                             ui.label("MinorOperatingSystemVersion");
-                            ui.label(&self.get_minor_operating_system_version());
+                            ui.label(self.get_minor_operating_system_version());
                             ui.label(i18n::NT_HEADER_MINOR_OPERATING_SYSTEM_VERSION);
                             ui.end_row();
 
                             ui.label("MajorImageVersion");
-                            ui.label(&self.get_major_image_version());
+                            ui.label(self.get_major_image_version());
                             ui.label(i18n::NT_HEADER_MAJOR_IMAGE_VERSION);
                             ui.end_row();
 
                             ui.label("MinorImageVersion");
-                            ui.label(&self.get_minor_image_version());
+                            ui.label(self.get_minor_image_version());
                             ui.label(i18n::NT_HEADER_MINOR_IMAGE_VERSION);
                             ui.end_row();
 
                             ui.label("MajorSubsystemVersion");
-                            ui.label(&self.get_major_subsystem_version());
+                            ui.label(self.get_major_subsystem_version());
                             ui.label(i18n::NT_HEADER_MAJOR_SUBSYSTEM_VERSION);
                             ui.end_row();
 
                             ui.label("MinorSubsystemVersion");
-                            ui.label(&self.get_minor_subsystem_version());
+                            ui.label(self.get_minor_subsystem_version());
                             ui.label(i18n::NT_HEADER_MINOR_SUBSYSTEM_VERSION);
                             ui.end_row();
 
                             ui.label("Win32VersionValue");
-                            ui.label(&self.get_win32_version_value());
+                            ui.label(self.get_win32_version_value());
                             ui.label(i18n::NT_HEADER_WIN32_VERSION_VALUE);
                             ui.end_row();
 
                             ui.label("SizeOfImage");
-                            ui.label(&self.get_size_of_image());
+                            ui.label(self.get_size_of_image());
                             ui.label(i18n::NT_HEADER_SIZE_OF_IMAGE);
                             ui.end_row();
 
                             ui.label("SizeOfHeaders");
-                            ui.label(&self.get_size_of_headers());
+                            ui.label(self.get_size_of_headers());
                             ui.label(i18n::NT_HEADER_SIZE_OF_HEADERS);
                             ui.end_row();
 
                             ui.label("CheckSum");
-                            ui.label(&self.get_checksum());
+                            ui.label(self.get_checksum());
                             ui.label(i18n::NT_HEADER_CHECKSUM);
                             ui.end_row();
 
                             ui.label("Subsystem");
-                            ui.label(&self.get_subsystem());
+                            ui.label(self.get_subsystem());
                             ui.label(i18n::NT_HEADER_SUBSYSTEM);
                             ui.end_row();
 
                             ui.label("DllCharacteristics");
-                            if ui.button(&self.get_dll_characteristics()).clicked() {
+                            if ui.button(self.get_dll_characteristics()).clicked() {
                                 self.sub_window_manager
                                     .show_info(&self.get_dll_characteristics_hover());
                             }
@@ -249,32 +249,32 @@ impl FileManager {
                             ui.end_row();
 
                             ui.label("SizeOfStackReserve");
-                            ui.label(&self.get_size_of_stack_reserve());
+                            ui.label(self.get_size_of_stack_reserve());
                             ui.label(i18n::NT_HEADER_SIZE_OF_STACK_RESERVE);
                             ui.end_row();
 
                             ui.label("SizeOfStackCommit");
-                            ui.label(&self.get_size_of_stack_commit());
+                            ui.label(self.get_size_of_stack_commit());
                             ui.label(i18n::NT_HEADER_SIZE_OF_STACK_COMMIT);
                             ui.end_row();
 
                             ui.label("SizeOfHeapReserve");
-                            ui.label(&self.get_size_of_heap_reserve());
+                            ui.label(self.get_size_of_heap_reserve());
                             ui.label(i18n::NT_HEADER_SIZE_OF_HEAP_RESERVE);
                             ui.end_row();
 
                             ui.label("SizeOfHeapCommit");
-                            ui.label(&self.get_size_of_heap_commit());
+                            ui.label(self.get_size_of_heap_commit());
                             ui.label(i18n::NT_HEADER_SIZE_OF_HEAP_COMMIT);
                             ui.end_row();
 
                             ui.label("LoaderFlags");
-                            ui.label(&self.get_loader_flags());
+                            ui.label(self.get_loader_flags());
                             ui.label(i18n::NT_HEADER_LOADER_FLAGS);
                             ui.end_row();
 
                             ui.label("NumberOfRvaAndSizes");
-                            ui.label(&format!("{}", self.get_number_of_rva_and_sizes()));
+                            ui.label(format!("{}", self.get_number_of_rva_and_sizes()));
                             ui.label(i18n::NT_HEADER_NUMBER_OF_RVA_AND_SIZES);
                             ui.end_row();
                         });
@@ -302,7 +302,7 @@ impl FileManager {
 
                                 ui.label(DATA_DIRECTORY_NAME[i as usize]);
                                 ui.label(&size);
-                                ui.label(&self.get_data_directory_virtual_address(i));
+                                ui.label(self.get_data_directory_virtual_address(i));
                                 ui.end_row();
                             }
                         });
@@ -324,74 +324,53 @@ impl FileManager {
             .get_machine()
     }
     pub(crate) fn get_number_of_sections(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_number_of_sections()
-        )
+                .get_number_of_sections().to_string()
     }
     pub(crate) fn get_time_date_stamp(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_time_date_stamp()
-        )
+                .get_time_date_stamp().to_string()
     }
     pub(crate) fn get_file_pointer_to_symbol_table(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_pointer_to_symbol_table()
-        )
+                .get_pointer_to_symbol_table().to_string()
     }
     pub(crate) fn get_number_of_symbols(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_number_of_symbols()
-        )
+                .get_number_of_symbols().to_string()
     }
     pub(crate) fn get_size_of_optional_header(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_size_of_optional_header()
-        )
+                .get_size_of_optional_header().to_string()
     }
     pub(crate) fn get_characteristics(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_characteristics()
-        )
+                .get_characteristics().to_string()
     }
     pub(crate) fn get_characteristics_hover(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_characteristics_hover()
-        )
+                .get_characteristics_hover().to_string()
     }
     pub(crate) fn get_magic(&self) -> String {
         format!(
@@ -411,54 +390,39 @@ impl FileManager {
             .get_magic_hover()
     }
     pub(crate) fn get_major_linker_version(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_major_linker_version()
-        )
+                .get_major_linker_version().to_string()
     }
     pub(crate) fn get_minor_linker_version(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_long_minor_linker_version()
-        )
+                .get_long_minor_linker_version().to_string()
     }
     pub(crate) fn get_size_of_code(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_size_of_code()
-        )
+                .get_size_of_code().to_string()
     }
     pub(crate) fn get_size_of_initialized_data(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_size_of_initialized_data()
-        )
+                .get_size_of_initialized_data().to_string()
     }
     pub(crate) fn get_size_of_uninitialized_data(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_size_of_uninitialized_data()
-        )
+                .get_size_of_uninitialized_data().to_string()
     }
     pub(crate) fn get_address_of_entry_point(&self) -> String {
         format!(
@@ -521,125 +485,89 @@ impl FileManager {
         )
     }
     pub(crate) fn get_major_operating_system_version(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_major_os_version()
-        )
+                .get_major_os_version().to_string()
     }
     pub(crate) fn get_minor_operating_system_version(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_minor_os_version()
-        )
+                .get_minor_os_version().to_string()
     }
     pub(crate) fn get_major_image_version(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_major_image_version()
-        )
+                .get_major_image_version().to_string()
     }
     pub(crate) fn get_minor_image_version(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_minor_image_version()
-        )
+                .get_minor_image_version().to_string()
     }
     pub(crate) fn get_major_subsystem_version(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_major_subsystem_version()
-        )
+                .get_major_subsystem_version().to_string()
     }
 
     pub(crate) fn get_minor_subsystem_version(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_minor_subsystem_version()
-        )
+                .get_minor_subsystem_version().to_string()
     }
     pub(crate) fn get_win32_version_value(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_win32_version_value()
-        )
+                .get_win32_version_value().to_string()
     }
     pub(crate) fn get_size_of_image(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_size_of_image()
-        )
+                .get_size_of_image().to_string()
     }
     pub(crate) fn get_size_of_headers(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_size_of_headers()
-        )
+                .get_size_of_headers().to_string()
     }
     pub(crate) fn get_checksum(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_checksum()
-        )
+                .get_checksum().to_string()
     }
     pub(crate) fn get_subsystem(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_subsystem()
-        )
+                .get_subsystem().to_string()
     }
     pub(crate) fn get_dll_characteristics(&self) -> String {
-        format!(
-            "{}",
-            self.files
+        self.files
                 .get(self.current_index)
                 .unwrap()
                 .nt_head
-                .get_dll_characteristics()
-        )
+                .get_dll_characteristics().to_string()
     }
     pub(crate) fn get_dll_characteristics_hover(&self) -> String {
         self.files
