@@ -100,6 +100,7 @@ impl FileManager {
                             Ok(extracted_files) => extracted_files,
                             Err(e) => {
                                 self.sub_window_manager.show_error(&e.to_string());
+                                return;
                             }
                         };
                     }
