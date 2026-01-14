@@ -251,7 +251,7 @@ impl ResourceTree {
         if data
             .iter()
             .take(100)
-            .all(|&b| b == 0x09 || b == 0x0A || b == 0x0D || (b >= 0x20 && b <= 0x7E) || b >= 0x80)
+            .all(|&b| b == 0x09 || b == 0x0A || b == 0x0D || (20..=0x7E).contains(&b) || b >= 0x80)
         {
             return Some(".txt");
         }
@@ -555,20 +555,20 @@ impl ResourceTree {
         if let Some(children) = &self.children {
             for child in children {
                 // 查找RT_ICON或RT_CURSOR节点
-                if child.name == "RT_ICON" || child.name == "RT_CURSOR" {
-                    if let Some(icon_items) = &child.children {
-                        for item in icon_items {
-                            if let Some(id_str) = item.name.strip_prefix("ID_") {
-                                if let Ok(id) = id_str.parse::<u16>() {
-                                    // 获取实际的数据节点
-                                    if let Some(data_children) = &item.children {
-                                        for data_node in data_children {
-                                            if data_node.children.is_none() {
-                                                icon_map.insert(
-                                                    id,
-                                                    (data_node.data_address, data_node.size),
-                                                );
-                                            }
+                if (child.name == "RT_ICON" || child.name == "RT_CURSOR")
+                    && let Some(icon_items) = &child.children
+                {
+                    for item in icon_items {
+                        if let Some(id_str) = item.name.strip_prefix("ID_") {
+                            if let Ok(id) = id_str.parse::<u16>() {
+                                // 获取实际的数据节点
+                                if let Some(data_children) = &item.children {
+                                    for data_node in data_children {
+                                        if data_node.children.is_none() {
+                                            icon_map.insert(
+                                                id,
+                                                (data_node.data_address, data_node.size),
+                                            );
                                         }
                                     }
                                 }
@@ -601,11 +601,10 @@ impl ResourceTree {
         // 首先收集所有的RT_ICON和RT_CURSOR资源
         let icon_resources = self.collect_icon_resources();
 
-        self._extract_resources_recursive(
+        self.extract_resources_recursive(
             file,
             output_dir,
             nt_head,
-            image_section_headers,
             &mut extracted_files,
             "",
             None, // 顶层没有资源类型
@@ -617,12 +616,11 @@ impl ResourceTree {
     }
 
     /// 递归提取资源的内部方法
-    fn _extract_resources_recursive<T>(
+    fn extract_resources_recursive<T>(
         &self,
         file: &mut File,
         output_dir: &Path,
         nt_head: &T,
-        image_section_headers: &ImageSectionHeaders,
         extracted_files: &mut Vec<PathBuf>,
         current_path: &str,
         parent_type: Option<&str>,
@@ -657,11 +655,10 @@ impl ResourceTree {
             fs::create_dir_all(&dir_path)?;
 
             for child in children {
-                child._extract_resources_recursive(
+                child.extract_resources_recursive(
                     file,
                     output_dir,
                     nt_head,
-                    image_section_headers,
                     extracted_files,
                     &new_path,
                     resource_type,

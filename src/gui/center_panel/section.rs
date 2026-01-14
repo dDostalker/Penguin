@@ -358,8 +358,7 @@ impl FileManager {
                     }
                     if ui
                         .checkbox(
-                            &mut self
-                                .sub_window_manager
+                            self.sub_window_manager
                                 .section_message
                                 .get_image_scn_mem_read(),
                             "Mem Read",
@@ -375,8 +374,7 @@ impl FileManager {
                     }
                     if ui
                         .checkbox(
-                            &mut self
-                                .sub_window_manager
+                            self.sub_window_manager
                                 .section_message
                                 .get_image_scn_mem_write(),
                             "Mem Write",

@@ -100,7 +100,6 @@ impl FileManager {
                             Ok(extracted_files) => extracted_files,
                             Err(e) => {
                                 self.sub_window_manager.show_error(&e.to_string());
-                                return;
                             }
                         };
                     }
@@ -204,7 +203,7 @@ impl FileManager {
                     .section_headers
                     .get_section_characteristics_addr(index);
                 let mut file = file_info.get_mut_file()?;
-                let section_char = file_info.section_headers.0[index].characteristics.clone();
+                let section_char = file_info.section_headers.0[index].characteristics;
                 file.seek(SeekFrom::Start(addr))?;
                 file.write_u32::<LittleEndian>(section_char)?;
             }
