@@ -14,10 +14,7 @@ fn get_config_path() -> PathBuf {
 
     let mut path = match env::var("HOME") {
         Ok(home_dir) => PathBuf::from(home_dir),
-        Err(_) => {
-            // 如果无法获取HOME目录，回退到当前目录
-            PathBuf::from(".")
-        }
+        Err(_) => PathBuf::from("."),
     };
 
     path.push(".config");
